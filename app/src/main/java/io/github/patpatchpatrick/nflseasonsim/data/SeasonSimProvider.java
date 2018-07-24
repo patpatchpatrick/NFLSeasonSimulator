@@ -141,6 +141,12 @@ public class SeasonSimProvider extends ContentProvider{
             throw new IllegalArgumentException("Team requires valid team draws variable");
         }
 
+        // Check that the team division int is valid
+        Integer teamDivision = values.getAsInteger(TeamEntry.COLUMN_TEAM_DIVISION);
+        if (teamDivision == null) {
+            throw new IllegalArgumentException("Team requires valid team division variable");
+        }
+
         //If data is valid, insert data into SQL database
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         long id = db.insert(TeamEntry.TABLE_NAME, null, values);
@@ -267,6 +273,15 @@ public class SeasonSimProvider extends ContentProvider{
             Integer currentDraws = values.getAsInteger(TeamEntry.COLUMN_TEAM_CURRENT_DRAWS);
             if (currentDraws == null) {
                 throw new IllegalArgumentException("Team requires valid current draws rating int");
+            }
+        }
+
+        // If the TeamEntry.Team Division key is present,
+        // check that the current division value is valid.
+        if (values.containsKey(TeamEntry.COLUMN_TEAM_DIVISION)) {
+            Integer teamDivision = values.getAsInteger(TeamEntry.COLUMN_TEAM_DIVISION);
+            if (teamDivision == null) {
+                throw new IllegalArgumentException("Team requires valid division int");
             }
         }
 

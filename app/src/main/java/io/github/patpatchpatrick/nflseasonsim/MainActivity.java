@@ -15,7 +15,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
     @Override
     public void onSimulateWeekButtonClicked() {
-        
+
     }
 
     @Override

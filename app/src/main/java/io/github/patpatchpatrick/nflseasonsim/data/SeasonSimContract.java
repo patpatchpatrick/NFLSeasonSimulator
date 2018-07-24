@@ -42,6 +42,17 @@ public class SeasonSimContract {
         public static final String COLUMN_TEAM_CURRENT_WINS = "teamWins";
         public static final String COLUMN_TEAM_CURRENT_LOSSES = "teamLosses";
         public static final String COLUMN_TEAM_CURRENT_DRAWS = "teamDraws";
+        public static final String COLUMN_TEAM_DIVISION = "teamDivision";
+
+        //Define input variables for goals and habits table
+        public static final int DIVISION_AFC_NORTH = 1;
+        public static final int DIVISION_AFC_EAST = 2;
+        public static final int DIVISION_AFC_SOUTH = 3;
+        public static final int DIVISION_AFC_WEST = 4;
+        public static final int DIVISION_NFC_NORTH = 5;
+        public static final int DIVISION_NFC_EAST = 6;
+        public static final int DIVISION_NFC_SOUTH = 7;
+        public static final int DIVISION_NFC_WEST = 8;
 
 
     }
