@@ -12,11 +12,15 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.TeamEntry;
+import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.MatchEntry;
 
 public class SeasonSimProvider extends ContentProvider{
 
     private static final int TEAM = 100;
     private static final int TEAM_ID = 101;
+    private static final int MATCH = 200;
+    private static final int MATCH_ID = 201;
+
 
     //URI matcher to handle different URIs input into provider
     public static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -24,6 +28,8 @@ public class SeasonSimProvider extends ContentProvider{
     static {
         sUriMatcher.addURI(SeasonSimContract.CONTENT_AUTHORITY, SeasonSimContract.PATH_TEAM, TEAM);
         sUriMatcher.addURI(SeasonSimContract.CONTENT_AUTHORITY, SeasonSimContract.PATH_TEAM + "/#", TEAM_ID);
+        sUriMatcher.addURI(SeasonSimContract.CONTENT_AUTHORITY, SeasonSimContract.PATH_MATCH, MATCH);
+        sUriMatcher.addURI(SeasonSimContract.CONTENT_AUTHORITY, SeasonSimContract.PATH_MATCH + "/#", MATCH_ID);
     }
 
     //Tag for log messages
@@ -60,6 +66,17 @@ public class SeasonSimProvider extends ContentProvider{
 
                 cursor = database.query(TeamEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
+            case MATCH:
+                //Query the table directly with the given inputs
+                cursor = database.query(MatchEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+                break;
+            case MATCH_ID:
+                //Query the table for a specific match ID
+                selection = MatchEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+
+                cursor = database.query(MatchEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+                break;
             default:
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
@@ -78,6 +95,10 @@ public class SeasonSimProvider extends ContentProvider{
                 return TeamEntry.CONTENT_LIST_TYPE;
             case TEAM_ID:
                 return TeamEntry.CONTENT_ITEM_TYPE;
+            case MATCH:
+                return MatchEntry.CONTENT_LIST_TYPE;
+            case MATCH_ID:
+                return MatchEntry.CONTENT_ITEM_TYPE;
             default:
                 throw new IllegalStateException("Unknown URI " + uri + " with match " + match);
         }
@@ -90,6 +111,8 @@ public class SeasonSimProvider extends ContentProvider{
         switch (match) {
             case TEAM:
                 return insertTeam(uri, contentValues);
+            case MATCH:
+                return insertMatch(uri, contentValues);
             default:
                 //Insert is not supported for a specific TEAM ID, will hit default exception
                 throw new IllegalArgumentException("Insertion is not supported for " + uri);
@@ -162,6 +185,51 @@ public class SeasonSimProvider extends ContentProvider{
         return ContentUris.withAppendedId(uri, id);
     }
 
+    private Uri insertMatch(Uri uri, ContentValues values) {
+
+        // Checks to determine values are ok before inserting into database
+        // Check to ensure name is not null
+        String teamOne = values.getAsString(MatchEntry.COLUMN_MATCH_TEAM_ONE);
+        if (teamOne == null) {
+            throw new IllegalArgumentException("Team requires a name");
+        }
+
+        // Checks to determine values are ok before inserting into database
+        // Check to ensure name is not null
+        String teamTwo = values.getAsString(MatchEntry.COLUMN_MATCH_TEAM_TWO);
+        if (teamTwo == null) {
+            throw new IllegalArgumentException("Team requires a name");
+        }
+
+        // Checks to determine values are ok before inserting into database
+        // Check to ensure week is not null
+        Integer week = values.getAsInteger(MatchEntry.COLUMN_MATCH_WEEK);
+        if (week == null) {
+            throw new IllegalArgumentException("Week is null");
+        }
+
+        // Checks to determine values are ok before inserting into database
+        // Check to ensure week is not null
+        Integer matchComplete = values.getAsInteger(MatchEntry.COLUMN_MATCH_COMPLETE);
+        if (matchComplete == null) {
+            throw new IllegalArgumentException("Match complete value is not properly defined");
+        }
+
+        //If data is valid, insert data into SQL database
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        long id = db.insert(MatchEntry.TABLE_NAME, null, values);
+
+        if (id == -1) {
+            Log.e(LOG_TAG, "Failed to insert row for " + uri);
+            return null;
+        }
+
+        //Notify any listeners that the data has changed for the URI
+        getContext().getContentResolver().notifyChange(uri, null);
+
+        return ContentUris.withAppendedId(uri, id);
+    }
+
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
 
@@ -180,6 +248,15 @@ public class SeasonSimProvider extends ContentProvider{
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
 
                 rowsDeleted = database.delete(TeamEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            case MATCH:
+                rowsDeleted = database.delete(MatchEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            case MATCH_ID:
+                selection = MatchEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+
+                rowsDeleted = database.delete(MatchEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             default:
                 throw new IllegalArgumentException("Deletion is not supported for " + uri);
@@ -206,6 +283,15 @@ public class SeasonSimProvider extends ContentProvider{
                 selection = TeamEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 return updateTeam(uri, contentValues, selection, selectionArgs);
+            case MATCH:
+                return updateMatch(uri, contentValues, selection,  selectionArgs);
+            case MATCH_ID:
+                // For the MATCH_ID code, extract out the ID from the URI,
+                // so we know which row to update. Selection will be "_id=?" and selection
+                // arguments will be a String array containing the actual ID.
+                selection = MatchEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                return updateMatch(uri, contentValues, selection, selectionArgs);
             default:
                 throw new IllegalArgumentException("Update is not supported for " + uri);
         }
@@ -295,6 +381,65 @@ public class SeasonSimProvider extends ContentProvider{
 
         // Perform the update on the database and get the number of rows affected
         int rowsUpdated = database.update(TeamEntry.TABLE_NAME, values, selection, selectionArgs);
+
+        // If 1 or more rows were updated, then notify all listeners that the data at the
+        // given URI has changed
+        if (rowsUpdated != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+
+        // Return the number of rows updated
+        return rowsUpdated;
+    }
+
+    private int updateMatch(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+
+        // If the MatchEntry TEAM ONE key is present,
+        // check that the name value is not null.
+        if (values.containsKey(MatchEntry.COLUMN_MATCH_TEAM_ONE)) {
+            String teamOne = values.getAsString(MatchEntry.COLUMN_MATCH_TEAM_ONE);
+            if (teamOne == null) {
+                throw new IllegalArgumentException("Team requires a name");
+            }
+        }
+
+        // If the MatchEntry TEAM TWO key is present,
+        // check that the name value is not null.
+        if (values.containsKey(MatchEntry.COLUMN_MATCH_TEAM_TWO)) {
+            String teamTwo = values.getAsString(MatchEntry.COLUMN_MATCH_TEAM_TWO);
+            if (teamTwo == null) {
+                throw new IllegalArgumentException("Team requires a name");
+            }
+        }
+
+        // If the MatchEntry WEEK key is present,
+        // check that the name value is not null.
+        if (values.containsKey(MatchEntry.COLUMN_MATCH_WEEK)) {
+            Integer week = values.getAsInteger(MatchEntry.COLUMN_MATCH_WEEK);
+            if (week == null) {
+                throw new IllegalArgumentException("Week is null");
+            }
+        }
+
+        // If the MatchEntry COMPLETE key is present,
+        // check that the name value is not null.
+        if (values.containsKey(MatchEntry.COLUMN_MATCH_COMPLETE)) {
+            Integer matchComplete = values.getAsInteger(MatchEntry.COLUMN_MATCH_COMPLETE);
+            if (matchComplete == null) {
+                throw new IllegalArgumentException("Match complete value is null");
+            }
+        }
+
+        // If there are no values to update, then don't try to update the database
+        if (values.size() == 0) {
+            return 0;
+        }
+
+        // Otherwise, get writeable database to update the data
+        SQLiteDatabase database = mDbHelper.getWritableDatabase();
+
+        // Perform the update on the database and get the number of rows affected
+        int rowsUpdated = database.update(MatchEntry.TABLE_NAME, values, selection, selectionArgs);
 
         // If 1 or more rows were updated, then notify all listeners that the data at the
         // given URI has changed

@@ -29,6 +29,7 @@ public class Team {
 
     public Team(String name, int elo, int offRating, int defRating, int division){
 
+        //Inject team with dagger to get contentResolver
         DaggerApplication.getAppComponent().inject(this);
 
         mName = name;
@@ -40,6 +41,7 @@ public class Team {
         mCurrentDraws =  0;
         mDivision = division;
 
+        //Insert team into database
         insertTeam();
     }
 
@@ -59,7 +61,7 @@ public class Team {
 
     }
 
-    public String toString(){
+    public String getName(){
         return mName;
     }
 }

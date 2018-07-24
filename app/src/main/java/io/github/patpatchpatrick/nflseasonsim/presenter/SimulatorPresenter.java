@@ -8,7 +8,10 @@ import java.util.ArrayList;
 
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.SimulatorMvpContract;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.TeamEntry;
+import io.github.patpatchpatrick.nflseasonsim.season_resources.Match;
+import io.github.patpatchpatrick.nflseasonsim.season_resources.Schedule;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Team;
+import io.github.patpatchpatrick.nflseasonsim.season_resources.Week;
 
 public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.SimulatorView>
         implements SimulatorMvpContract.SimulatorPresenter {
@@ -31,6 +34,12 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
     @Override
     public void initializeSeason(){
+        createTeams();
+        createSchedule();
+
+    }
+
+    private void createTeams(){
         mTeamList = new ArrayList<Team>();
         mTeamList.add(new Team("Arizona Cardinals", 1471, 1, 1, TeamEntry.DIVISION_NFC_WEST));
         mTeamList.add(new Team("Atlanta Falcons", 1648, 1, 1, TeamEntry.DIVISION_NFC_SOUTH));
@@ -64,6 +73,13 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         mTeamList.add(new Team("Tampa Bay Buccaneers", 1452, 1, 1, TeamEntry.DIVISION_NFC_SOUTH));
         mTeamList.add(new Team("Tennessee Titans", 1491, 1, 1, TeamEntry.DIVISION_AFC_SOUTH));
         mTeamList.add(new Team("Washington Redskins", 1455, 1, 1,  TeamEntry.DIVISION_NFC_EAST));
+    }
+
+
+    private void createSchedule() {
+        Schedule schedule = new Schedule();
+        Week weekOne = new Week(1);
+
     }
 
 

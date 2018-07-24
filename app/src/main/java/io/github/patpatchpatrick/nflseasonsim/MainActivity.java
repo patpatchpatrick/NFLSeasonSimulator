@@ -9,12 +9,15 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import javax.inject.Inject;
+
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract;
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.SimulatorMvpContract;
 import io.github.patpatchpatrick.nflseasonsim.presenter.SimulatorPresenter;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Team;
 
 public class MainActivity extends AppCompatActivity implements SimulatorMvpContract.SimulatorView {
+
 
     TextView mTextView;
 
@@ -23,8 +26,10 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SimulatorMvpContract.SimulatorPresenter pres = new SimulatorPresenter(this);
-        pres.initializeSeason();
+        //TODO inject presenter instead of instantiating it
+        SimulatorPresenter presenter = new SimulatorPresenter(this);
+        presenter.initializeSeason();
+
 
 
     }

@@ -8,6 +8,8 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import io.github.patpatchpatrick.nflseasonsim.DaggerApplication;
+import io.github.patpatchpatrick.nflseasonsim.mvp_utils.SimulatorMvpContract;
+import io.github.patpatchpatrick.nflseasonsim.presenter.SimulatorPresenter;
 
 @Module
 public class AppModule {
@@ -33,6 +35,11 @@ public class AppModule {
     @Singleton
     ContentResolver providesContentResolver() {
         return contentResolver;
+    }
+
+    @Provides
+    SimulatorMvpContract.SimulatorPresenter providesSimulatorPresenter(SimulatorMvpContract.SimulatorView simulatorView) {
+        return new SimulatorPresenter(simulatorView);
     }
 
 
