@@ -1,5 +1,11 @@
 package io.github.patpatchpatrick.nflseasonsim.mvp_utils;
 
+import android.database.Cursor;
+
+import java.util.ArrayList;
+
+import io.github.patpatchpatrick.nflseasonsim.season_resources.Team;
+
 public interface SimulatorMvpContract {
 
     interface SimulatorView {
@@ -12,6 +18,7 @@ public interface SimulatorMvpContract {
     interface SimulatorPresenter {
         void simulateWeek();
         void simulateSeason();
+        void initializeSeason();
     }
 
 

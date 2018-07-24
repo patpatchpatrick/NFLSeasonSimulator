@@ -16,6 +16,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <provider
+            android:name=".data.SeasonSimProvider"
+            android:authorities="io.github.patpatchpatrick.nflseasonsim"
+            android:exported="false" />
     </application>
 
 </manifest>

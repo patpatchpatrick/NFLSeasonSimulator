@@ -1,7 +1,10 @@
 package io.github.patpatchpatrick.nflseasonsim.season_resources;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.net.Uri;
 
+import io.github.patpatchpatrick.nflseasonsim.MainActivity;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.TeamEntry;
 
@@ -16,7 +19,7 @@ public class Team {
     private int mCurrentDraws;
     private int mDivision;
 
-    public Team(String name, int elo, int offRating, int defRating, int division){
+    public Team(String name, int elo, int offRating, int defRating, int division, ContentResolver contentResolver){
         mName = name;
         mElo = elo;
         mOffRating =  offRating;
@@ -26,10 +29,10 @@ public class Team {
         mCurrentDraws =  0;
         mDivision = division;
 
-        insertTeam();
+        insertTeam(contentResolver);
     }
 
-    private void insertTeam(){
+    private void insertTeam(ContentResolver contentResolver){
         ContentValues values = new ContentValues();
         values.put(TeamEntry.COLUMN_TEAM_NAME, mName);
         values.put(TeamEntry.COLUMN_TEAM_ELO, mElo);
@@ -40,5 +43,12 @@ public class Team {
         values.put(TeamEntry.COLUMN_TEAM_CURRENT_DRAWS, mCurrentDraws);
         values.put(TeamEntry.COLUMN_TEAM_DIVISION, mDivision);
 
+        //Insert values into database
+        Uri uri = contentResolver.insert(TeamEntry.CONTENT_URI, values);
+
+    }
+
+    public String toString(){
+        return mName;
     }
 }

@@ -1,11 +1,15 @@
 package io.github.patpatchpatrick.nflseasonsim.presenter;
 
+import android.content.ContentResolver;
+
 public abstract class BasePresenter<V> {
 
-    protected final V view;
+    public final V view;
+    public final ContentResolver contentResolver;
 
-    protected BasePresenter(V view){
+    public BasePresenter(V view, ContentResolver contentResolver){
         this.view = view;
+        this.contentResolver = contentResolver;
     }
 
 }
