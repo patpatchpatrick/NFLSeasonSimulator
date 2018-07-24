@@ -4,12 +4,10 @@ import android.content.ContentResolver;
 
 public abstract class BasePresenter<V> {
 
-    public final V view;
-    public final ContentResolver contentResolver;
+    protected final V view;
 
-    public BasePresenter(V view, ContentResolver contentResolver){
+    protected BasePresenter(V view){
         this.view = view;
-        this.contentResolver = contentResolver;
     }
 
 }

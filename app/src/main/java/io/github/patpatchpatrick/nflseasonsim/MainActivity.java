@@ -23,10 +23,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mTextView = (TextView) findViewById(R.id.fuck_you);
-
-        ContentResolver contentResolver= getContentResolver();
-        SimulatorMvpContract.SimulatorPresenter pres = new SimulatorPresenter(this, contentResolver);
+        SimulatorMvpContract.SimulatorPresenter pres = new SimulatorPresenter(this);
         pres.initializeSeason();
 
 
@@ -41,7 +38,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     public void onSimulateSeasonButtonClicked() {
 
     }
-    
+
 
 
 }

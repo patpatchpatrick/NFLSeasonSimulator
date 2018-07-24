@@ -1,14 +1,22 @@
 package io.github.patpatchpatrick.nflseasonsim.season_resources;
 
+import android.app.Application;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.net.Uri;
+import io.github.patpatchpatrick.nflseasonsim.DaggerApplication;
 
+import javax.inject.Inject;
+
+import io.github.patpatchpatrick.nflseasonsim.DaggerApplication;
 import io.github.patpatchpatrick.nflseasonsim.MainActivity;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.TeamEntry;
 
 public class Team {
+
+    @Inject
+    ContentResolver contentResolver;
 
     private String mName;
     private int mElo;
@@ -19,7 +27,10 @@ public class Team {
     private int mCurrentDraws;
     private int mDivision;
 
-    public Team(String name, int elo, int offRating, int defRating, int division, ContentResolver contentResolver){
+    public Team(String name, int elo, int offRating, int defRating, int division){
+
+        DaggerApplication.getAppComponent().inject(this);
+
         mName = name;
         mElo = elo;
         mOffRating =  offRating;
@@ -29,10 +40,10 @@ public class Team {
         mCurrentDraws =  0;
         mDivision = division;
 
-        insertTeam(contentResolver);
+        insertTeam();
     }
 
-    private void insertTeam(ContentResolver contentResolver){
+    private void insertTeam(){
         ContentValues values = new ContentValues();
         values.put(TeamEntry.COLUMN_TEAM_NAME, mName);
         values.put(TeamEntry.COLUMN_TEAM_ELO, mElo);
