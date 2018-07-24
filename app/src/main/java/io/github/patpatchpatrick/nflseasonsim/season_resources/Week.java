@@ -16,4 +16,10 @@ public class Week {
     public void addMatch(Match match){
         mMatches.add(match);
     }
+
+    public void simulate(){
+        for (Match match: mMatches) {
+            match.simulate();
+        }
+    }
 }

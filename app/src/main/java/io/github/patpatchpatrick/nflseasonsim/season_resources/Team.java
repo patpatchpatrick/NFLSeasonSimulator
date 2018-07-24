@@ -64,4 +64,8 @@ public class Team {
     public String getName(){
         return mName;
     }
+
+    public double getELO() {
+        return (double) mElo;
+    }
 }

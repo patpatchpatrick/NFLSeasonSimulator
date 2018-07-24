@@ -208,13 +208,6 @@ public class SeasonSimProvider extends ContentProvider{
             throw new IllegalArgumentException("Week is null");
         }
 
-        // Checks to determine values are ok before inserting into database
-        // Check to ensure week is not null
-        Integer matchComplete = values.getAsInteger(MatchEntry.COLUMN_MATCH_COMPLETE);
-        if (matchComplete == null) {
-            throw new IllegalArgumentException("Match complete value is not properly defined");
-        }
-
         //If data is valid, insert data into SQL database
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         long id = db.insert(MatchEntry.TABLE_NAME, null, values);
