@@ -33,6 +33,10 @@ public class ELORatingSystem {
             teamOneWon = false;
         }
 
+        int losingScore = ScoringSystem.getLosingScore(matchOutcome, probTeamOneWin);
+        //TODO fix winning score calculation
+        int winningScore = ScoringSystem.getLosingScore(matchOutcome, probTeamOneWin);
+
         //Update the teams ratings based on the outcome, and return the outcome boolean
         updateRatings(teamOne, teamTwo, probTeamOneWin, teamOneWon);
         return teamOneWon;

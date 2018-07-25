@@ -79,6 +79,13 @@ public class Match {
 
     }
 
+    protected void setTeam1Score(int score){
+        mTeam1Score = score;
+    }
+
+    protected void setmTeam2Score(int score) {
+        mTeam2Score = score;
+    }
 
 
 

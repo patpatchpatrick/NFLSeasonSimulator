@@ -129,19 +129,19 @@ public class SeasonSimProvider extends ContentProvider{
         }
 
         // Check that the elo is valid
-        Integer elo = values.getAsInteger(TeamEntry.COLUMN_TEAM_ELO);
+        Double elo = values.getAsDouble(TeamEntry.COLUMN_TEAM_ELO);
         if (elo == null) {
             throw new IllegalArgumentException("Team requires valid elo");
         }
 
         // Check that the offensive rating is valid
-        Integer offRating = values.getAsInteger(TeamEntry.COLUMN_TEAM_OFF_RATING);
+        Double offRating = values.getAsDouble(TeamEntry.COLUMN_TEAM_OFF_RATING);
         if (offRating == null) {
             throw new IllegalArgumentException("Team requires valid offensive rating");
         }
 
         // Check that the defensive rating is valid
-        Integer defRating = values.getAsInteger(TeamEntry.COLUMN_TEAM_DEF_RATING);
+        Double defRating = values.getAsDouble(TeamEntry.COLUMN_TEAM_DEF_RATING);
         if (defRating == null) {
             throw new IllegalArgumentException("Team requires valid defensive rating");
         }
@@ -304,7 +304,7 @@ public class SeasonSimProvider extends ContentProvider{
         // If the TeamEntry.ELO key is present,
         // check that the elo value is valid.
         if (values.containsKey(TeamEntry.COLUMN_TEAM_ELO)) {
-            Integer elo = values.getAsInteger(TeamEntry.COLUMN_TEAM_ELO);
+            Double elo = values.getAsDouble(TeamEntry.COLUMN_TEAM_ELO);
             if (elo == null) {
                 throw new IllegalArgumentException("Team requires valid elo int");
             }
@@ -313,7 +313,7 @@ public class SeasonSimProvider extends ContentProvider{
         // If the TeamEntry.Offensive Rating key is present,
         // check that the off rating value is valid.
         if (values.containsKey(TeamEntry.COLUMN_TEAM_OFF_RATING)) {
-            Integer offRating = values.getAsInteger(TeamEntry.COLUMN_TEAM_OFF_RATING);
+            Double offRating = values.getAsDouble(TeamEntry.COLUMN_TEAM_OFF_RATING);
             if (offRating == null) {
                 throw new IllegalArgumentException("Team requires valid off rating int");
             }
@@ -322,7 +322,7 @@ public class SeasonSimProvider extends ContentProvider{
         // If the TeamEntry.Defensive Rating key is present,
         // check that the def rating value is valid.
         if (values.containsKey(TeamEntry.COLUMN_TEAM_DEF_RATING)) {
-            Integer defRating = values.getAsInteger(TeamEntry.COLUMN_TEAM_DEF_RATING);
+            Double defRating = values.getAsDouble(TeamEntry.COLUMN_TEAM_DEF_RATING);
             if (defRating == null) {
                 throw new IllegalArgumentException("Team requires valid def rating int");
             }
