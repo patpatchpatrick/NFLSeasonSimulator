@@ -84,10 +84,14 @@ public class Match {
 
     protected void setTeam1Score(int score){
         mTeam1Score = score;
+        mTeam1.addPointsFor(score);
+        mTeam2.addPointsAllowed(score);
     }
 
     protected void setmTeam2Score(int score) {
         mTeam2Score = score;
+        mTeam2.addPointsFor(score);
+        mTeam1.addPointsAllowed(score);
     }
 
 

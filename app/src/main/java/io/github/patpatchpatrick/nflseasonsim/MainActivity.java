@@ -26,9 +26,13 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mTextView = (TextView) findViewById(R.id.test_dagger_text_view);
+
+
         //TODO inject presenter instead of instantiating it
         SimulatorPresenter presenter = new SimulatorPresenter(this);
         presenter.initializeSeason();
+
 
 
 
@@ -44,6 +48,11 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
     }
 
+    @Override
+    public void onDisplayStandings(String standings) {
+        mTextView.setText(standings);
+
+    }
 
 
 }

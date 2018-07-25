@@ -13,6 +13,7 @@ public interface SimulatorMvpContract {
         // button events
         void onSimulateWeekButtonClicked();
         void onSimulateSeasonButtonClicked();
+        void onDisplayStandings(String standings);
     }
 
     interface SimulatorPresenter {

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.github.patpatchpatrick.nflseasonsim.MainActivity;
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.SimulatorMvpContract;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.TeamEntry;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Match;
@@ -146,6 +147,11 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     private void createSchedule() {
         Schedule schedule = new Schedule();
         Week weekOne = new Week(1);
+        Week weekTwo = new Week(2);
+        Week weekThree = new Week(3);
+        Week weekFour = new Week(4);
+        Week weekFive = new Week(5);
+        Week weekSix = new Week(6);
         weekOne.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), mTeamList.get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), 1));
         weekOne.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), mTeamList.get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), 1));
         weekOne.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), mTeamList.get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), 1));
@@ -162,8 +168,108 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         weekOne.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), mTeamList.get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), 1));
         weekOne.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_NEWYORK_JETS_STRING), mTeamList.get(NFLConstants.TEAM_DETROIT_LIONS_STRING), 1));
         weekOne.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), mTeamList.get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), 1));
-        weekOne.simulate();
+        weekTwo.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), mTeamList.get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), 2));
+        weekTwo.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), mTeamList.get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), 2));
+        weekTwo.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), mTeamList.get(NFLConstants.TEAM_NEWYORK_JETS_STRING), 2));
+        weekTwo.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), mTeamList.get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), 2));
+        weekTwo.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), mTeamList.get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), 2));
+        weekTwo.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), mTeamList.get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), 2));
+        weekTwo.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), mTeamList.get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), 2));
+        weekTwo.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), mTeamList.get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), 2));
+        weekTwo.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), mTeamList.get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), 2));
+        weekTwo.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), mTeamList.get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), 2));
+        weekTwo.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), mTeamList.get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), 2));
+        weekTwo.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_DETROIT_LIONS_STRING), mTeamList.get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), 2));
+        weekTwo.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), mTeamList.get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), 2));
+        weekTwo.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), mTeamList.get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), 2));
+        weekTwo.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), mTeamList.get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), 2));
+        weekTwo.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), mTeamList.get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), 2));
+        weekThree.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_NEWYORK_JETS_STRING), mTeamList.get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), 3));
+        weekThree.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), mTeamList.get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), 3));
+        weekThree.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), mTeamList.get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), 3));
+        weekThree.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), mTeamList.get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), 3));
+        weekThree.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), mTeamList.get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), 3));
+        weekThree.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), mTeamList.get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), 3));
+        weekThree.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), mTeamList.get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), 3));
+        weekThree.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), mTeamList.get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), 3));
+        weekThree.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), mTeamList.get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), 3));
+        weekThree.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), mTeamList.get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), 3));
+        weekThree.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), mTeamList.get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), 3));
+        weekThree.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), mTeamList.get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), 3));
+        weekThree.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), mTeamList.get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), 3));
+        weekThree.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), mTeamList.get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), 3));
+        weekThree.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), mTeamList.get(NFLConstants.TEAM_DETROIT_LIONS_STRING), 3));
+        weekThree.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), mTeamList.get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), 3));
+        weekFour.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), mTeamList.get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), 4));
+        weekFour.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), mTeamList.get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), 4));
+        weekFour.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), mTeamList.get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), 4));
+        weekFour.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), mTeamList.get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), 4));
+        weekFour.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), mTeamList.get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), 4));
+        weekFour.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_DETROIT_LIONS_STRING), mTeamList.get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), 4));
+        weekFour.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), mTeamList.get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), 4));
+        weekFour.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_NEWYORK_JETS_STRING), mTeamList.get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), 4));
+        weekFour.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), mTeamList.get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), 4));
+        weekFour.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), mTeamList.get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), 4));
+        weekFour.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), mTeamList.get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), 4));
+        weekFour.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), mTeamList.get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), 4));
+        weekFour.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), mTeamList.get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), 4));
+        weekFour.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), mTeamList.get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), 4));
+        weekFour.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), mTeamList.get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), 4));
+        weekFive.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), mTeamList.get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), 5));
+        weekFive.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), mTeamList.get(NFLConstants.TEAM_NEWYORK_JETS_STRING), 5));
+        weekFive.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), mTeamList.get(NFLConstants.TEAM_DETROIT_LIONS_STRING), 5));
+        weekFive.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), mTeamList.get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), 5));
+        weekFive.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), mTeamList.get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), 5));
+        weekFive.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), mTeamList.get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), 5));
+        weekFive.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), mTeamList.get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), 5));
+        weekFive.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), mTeamList.get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), 5));
+        weekFive.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), mTeamList.get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), 5));
+        weekFive.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), mTeamList.get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), 5));
+        weekFive.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), mTeamList.get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), 5));
+        weekFive.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), mTeamList.get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), 5));
+        weekFive.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), mTeamList.get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), 5));
+        weekFive.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), mTeamList.get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), 5));
+        weekFive.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), mTeamList.get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), 5));
+        weekSix.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), mTeamList.get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), 6));
+        weekSix.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), mTeamList.get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), 6));
+        weekSix.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), mTeamList.get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), 6));
+        weekSix.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), mTeamList.get(NFLConstants.TEAM_NEWYORK_JETS_STRING), 6));
+        weekSix.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), mTeamList.get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), 6));
+        weekSix.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), mTeamList.get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), 6));
+        weekSix.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), mTeamList.get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), 6));
+        weekSix.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), mTeamList.get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), 6));
+        weekSix.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), mTeamList.get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), 6));
+        weekSix.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), mTeamList.get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), 6));
+        weekSix.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), mTeamList.get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), 6));
+        weekSix.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), mTeamList.get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), 6));
+        weekSix.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), mTeamList.get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), 6));
+        weekSix.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), mTeamList.get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), 6));
+        weekSix.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), mTeamList.get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), 6));
 
+
+
+
+
+        weekOne.simulate();
+        weekTwo.simulate();
+        weekThree.simulate();
+        weekFour.simulate();
+        weekFive.simulate();
+        weekSix.simulate();
+
+        displayStandings();
+
+
+    }
+
+    private void displayStandings(){
+        String standings = "";
+        for (String team : mTeamList.keySet()) {
+            standings += mTeamList.get(team).getName() + " ";
+            standings += "Wins: " + mTeamList.get(team).getWins() + " ";
+            standings += "Losses: " + mTeamList.get(team).getLosses() + "\n";
+        }
+        this.view.onDisplayStandings(standings);
     }
 
 

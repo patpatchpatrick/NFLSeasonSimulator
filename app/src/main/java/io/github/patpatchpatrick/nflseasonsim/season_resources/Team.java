@@ -26,6 +26,8 @@ public class Team {
     private int mCurrentLosses;
     private int mCurrentDraws;
     private int mDivision;
+    private int mPointsFor;
+    private int mPointsAllowed;
 
     public Team(String name, double elo, double offRating, double defRating, int division){
 
@@ -40,6 +42,8 @@ public class Team {
         mCurrentLosses = 0;
         mCurrentDraws =  0;
         mDivision = division;
+        mPointsFor = 0;
+        mPointsAllowed = 0;
 
         //Insert team into database
         insertTeam();
@@ -75,5 +79,17 @@ public class Team {
 
     public void win() {mCurrentWins ++;}
 
+    public int getWins() {return mCurrentWins;}
+
+    public int getLosses() {return mCurrentLosses;}
+
     public void lose() {mCurrentLosses ++;}
+
+    public void addPointsFor(int pointsFor) {
+        mPointsFor += pointsFor;
+    }
+
+    public void addPointsAllowed(int pointsAllowed) {
+        mPointsAllowed += pointsAllowed;
+    }
 }
