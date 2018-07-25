@@ -56,7 +56,7 @@ public class Match {
     protected void simulate() {
 
         //Simulate match to determine if team one won
-        boolean teamOneWon = ELORatingSystem.simulateMatch(mTeam1, mTeam2);
+        boolean teamOneWon = ELORatingSystem.simulateMatch(this, mTeam1, mTeam2);
 
         //Update team records based on outcome and mark match as complete
         if (teamOneWon){
@@ -76,6 +76,9 @@ public class Match {
         values.put(MatchEntry.COLUMN_MATCH_COMPLETE, MatchEntry.MATCH_COMPLETE_YES);}
 
         int rowsUpdated = contentResolver.update(matchUri, values, null, null);
+
+        Log.d(mTeam1.getName(), "" + mTeam1Score + teamOneWon);
+        Log.d(mTeam2.getName(), "" + mTeam2Score);
 
     }
 

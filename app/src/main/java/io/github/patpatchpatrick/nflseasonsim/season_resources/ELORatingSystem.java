@@ -10,7 +10,7 @@ public class ELORatingSystem {
 
     private static final String LOG_TAG = ELORatingSystem.class.getSimpleName();
 
-    public static boolean simulateMatch(Team teamOne, Team teamTwo){
+    public static boolean simulateMatch(Match match, Team teamOne, Team teamTwo){
 
         double eloTeamOne = teamOne.getELO();
         double eloTeamTwo = teamTwo.getELO();
@@ -24,8 +24,8 @@ public class ELORatingSystem {
         //Calculate a random double value between 0-1
         double matchOutcome = (double) Math.random();
 
-        //If the random double is less than the probability of the first team winning, they won and return true
-        //If not, they lost and return false
+        //If the random double is less than the probability of the first team winning, they won and set boolean to true
+        //If not, they lost and set boolean to false
         boolean teamOneWon;
         if (matchOutcome <= probTeamOneWin) {
             teamOneWon = true;
@@ -33,9 +33,20 @@ public class ELORatingSystem {
             teamOneWon = false;
         }
 
-        int losingScore = ScoringSystem.getLosingScore(matchOutcome, probTeamOneWin);
-        //TODO fix winning score calculation
-        int winningScore = ScoringSystem.getLosingScore(matchOutcome, probTeamOneWin);
+        //Get the losers score
+        int losingScore = ScoringSystem.getLosingScore();
+
+        //Get the winners score
+        int winningScore = ScoringSystem.getWinningScore(losingScore, matchOutcome, probTeamOneWin);
+
+        //Set the scores in the match for the winners and losers
+        if (teamOneWon) {
+            match.setTeam1Score(winningScore);
+            match.setmTeam2Score(losingScore);
+        } else {
+            match.setTeam1Score(losingScore);
+            match.setmTeam2Score(winningScore);
+        }
 
         //Update the teams ratings based on the outcome, and return the outcome boolean
         updateRatings(teamOne, teamTwo, probTeamOneWin, teamOneWon);

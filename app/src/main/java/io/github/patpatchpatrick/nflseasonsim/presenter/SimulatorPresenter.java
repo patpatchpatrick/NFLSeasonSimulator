@@ -38,12 +38,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     @Override
     public void initializeSeason() {
         createTeams();
-        //createSchedule();
-        for (HashMap.Entry<String, Team> entry : mTeamList.entrySet()) {
-            Team test = entry.getValue();
-            System.out.println(test.getName() + "," + test.getELO());
-        }
-
+        createSchedule();
 
     }
 
