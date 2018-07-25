@@ -77,6 +77,8 @@ public class SeasonSimContract {
         public static final String _ID = BaseColumns._ID;
         public static final String COLUMN_MATCH_TEAM_ONE = "matchTeamOne";
         public static final String COLUMN_MATCH_TEAM_TWO = "matchTeamTwo";
+        public static final String COLUMN_MATCH_TEAM_ONE_SCORE = "matchTeamOneScore";
+        public static final String COLUMN_MATCH_TEAM_TWO_SCORE = "matchTeamTwoScore";
         public static final String COLUMN_MATCH_WEEK = "matchWeek";
         public static final String COLUMN_MATCH_COMPLETE = "matchComplete";
 

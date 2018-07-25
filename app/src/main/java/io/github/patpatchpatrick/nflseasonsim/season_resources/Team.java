@@ -19,7 +19,7 @@ public class Team {
     ContentResolver contentResolver;
 
     private String mName;
-    private int mElo;
+    private double mElo;
     private int mOffRating;
     private int mDefRating;
     private int mCurrentWins;
@@ -27,7 +27,7 @@ public class Team {
     private int mCurrentDraws;
     private int mDivision;
 
-    public Team(String name, int elo, int offRating, int defRating, int division){
+    public Team(String name, double elo, int offRating, int defRating, int division){
 
         //Inject team with dagger to get contentResolver
         DaggerApplication.getAppComponent().inject(this);
@@ -68,4 +68,12 @@ public class Team {
     public double getELO() {
         return (double) mElo;
     }
+
+    public void  setELO( double elo ) {
+        mElo = elo;
+    }
+
+    public void win() {mCurrentWins ++;}
+
+    public void lose() {mCurrentLosses ++;}
 }

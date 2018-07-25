@@ -17,14 +17,15 @@ public class Match {
     @Inject
     ContentResolver contentResolver;
 
+    private Uri matchUri;
     private Team mTeam1;
     private Team mTeam2;
     private int mWeek;
     private Team winner;
     private Team loser;
-    private int winnerScore;
-    private int loserScore;
-    private Boolean mComplete;
+    private int mTeam1Score;
+    private int mTeam2Score;
+    private Boolean matchComplete;
 
 
     public Match(Team team1, Team team2, int week) {
@@ -35,6 +36,7 @@ public class Match {
         mTeam1 = team1;
         mTeam2 = team2;
         mWeek = week;
+        matchComplete = false;
 
         insertMatch();
     }
@@ -48,13 +50,36 @@ public class Match {
 
         //Insert values into database
         Uri uri = contentResolver.insert(MatchEntry.CONTENT_URI, values);
+        matchUri = uri;
     }
 
     protected void simulate() {
-        Log.d(LOG_TAG, "Team 1 " + mTeam1.getName());
-        Log.d(LOG_TAG, "Team 2 " + mTeam2.getName());
-        ELORatingSystem.simulateMatch(mTeam1.getELO(), mTeam2.getELO());
+
+        //Simulate match to determine if team one won
+        boolean teamOneWon = ELORatingSystem.simulateMatch(mTeam1, mTeam2);
+
+        //Update team records based on outcome and mark match as complete
+        if (teamOneWon){
+            mTeam1.win();
+            mTeam2.lose();
+        } else {
+            mTeam1.lose();
+            mTeam2.win();
+        }
+        matchComplete = true;
+
+        //Update match database scores and match complete values
+        ContentValues values = new ContentValues();
+        values.put(MatchEntry.COLUMN_MATCH_TEAM_ONE_SCORE, mTeam1Score);
+        values.put(MatchEntry.COLUMN_MATCH_TEAM_TWO_SCORE, mTeam2Score);
+        if (matchComplete){
+        values.put(MatchEntry.COLUMN_MATCH_COMPLETE, MatchEntry.MATCH_COMPLETE_YES);}
+
+        int rowsUpdated = contentResolver.update(matchUri, values, null, null);
+
     }
+
+
 
 
 }

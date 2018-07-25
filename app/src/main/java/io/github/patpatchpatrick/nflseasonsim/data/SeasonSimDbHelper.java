@@ -43,6 +43,8 @@ public class SeasonSimDbHelper extends SQLiteOpenHelper{
                 + MatchEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + MatchEntry.COLUMN_MATCH_TEAM_ONE + " TEXT NOT NULL, "
                 + MatchEntry.COLUMN_MATCH_TEAM_TWO + " TEXT NOT NULL, "
+                + MatchEntry.COLUMN_MATCH_TEAM_ONE_SCORE + " INTEGER NOT NULL DEFAULT 0, "
+                + MatchEntry.COLUMN_MATCH_TEAM_TWO_SCORE + " INTEGER NOT NULL DEFAULT 0, "
                 + MatchEntry.COLUMN_MATCH_WEEK + " INTEGER NOT NULL, "
                 + MatchEntry.COLUMN_MATCH_COMPLETE  + " INTEGER NOT NULL DEFAULT 0);";
 

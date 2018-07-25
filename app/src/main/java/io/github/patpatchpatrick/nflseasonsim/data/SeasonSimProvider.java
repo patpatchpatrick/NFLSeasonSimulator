@@ -405,6 +405,24 @@ public class SeasonSimProvider extends ContentProvider{
             }
         }
 
+        // If the MatchEntry TEAM ONE SCORE key is present,
+        // check that the score value is not null.
+        if (values.containsKey(MatchEntry.COLUMN_MATCH_TEAM_ONE_SCORE)) {
+            Integer teamOneScore = values.getAsInteger(MatchEntry.COLUMN_MATCH_TEAM_ONE_SCORE);
+            if (teamOneScore == null) {
+                throw new IllegalArgumentException("Team one score is null");
+            }
+        }
+
+        // If the MatchEntry TEAM TWO SCORE key is present,
+        // check that the score value is not null.
+        if (values.containsKey(MatchEntry.COLUMN_MATCH_TEAM_TWO_SCORE)) {
+            Integer teamTwoScore = values.getAsInteger(MatchEntry.COLUMN_MATCH_TEAM_TWO_SCORE);
+            if (teamTwoScore == null) {
+                throw new IllegalArgumentException("Team two score is null");
+            }
+        }
+
         // If the MatchEntry WEEK key is present,
         // check that the name value is not null.
         if (values.containsKey(MatchEntry.COLUMN_MATCH_WEEK)) {
