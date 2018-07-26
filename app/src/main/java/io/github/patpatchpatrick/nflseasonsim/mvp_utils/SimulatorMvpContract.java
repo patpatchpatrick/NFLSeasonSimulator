@@ -27,6 +27,8 @@ public interface SimulatorMvpContract {
     interface SimulatorModel {
         void onUpdateDatabase();
         void insertTeams(HashMap<String, Team> teamList);
+        void insertMatches(Schedule schedule);
+        void updateSimulatedScheduleMatches(Schedule schedule);
 
     }
 

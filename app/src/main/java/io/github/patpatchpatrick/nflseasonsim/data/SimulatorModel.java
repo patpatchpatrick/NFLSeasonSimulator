@@ -11,8 +11,12 @@ import javax.inject.Inject;
 
 import io.github.patpatchpatrick.nflseasonsim.DaggerApplication;
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.SimulatorMvpContract;
+import io.github.patpatchpatrick.nflseasonsim.season_resources.Match;
+import io.github.patpatchpatrick.nflseasonsim.season_resources.Schedule;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Team;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.TeamEntry;
+import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.MatchEntry;
+import io.github.patpatchpatrick.nflseasonsim.season_resources.Week;
 
 public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
@@ -21,7 +25,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     @Inject
     ContentResolver contentResolver;
 
-    public SimulatorModel(SimulatorMvpContract.SimulatorPresenter presenter){
+    public SimulatorModel(SimulatorMvpContract.SimulatorPresenter presenter) {
         mPresenter = presenter;
 
         //Inject team with dagger to get contentResolver
@@ -37,7 +41,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     @Override
     public void insertTeams(HashMap<String, Team> teamList) {
 
-        for (String teamString : teamList.keySet()){
+        for (String teamString : teamList.keySet()) {
             Team team = teamList.get(teamString);
             String name = team.getName();
             double elo = team.getELO();
@@ -61,6 +65,50 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
             //Insert values into database
             Uri uri = contentResolver.insert(TeamEntry.CONTENT_URI, values);
 
+        }
+
+    }
+
+    @Override
+    public void insertMatches(Schedule schedule) {
+
+        int weekNumber = 1;
+
+        while (weekNumber <= 17) {
+            Week week = schedule.getWeek(weekNumber);
+            ArrayList<Match> matches = week.getMatches();
+            for (Match match : matches) {
+                ContentValues values = new ContentValues();
+                values.put(MatchEntry.COLUMN_MATCH_TEAM_ONE, match.getTeam1().getName());
+                values.put(MatchEntry.COLUMN_MATCH_TEAM_TWO, match.getTeam2().getName());
+                values.put(MatchEntry.COLUMN_MATCH_WEEK, weekNumber);
+                Uri uri = contentResolver.insert(MatchEntry.CONTENT_URI, values);
+                match.setUri(uri);
+            }
+            weekNumber++;
+        }
+
+    }
+
+    @Override
+    public void updateSimulatedScheduleMatches(Schedule schedule) {
+
+        int weekNumber = 1;
+
+        while (weekNumber <= 17) {
+            Week week = schedule.getWeek(weekNumber);
+            ArrayList<Match> matches = week.getMatches();
+            for (Match match : matches) {
+
+                //Update match database scores and match complete values
+                ContentValues values = new ContentValues();
+                values.put(MatchEntry.COLUMN_MATCH_TEAM_ONE_SCORE, match.getTeam1Score());
+                values.put(MatchEntry.COLUMN_MATCH_TEAM_TWO_SCORE, match.getTeam2Score());
+                values.put(MatchEntry.COLUMN_MATCH_COMPLETE, MatchEntry.MATCH_COMPLETE_YES);
+
+                int rowsUpdated = contentResolver.update(match.getUri(), values, null, null);
+            }
+            weekNumber++;
         }
 
     }

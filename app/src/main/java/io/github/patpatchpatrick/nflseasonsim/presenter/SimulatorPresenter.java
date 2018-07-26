@@ -42,7 +42,9 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         HashMap<String, Team> teamList = createTeams();
         mModel.insertTeams(teamList);
         Schedule seasonSchedule = createSchedule();
+        mModel.insertMatches(seasonSchedule);
         simulateSeasonInternal(seasonSchedule);
+        mModel.updateSimulatedScheduleMatches(seasonSchedule);
         displayStandings();
     }
 

@@ -37,20 +37,6 @@ public class Match {
         mTeam2 = team2;
         mWeek = week;
         matchComplete = false;
-
-        insertMatch();
-    }
-
-    private void insertMatch() {
-
-        ContentValues values = new ContentValues();
-        values.put(MatchEntry.COLUMN_MATCH_TEAM_ONE, mTeam1.getName());
-        values.put(MatchEntry.COLUMN_MATCH_TEAM_TWO, mTeam2.getName());
-        values.put(MatchEntry.COLUMN_MATCH_WEEK, mWeek);
-
-        //Insert values into database
-        Uri uri = contentResolver.insert(MatchEntry.CONTENT_URI, values);
-        matchUri = uri;
     }
 
     protected void simulate() {
@@ -68,15 +54,6 @@ public class Match {
         }
         matchComplete = true;
 
-        //Update match database scores and match complete values
-        ContentValues values = new ContentValues();
-        values.put(MatchEntry.COLUMN_MATCH_TEAM_ONE_SCORE, mTeam1Score);
-        values.put(MatchEntry.COLUMN_MATCH_TEAM_TWO_SCORE, mTeam2Score);
-        if (matchComplete){
-        values.put(MatchEntry.COLUMN_MATCH_COMPLETE, MatchEntry.MATCH_COMPLETE_YES);}
-
-        int rowsUpdated = contentResolver.update(matchUri, values, null, null);
-
     }
 
     protected void setTeam1Score(int score){
@@ -91,6 +68,29 @@ public class Match {
         mTeam1.addPointsAllowed(score);
     }
 
+    public void setUri(Uri uri){
+        matchUri = uri;
+    }
+
+    public Team getTeam1(){
+        return mTeam1;
+    }
+
+    public Team getTeam2(){
+        return mTeam2;
+    }
+
+    public int getTeam1Score(){
+        return mTeam1Score;
+    }
+
+    public int getTeam2Score(){
+        return mTeam2Score;
+    }
+
+    public Uri getUri(){
+        return matchUri;
+    }
 
 
 }
