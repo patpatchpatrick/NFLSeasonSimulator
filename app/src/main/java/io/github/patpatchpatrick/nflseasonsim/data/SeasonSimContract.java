@@ -43,6 +43,7 @@ public class SeasonSimContract {
         public static final String COLUMN_TEAM_CURRENT_WINS = "teamWins";
         public static final String COLUMN_TEAM_CURRENT_LOSSES = "teamLosses";
         public static final String COLUMN_TEAM_CURRENT_DRAWS = "teamDraws";
+        public static final String COLUMN_TEAM_WIN_LOSS_PCT = "teamWinLossPct";
         public static final String COLUMN_TEAM_DIVISION = "teamDivision";
 
         //Define input variables for team divisions

@@ -13,4 +13,13 @@ public class Schedule {
     public void addWeek(Week week){
         mWeeks.add(week);
     }
+
+    public Week getWeek(int weekNumber) {
+
+        //Subtract 1 from requested week to match ArrayList order
+        //Return requested week
+        weekNumber--;
+        return mWeeks.get(weekNumber);
+
+    }
 }

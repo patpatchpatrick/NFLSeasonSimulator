@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import javax.inject.Inject;
 
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract;
+import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.SimulatorMvpContract;
 import io.github.patpatchpatrick.nflseasonsim.presenter.SimulatorPresenter;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Team;

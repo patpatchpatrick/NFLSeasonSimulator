@@ -2,6 +2,7 @@ package io.github.patpatchpatrick.nflseasonsim.presenter;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
+import android.util.Log;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.github.patpatchpatrick.nflseasonsim.MainActivity;
+import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.SimulatorMvpContract;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.TeamEntry;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Match;
@@ -16,14 +18,18 @@ import io.github.patpatchpatrick.nflseasonsim.season_resources.NFLConstants;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Schedule;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Team;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Week;
+import io.reactivex.Scheduler;
 
 public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.SimulatorView>
         implements SimulatorMvpContract.SimulatorPresenter {
 
     private HashMap<String, Team> mTeamList;
+    private SimulatorModel mModel;
 
     public SimulatorPresenter(SimulatorMvpContract.SimulatorView view) {
         super(view);
+        SimulatorModel model = new SimulatorModel(this);
+        mModel = model;
     }
 
     @Override
@@ -32,18 +38,16 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     }
 
     @Override
-    public void simulateSeason() {
-
-    }
-
-    @Override
     public void initializeSeason() {
-        createTeams();
-        createSchedule();
-
+        HashMap<String, Team> teamList = createTeams();
+        mModel.insertTeams(teamList);
+        Schedule seasonSchedule = createSchedule();
+        simulateSeasonInternal(seasonSchedule);
+        displayStandings();
     }
 
-    private void createTeams() {
+
+    private HashMap<String, Team> createTeams() {
         mTeamList = new HashMap<String, Team>();
         mTeamList.put(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING,
                 new Team(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING, NFLConstants.TEAM_ARIZONA_CARDINALS_ELO, 
@@ -141,11 +145,14 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         mTeamList.put(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING,
                 new Team("Washington Redskins", NFLConstants.TEAM_WASHINGTON_REDSKINS_ELO,
                         NFLConstants.TEAM_WASHINGTON_REDSKINS_OFFRAT, NFLConstants.TEAM_WASHINGTON_REDSKINS_DEFRAT, TeamEntry.DIVISION_NFC_EAST));
+        return mTeamList;
     }
 
 
-    private void createSchedule() {
-        Schedule schedule = new Schedule();
+    private Schedule createSchedule() {
+
+        //Initialize all schedule, weeks, and matches.  Add weeks to schedule.
+        Schedule seasonSchedule = new Schedule();
         Week weekOne = new Week(1);
         Week weekTwo = new Week(2);
         Week weekThree = new Week(3);
@@ -419,26 +426,44 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         weekSeventeen.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), mTeamList.get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), 17));
         weekSeventeen.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), mTeamList.get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), 17));
         weekSeventeen.addMatch(new Match(mTeamList.get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), mTeamList.get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), 17));
+        seasonSchedule.addWeek(weekOne);
+        seasonSchedule.addWeek(weekTwo);
+        seasonSchedule.addWeek(weekThree);
+        seasonSchedule.addWeek(weekFour);
+        seasonSchedule.addWeek(weekFive);
+        seasonSchedule.addWeek(weekSix);
+        seasonSchedule.addWeek(weekSeven);
+        seasonSchedule.addWeek(weekEight);
+        seasonSchedule.addWeek(weekNine);
+        seasonSchedule.addWeek(weekTen);
+        seasonSchedule.addWeek(weekEleven);
+        seasonSchedule.addWeek(weekTwelve);
+        seasonSchedule.addWeek(weekThirteen);
+        seasonSchedule.addWeek(weekFourteen);
+        seasonSchedule.addWeek(weekFifteen);
+        seasonSchedule.addWeek(weekSixteen);
+        seasonSchedule.addWeek(weekSeventeen);
 
-        weekOne.simulate();
-        weekTwo.simulate();
-        weekThree.simulate();
-        weekFour.simulate();
-        weekFive.simulate();
-        weekSix.simulate();
-        weekSeven.simulate();
-        weekEight.simulate();
-        weekNine.simulate();
-        weekTen.simulate();
-        weekEleven.simulate();
-        weekTwelve.simulate();
-        weekThirteen.simulate();
-        weekFourteen.simulate();
-        weekFifteen.simulate();
-        weekSixteen.simulate();
-        weekSeventeen.simulate();
 
-        displayStandings();
+        return seasonSchedule;
+
+
+    }
+
+    public void simulateSeasonInternal(Schedule seasonSchedule){
+        //TODO internal code to test season simulation... in final app version, use the simulateSeason method callback
+        //From week 1 to week 17 (full season), simulate the season
+        int i = 1;
+        while (i <= 17)  {
+            seasonSchedule.getWeek(i).simulate();
+            i++;
+        }
+
+
+    }
+
+    @Override
+    public void simulateSeason(Schedule seasonSchedule) {
 
 
     }

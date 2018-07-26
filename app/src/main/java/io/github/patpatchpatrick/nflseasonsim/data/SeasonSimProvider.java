@@ -355,6 +355,15 @@ public class SeasonSimProvider extends ContentProvider{
             }
         }
 
+        // If the TeamEntry.Win Loss Percent key is present,
+        // check that the winLossPct value is valid.
+        if (values.containsKey(TeamEntry.COLUMN_TEAM_WIN_LOSS_PCT)) {
+            Double winLossPct = values.getAsDouble(TeamEntry.COLUMN_TEAM_WIN_LOSS_PCT);
+            if (winLossPct == null) {
+                throw new IllegalArgumentException("Team requires valid win loss pct");
+            }
+        }
+
         // If the TeamEntry.Team Division key is present,
         // check that the current division value is valid.
         if (values.containsKey(TeamEntry.COLUMN_TEAM_DIVISION)) {

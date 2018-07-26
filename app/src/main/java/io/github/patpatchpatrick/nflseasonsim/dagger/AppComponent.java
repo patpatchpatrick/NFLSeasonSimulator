@@ -5,6 +5,7 @@ import javax.inject.Singleton;
 import dagger.Component;
 import io.github.patpatchpatrick.nflseasonsim.DaggerApplication;
 import io.github.patpatchpatrick.nflseasonsim.MainActivity;
+import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Match;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Team;
 
@@ -16,10 +17,10 @@ public interface AppComponent {
 
     void inject(DaggerApplication application);
 
-    void inject(Team team);
-
     void inject(Match match);
 
     void inject(MainActivity mainActivity);
+
+    void inject(SimulatorModel model);
 
 }

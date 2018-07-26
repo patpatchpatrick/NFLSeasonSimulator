@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.net.Uri;
+
 import io.github.patpatchpatrick.nflseasonsim.DaggerApplication;
 
 import javax.inject.Inject;
@@ -15,57 +16,46 @@ import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.TeamEntry;
 
 public class Team {
 
-    @Inject
-    ContentResolver contentResolver;
-
+    //Name
     private String mName;
+
+    //Division
+    private int mDivision;
+
+    //Ratings
     private double mElo;
     private double mOffRating;
     private double mDefRating;
+
+    //Standings
     private int mCurrentWins;
     private int mCurrentLosses;
     private int mCurrentDraws;
-    private int mDivision;
+    private double mWinLossPct;
+    private int mDivisionStanding;
+
+    //Stats
     private int mPointsFor;
     private int mPointsAllowed;
 
-    public Team(String name, double elo, double offRating, double defRating, int division){
-
-        //Inject team with dagger to get contentResolver
-        DaggerApplication.getAppComponent().inject(this);
+    public Team(String name, double elo, double offRating, double defRating, int division) {
 
         mName = name;
         mElo = elo;
-        mOffRating =  offRating;
+        mOffRating = offRating;
         mDefRating = defRating;
         mCurrentWins = 0;
         mCurrentLosses = 0;
-        mCurrentDraws =  0;
+        mCurrentDraws = 0;
+        mWinLossPct = 0;
+        mDivisionStanding = 0;
         mDivision = division;
         mPointsFor = 0;
         mPointsAllowed = 0;
 
-        //Insert team into database
-        insertTeam();
     }
 
-    private void insertTeam(){
-        ContentValues values = new ContentValues();
-        values.put(TeamEntry.COLUMN_TEAM_NAME, mName);
-        values.put(TeamEntry.COLUMN_TEAM_ELO, mElo);
-        values.put(TeamEntry.COLUMN_TEAM_OFF_RATING, mOffRating);
-        values.put(TeamEntry.COLUMN_TEAM_DEF_RATING, mDefRating);
-        values.put(TeamEntry.COLUMN_TEAM_CURRENT_WINS, mCurrentWins);
-        values.put(TeamEntry.COLUMN_TEAM_CURRENT_LOSSES, mCurrentLosses);
-        values.put(TeamEntry.COLUMN_TEAM_CURRENT_DRAWS, mCurrentDraws);
-        values.put(TeamEntry.COLUMN_TEAM_DIVISION, mDivision);
-
-        //Insert values into database
-        Uri uri = contentResolver.insert(TeamEntry.CONTENT_URI, values);
-
-    }
-
-    public String getName(){
+    public String getName() {
         return mName;
     }
 
@@ -73,17 +63,44 @@ public class Team {
         return mElo;
     }
 
-    public void  setELO( double elo ) {
+    public void setELO(double elo) {
         mElo = elo;
     }
 
-    public void win() {mCurrentWins ++;}
+    public void win() {
+        mCurrentWins++;
+        mWinLossPct = (double) mCurrentWins / (double) (mCurrentWins + mCurrentLosses);
 
-    public int getWins() {return mCurrentWins;}
+    }
 
-    public int getLosses() {return mCurrentLosses;}
+    public int getWins() {
+        return mCurrentWins;
+    }
 
-    public void lose() {mCurrentLosses ++;}
+    public int getLosses() {
+        return mCurrentLosses;
+    }
+
+    public int getDraws(){
+        return mCurrentDraws;
+    }
+
+    public double getOffRating(){
+        return mOffRating;
+    }
+
+    public double getDefRating(){
+        return mDefRating;
+    }
+
+    public int getDivision(){
+        return mDivision;
+    }
+
+    public void lose() {
+        mCurrentLosses++;
+        mWinLossPct = (double) mCurrentWins / (double) (mCurrentWins + mCurrentLosses);
+    }
 
     public void addPointsFor(int pointsFor) {
         mPointsFor += pointsFor;

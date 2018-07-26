@@ -33,6 +33,7 @@ public class SeasonSimDbHelper extends SQLiteOpenHelper{
                 + TeamEntry.COLUMN_TEAM_CURRENT_WINS + " INTEGER NOT NULL DEFAULT 0, "
                 + TeamEntry.COLUMN_TEAM_CURRENT_LOSSES + " INTEGER NOT NULL DEFAULT 0, "
                 + TeamEntry.COLUMN_TEAM_CURRENT_DRAWS  + " INTEGER NOT NULL DEFAULT 0, "
+                + TeamEntry.COLUMN_TEAM_WIN_LOSS_PCT  + " REAL NOT NULL DEFAULT 0, "
                 + TeamEntry.COLUMN_TEAM_DIVISION  + " INTEGER NOT NULL DEFAULT 0);";
 
         // Execute the SQL statement

@@ -77,9 +77,6 @@ public class Match {
 
         int rowsUpdated = contentResolver.update(matchUri, values, null, null);
 
-        Log.d(mTeam1.getName(), "" + mTeam1Score + teamOneWon);
-        Log.d(mTeam2.getName(), "" + mTeam2Score);
-
     }
 
     protected void setTeam1Score(int score){

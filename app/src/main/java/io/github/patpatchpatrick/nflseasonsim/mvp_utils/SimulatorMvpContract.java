@@ -3,7 +3,9 @@ package io.github.patpatchpatrick.nflseasonsim.mvp_utils;
 import android.database.Cursor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
+import io.github.patpatchpatrick.nflseasonsim.season_resources.Schedule;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Team;
 
 public interface SimulatorMvpContract {
@@ -18,8 +20,14 @@ public interface SimulatorMvpContract {
 
     interface SimulatorPresenter {
         void simulateWeek();
-        void simulateSeason();
+        void simulateSeason(Schedule seasonSchedule);
         void initializeSeason();
+    }
+
+    interface SimulatorModel {
+        void onUpdateDatabase();
+        void insertTeams(HashMap<String, Team> teamList);
+
     }
 
 
