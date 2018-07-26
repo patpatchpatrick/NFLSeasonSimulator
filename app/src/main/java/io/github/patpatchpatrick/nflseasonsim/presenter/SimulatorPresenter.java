@@ -46,6 +46,11 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         displayStandings();
     }
 
+    @Override
+    public void destroyPresenter() {
+        mModel.destroyModel();
+    }
+
 
     private HashMap<String, Team> createTeams() {
         mTeamList = new HashMap<String, Team>();
@@ -481,16 +486,23 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
     @Override
     public void insertTeamCallback(Team team) {
+        //Callback is received when a new team is created
+        //The model is then notified to insert the team into the database
         mModel.insertTeam(team);
     }
 
     @Override
     public void insertMatchCallback(Match match) {
+        //Callback is received when a new match is created
+        //The model is then notified to insert the match into the database
         mModel.insertMatch(match);
     }
 
     @Override
     public void updateMatchCallback(Match match) {
+        //Callback is received when a match is completed
+        //The model is then notified to update the match in the database
         mModel.updateMatch(match);
     }
+
 }

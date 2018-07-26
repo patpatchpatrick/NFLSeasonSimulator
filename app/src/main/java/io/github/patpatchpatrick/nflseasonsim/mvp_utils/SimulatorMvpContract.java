@@ -23,12 +23,14 @@ public interface SimulatorMvpContract {
         void simulateWeek();
         void simulateSeason(Schedule seasonSchedule);
         void initializeSeason();
+        void destroyPresenter();
     }
 
     interface SimulatorModel {
         void insertMatch(Match match);
         void insertTeam(Team team);
         void updateMatch(Match match);
+        void destroyModel();
 
     }
 

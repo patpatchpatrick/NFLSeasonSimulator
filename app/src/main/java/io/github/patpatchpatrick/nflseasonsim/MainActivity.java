@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
 
     TextView mTextView;
+    private SimulatorPresenter mPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +33,8 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
         //TODO inject presenter instead of instantiating it
         SimulatorPresenter presenter = new SimulatorPresenter(this);
-        presenter.initializeSeason();
+        mPresenter = presenter;
+        mPresenter.initializeSeason();
 
 
 
@@ -55,5 +57,9 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
     }
 
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mPresenter.destroyPresenter();
+    }
 }
