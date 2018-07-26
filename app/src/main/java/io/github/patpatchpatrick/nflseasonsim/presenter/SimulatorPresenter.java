@@ -505,4 +505,9 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         mModel.updateMatch(match);
     }
 
+    @Override
+    public void updateTeamCallback(Team team) {
+        mModel.updateTeam(team);
+    }
+
 }

@@ -11,6 +11,7 @@ public interface Data {
     void insertTeamCallback(Team team);
     void insertMatchCallback(Match match);
     void updateMatchCallback(Match match);
+    void updateTeamCallback(Team team);
 
 
 }

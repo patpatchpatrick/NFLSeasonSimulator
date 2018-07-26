@@ -30,6 +30,8 @@ public interface SimulatorMvpContract {
         void insertMatch(Match match);
         void insertTeam(Team team);
         void updateMatch(Match match);
+        void updateTeam(Team team);
+        void queryStandings();
         void destroyModel();
 
     }

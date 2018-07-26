@@ -1,9 +1,14 @@
 package io.github.patpatchpatrick.nflseasonsim.season_resources;
 
+import android.net.Uri;
+
 public class Team {
 
     //Data Interface
     private Data mData;
+
+    //Uri
+    private Uri mUri;
 
     //Name
     private String mName;
@@ -63,7 +68,7 @@ public class Team {
     public void win() {
         mCurrentWins++;
         mWinLossPct = (double) mCurrentWins / (double) (mCurrentWins + mCurrentLosses);
-
+        mData.updateTeamCallback(this);
     }
 
     public int getWins() {
@@ -86,6 +91,10 @@ public class Team {
         return mDefRating;
     }
 
+    public double getWinLossPct() {
+        return mWinLossPct;
+    }
+
     public int getDivision(){
         return mDivision;
     }
@@ -93,6 +102,7 @@ public class Team {
     public void lose() {
         mCurrentLosses++;
         mWinLossPct = (double) mCurrentWins / (double) (mCurrentWins + mCurrentLosses);
+        mData.updateTeamCallback(this);
     }
 
     public void addPointsFor(int pointsFor) {
@@ -101,5 +111,13 @@ public class Team {
 
     public void addPointsAllowed(int pointsAllowed) {
         mPointsAllowed += pointsAllowed;
+    }
+
+    public void setUri(Uri uri){
+        mUri = uri;
+    }
+
+    public Uri getUri(){
+        return mUri;
     }
 }

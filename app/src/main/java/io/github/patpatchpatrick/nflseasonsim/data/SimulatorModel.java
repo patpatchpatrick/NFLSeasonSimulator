@@ -99,7 +99,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
         //Insert a team into the database
 
-        Observable<Uri> insertMatchObservable = Observable.fromCallable(new Callable<Uri>() {
+        Observable<Uri> insertTeamObservable = Observable.fromCallable(new Callable<Uri>() {
             @Override
             public Uri call() throws Exception {
                 String name = team.getName();
@@ -127,7 +127,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
             }
         });
 
-        insertMatchObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<Uri>() {
+        insertTeamObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<Uri>() {
             @Override
             public void onSubscribe(Disposable d) {
                 mCompositeDisposable.add(d);
@@ -135,6 +135,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
             @Override
             public void onNext(Uri uri) {
+                team.setUri(uri);
             }
 
             @Override
@@ -192,6 +193,55 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
         });
 
 
+
+    }
+
+    @Override
+    public void updateTeam(final Team team) {
+
+        //Update a team in the database
+
+        Observable<Integer> updateTeamObservable = Observable.fromCallable(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                //Update team database wins, losses and win loss pct values
+                ContentValues values = new ContentValues();
+                values.put(TeamEntry.COLUMN_TEAM_CURRENT_WINS, team.getWins());
+                values.put(TeamEntry.COLUMN_TEAM_CURRENT_LOSSES, team.getLosses());
+                values.put(TeamEntry.COLUMN_TEAM_CURRENT_DRAWS, team.getDraws());
+                values.put(TeamEntry.COLUMN_TEAM_WIN_LOSS_PCT, team.getWinLossPct());
+
+                int rowsUpdated = contentResolver.update(team.getUri(), values, null, null);
+                return rowsUpdated;
+            }
+        });
+
+        updateTeamObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<Integer>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                mCompositeDisposable.add(d);
+            }
+
+            @Override
+            public void onNext(Integer rowsUpdated) {
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+
+
+    }
+
+    @Override
+    public void queryStandings() {
 
     }
 
