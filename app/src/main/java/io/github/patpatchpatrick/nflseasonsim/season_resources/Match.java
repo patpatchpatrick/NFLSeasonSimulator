@@ -1,14 +1,11 @@
 package io.github.patpatchpatrick.nflseasonsim.season_resources;
 
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.net.Uri;
-import android.util.Log;
 
 import javax.inject.Inject;
 
 import io.github.patpatchpatrick.nflseasonsim.DaggerApplication;
-import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.MatchEntry;
 
 public class Match {
 
@@ -17,6 +14,7 @@ public class Match {
     @Inject
     ContentResolver contentResolver;
 
+    private Data mData;
     private Uri matchUri;
     private Team mTeam1;
     private Team mTeam2;
@@ -28,15 +26,19 @@ public class Match {
     private Boolean matchComplete;
 
 
-    public Match(Team team1, Team team2, int week) {
+    public Match(Team team1, Team team2, int week, Data data) {
 
         //Inject match with dagger to get contentResolver
         DaggerApplication.getAppComponent().inject(this);
 
+        mData = data;
         mTeam1 = team1;
         mTeam2 = team2;
         mWeek = week;
         matchComplete = false;
+
+        //Callback to presenter to insert match in database
+        mData.insertMatchCallback(this);
     }
 
     protected void simulate() {
@@ -53,6 +55,9 @@ public class Match {
             mTeam2.win();
         }
         matchComplete = true;
+
+        //Callback to presenter to update match in database with match result
+        mData.updateMatchCallback(this);
 
     }
 
@@ -90,6 +95,10 @@ public class Match {
 
     public Uri getUri(){
         return matchUri;
+    }
+
+    public int getWeek(){
+        return mWeek;
     }
 
 

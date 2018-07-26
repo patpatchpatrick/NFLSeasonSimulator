@@ -34,82 +34,52 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
 
     @Override
-    public void onUpdateDatabase() {
+    public void insertMatch(Match match) {
+        ContentValues values = new ContentValues();
+        values.put(MatchEntry.COLUMN_MATCH_TEAM_ONE, match.getTeam1().getName());
+        values.put(MatchEntry.COLUMN_MATCH_TEAM_TWO, match.getTeam2().getName());
+        values.put(MatchEntry.COLUMN_MATCH_WEEK, match.getWeek());
+        Uri uri = contentResolver.insert(MatchEntry.CONTENT_URI, values);
+        match.setUri(uri);
+    }
+
+    @Override
+    public void insertTeam(Team team) {
+
+        String name = team.getName();
+        double elo = team.getELO();
+        double offRating = team.getOffRating();
+        double defRating = team.getDefRating();
+        int currentWins = team.getWins();
+        int currentLosses = team.getLosses();
+        int currentDraws = team.getDraws();
+        int division = team.getDivision();
+
+        ContentValues values = new ContentValues();
+        values.put(TeamEntry.COLUMN_TEAM_NAME, name);
+        values.put(TeamEntry.COLUMN_TEAM_ELO, elo);
+        values.put(TeamEntry.COLUMN_TEAM_OFF_RATING, offRating);
+        values.put(TeamEntry.COLUMN_TEAM_DEF_RATING, defRating);
+        values.put(TeamEntry.COLUMN_TEAM_CURRENT_WINS, currentWins);
+        values.put(TeamEntry.COLUMN_TEAM_CURRENT_LOSSES, currentLosses);
+        values.put(TeamEntry.COLUMN_TEAM_CURRENT_DRAWS, currentDraws);
+        values.put(TeamEntry.COLUMN_TEAM_DIVISION, division);
+
+        //Insert values into database
+        Uri uri = contentResolver.insert(TeamEntry.CONTENT_URI, values);
 
     }
 
     @Override
-    public void insertTeams(HashMap<String, Team> teamList) {
+    public void updateMatch(Match match) {
 
-        for (String teamString : teamList.keySet()) {
-            Team team = teamList.get(teamString);
-            String name = team.getName();
-            double elo = team.getELO();
-            double offRating = team.getOffRating();
-            double defRating = team.getDefRating();
-            int currentWins = team.getWins();
-            int currentLosses = team.getLosses();
-            int currentDraws = team.getDraws();
-            int division = team.getDivision();
+        //Update match database scores and match complete values
+        ContentValues values = new ContentValues();
+        values.put(MatchEntry.COLUMN_MATCH_TEAM_ONE_SCORE, match.getTeam1Score());
+        values.put(MatchEntry.COLUMN_MATCH_TEAM_TWO_SCORE, match.getTeam2Score());
+        values.put(MatchEntry.COLUMN_MATCH_COMPLETE, MatchEntry.MATCH_COMPLETE_YES);
 
-            ContentValues values = new ContentValues();
-            values.put(TeamEntry.COLUMN_TEAM_NAME, name);
-            values.put(TeamEntry.COLUMN_TEAM_ELO, elo);
-            values.put(TeamEntry.COLUMN_TEAM_OFF_RATING, offRating);
-            values.put(TeamEntry.COLUMN_TEAM_DEF_RATING, defRating);
-            values.put(TeamEntry.COLUMN_TEAM_CURRENT_WINS, currentWins);
-            values.put(TeamEntry.COLUMN_TEAM_CURRENT_LOSSES, currentLosses);
-            values.put(TeamEntry.COLUMN_TEAM_CURRENT_DRAWS, currentDraws);
-            values.put(TeamEntry.COLUMN_TEAM_DIVISION, division);
-
-            //Insert values into database
-            Uri uri = contentResolver.insert(TeamEntry.CONTENT_URI, values);
-
-        }
-
-    }
-
-    @Override
-    public void insertMatches(Schedule schedule) {
-
-        int weekNumber = 1;
-
-        while (weekNumber <= 17) {
-            Week week = schedule.getWeek(weekNumber);
-            ArrayList<Match> matches = week.getMatches();
-            for (Match match : matches) {
-                ContentValues values = new ContentValues();
-                values.put(MatchEntry.COLUMN_MATCH_TEAM_ONE, match.getTeam1().getName());
-                values.put(MatchEntry.COLUMN_MATCH_TEAM_TWO, match.getTeam2().getName());
-                values.put(MatchEntry.COLUMN_MATCH_WEEK, weekNumber);
-                Uri uri = contentResolver.insert(MatchEntry.CONTENT_URI, values);
-                match.setUri(uri);
-            }
-            weekNumber++;
-        }
-
-    }
-
-    @Override
-    public void updateSimulatedScheduleMatches(Schedule schedule) {
-
-        int weekNumber = 1;
-
-        while (weekNumber <= 17) {
-            Week week = schedule.getWeek(weekNumber);
-            ArrayList<Match> matches = week.getMatches();
-            for (Match match : matches) {
-
-                //Update match database scores and match complete values
-                ContentValues values = new ContentValues();
-                values.put(MatchEntry.COLUMN_MATCH_TEAM_ONE_SCORE, match.getTeam1Score());
-                values.put(MatchEntry.COLUMN_MATCH_TEAM_TWO_SCORE, match.getTeam2Score());
-                values.put(MatchEntry.COLUMN_MATCH_COMPLETE, MatchEntry.MATCH_COMPLETE_YES);
-
-                int rowsUpdated = contentResolver.update(match.getUri(), values, null, null);
-            }
-            weekNumber++;
-        }
+        int rowsUpdated = contentResolver.update(match.getUri(), values, null, null);
 
     }
 

@@ -5,6 +5,7 @@ import android.database.Cursor;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import io.github.patpatchpatrick.nflseasonsim.season_resources.Match;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Schedule;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Team;
 
@@ -25,10 +26,9 @@ public interface SimulatorMvpContract {
     }
 
     interface SimulatorModel {
-        void onUpdateDatabase();
-        void insertTeams(HashMap<String, Team> teamList);
-        void insertMatches(Schedule schedule);
-        void updateSimulatedScheduleMatches(Schedule schedule);
+        void insertMatch(Match match);
+        void insertTeam(Team team);
+        void updateMatch(Match match);
 
     }
 

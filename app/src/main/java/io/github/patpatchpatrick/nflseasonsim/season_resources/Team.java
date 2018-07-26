@@ -1,20 +1,9 @@
 package io.github.patpatchpatrick.nflseasonsim.season_resources;
 
-import android.app.Application;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.net.Uri;
-
-import io.github.patpatchpatrick.nflseasonsim.DaggerApplication;
-
-import javax.inject.Inject;
-
-import io.github.patpatchpatrick.nflseasonsim.DaggerApplication;
-import io.github.patpatchpatrick.nflseasonsim.MainActivity;
-import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract;
-import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.TeamEntry;
-
 public class Team {
+
+    //Data Interface
+    private Data mData;
 
     //Name
     private String mName;
@@ -38,8 +27,9 @@ public class Team {
     private int mPointsFor;
     private int mPointsAllowed;
 
-    public Team(String name, double elo, double offRating, double defRating, int division) {
+    public Team(String name, double elo, double offRating, double defRating, int division, Data data) {
 
+        mData = data;
         mName = name;
         mElo = elo;
         mOffRating = offRating;
@@ -52,6 +42,9 @@ public class Team {
         mDivision = division;
         mPointsFor = 0;
         mPointsAllowed = 0;
+
+        //Callback to the presenter to insert team into database
+        mData.insertTeamCallback(this);
 
     }
 
