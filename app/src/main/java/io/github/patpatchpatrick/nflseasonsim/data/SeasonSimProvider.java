@@ -364,12 +364,48 @@ public class SeasonSimProvider extends ContentProvider{
             }
         }
 
+        // If the TeamEntry.Division Wins key is present,
+        // check that the wins value is valid.
+        if (values.containsKey(TeamEntry.COLUMN_TEAM_DIV_WINS)) {
+            Integer divWins = values.getAsInteger(TeamEntry.COLUMN_TEAM_DIV_WINS);
+            if (divWins == null) {
+                throw new IllegalArgumentException("Team requires valid div wins value");
+            }
+        }
+
+        // If the TeamEntry.Division Losses key is present,
+        // check that the losses value is valid.
+        if (values.containsKey(TeamEntry.COLUMN_TEAM_DIV_LOSSES)) {
+            Integer divLosses = values.getAsInteger(TeamEntry.COLUMN_TEAM_DIV_LOSSES);
+            if (divLosses == null) {
+                throw new IllegalArgumentException("Team requires valid div losses value");
+            }
+        }
+
+        // If the TeamEntry.Division Win Loss Percent key is present,
+        // check that the winLossPct value is valid.
+        if (values.containsKey(TeamEntry.COLUMN_TEAM_DIV_WIN_LOSS_PCT)) {
+            Double divWinLossPct = values.getAsDouble(TeamEntry.COLUMN_TEAM_DIV_WIN_LOSS_PCT);
+            if (divWinLossPct == null) {
+                throw new IllegalArgumentException("Team requires valid div win loss pct");
+            }
+        }
+
         // If the TeamEntry.Team Division key is present,
         // check that the current division value is valid.
         if (values.containsKey(TeamEntry.COLUMN_TEAM_DIVISION)) {
             Integer teamDivision = values.getAsInteger(TeamEntry.COLUMN_TEAM_DIVISION);
             if (teamDivision == null) {
                 throw new IllegalArgumentException("Team requires valid division int");
+            }
+        }
+
+        // If the TeamEntry.Playoff Eligible key is present,
+        // check that the current playoff eligibility int is valid.
+        if (values.containsKey(TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE)) {
+            Integer playoffEligible = values.getAsInteger(TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE);
+            if (playoffEligible == null) {
+                throw new IllegalArgumentException("Team requires valid playoff eligibility int");
             }
         }
 

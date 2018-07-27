@@ -27,7 +27,7 @@ public interface SimulatorMvpContract {
         void initializeSeason();
         void teamsInserted();
         void matchesInserted(Schedule schedule);
-        void standingsUpdated(Cursor standingsCursor);
+        void standingsUpdated(int queryType, Cursor standingsCursor);
         void destroyPresenter();
     }
 
@@ -38,7 +38,7 @@ public interface SimulatorMvpContract {
         void insertTeams(HashMap<String, Team> teamList);
         void updateMatch(Match match, Uri uri);
         void updateTeam(Team team, Uri uri);
-        void queryStandings();
+        void queryStandings(int queryType);
         void destroyModel();
 
     }

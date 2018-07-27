@@ -44,7 +44,11 @@ public class SeasonSimContract {
         public static final String COLUMN_TEAM_CURRENT_LOSSES = "teamLosses";
         public static final String COLUMN_TEAM_CURRENT_DRAWS = "teamDraws";
         public static final String COLUMN_TEAM_WIN_LOSS_PCT = "teamWinLossPct";
+        public static final String COLUMN_TEAM_DIV_WINS = "divisionalWins";
+        public static final String COLUMN_TEAM_DIV_LOSSES = "divisionalLosses";
+        public static final String COLUMN_TEAM_DIV_WIN_LOSS_PCT = "divisionalWinLossPct";
         public static final String COLUMN_TEAM_DIVISION = "teamDivision";
+        public static final String COLUMN_TEAM_PLAYOFF_ELIGIBILE = "playoffEligible";
 
         //Define input variables for team divisions
         public static final int DIVISION_AFC_NORTH = 1;
@@ -55,6 +59,40 @@ public class SeasonSimContract {
         public static final int DIVISION_NFC_EAST = 6;
         public static final int DIVISION_NFC_SOUTH = 7;
         public static final int DIVISION_NFC_WEST = 8;
+
+        public static final String getDivisionString(int divisionInt){
+            if (divisionInt == DIVISION_AFC_NORTH){
+                return "AFC North";
+            }
+            if (divisionInt == DIVISION_AFC_EAST){
+                return "AFC East";
+            }
+            if (divisionInt == DIVISION_AFC_SOUTH){
+                return "AFC South";
+            }
+            if (divisionInt == DIVISION_AFC_WEST){
+                return "AFC West";
+            }
+            if (divisionInt == DIVISION_NFC_NORTH){
+                return "NFC North";
+            }
+            if (divisionInt == DIVISION_NFC_EAST){
+                return "NFC East";
+            }
+            if (divisionInt == DIVISION_NFC_SOUTH){
+                return "NFC South";
+            }
+            if (divisionInt == DIVISION_NFC_WEST){
+                return "NFC West";
+                }
+                return null;
+        }
+
+        //Define input variables for playoff eligibility
+        public static final int PLAYOFF_NOT_ELIGIBLE = 0;
+        public static final int PLAYOFF_DIVISION_WINNER = 1;
+        public static final int PLAYOFF_WILD_CARD = 2;
+
     }
 
     public static final class MatchEntry implements BaseColumns{

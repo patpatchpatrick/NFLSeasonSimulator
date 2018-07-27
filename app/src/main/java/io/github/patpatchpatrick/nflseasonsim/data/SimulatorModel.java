@@ -39,6 +39,9 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
     private CompositeDisposable mCompositeDisposable;
 
+    public static final int QUERY_PLAYOFF = 1;
+    public static final int QUERY_REGULAR = 2;
+
     public SimulatorModel(SimulatorMvpContract.SimulatorPresenter presenter) {
         mPresenter = presenter;
 
@@ -346,6 +349,10 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                 values.put(TeamEntry.COLUMN_TEAM_CURRENT_LOSSES, team.getLosses());
                 values.put(TeamEntry.COLUMN_TEAM_CURRENT_DRAWS, team.getDraws());
                 values.put(TeamEntry.COLUMN_TEAM_WIN_LOSS_PCT, team.getWinLossPct());
+                values.put(TeamEntry.COLUMN_TEAM_DIV_WINS, team.getDivisionWins());
+                values.put(TeamEntry.COLUMN_TEAM_DIV_LOSSES, team.getDivisionLosses());
+                values.put(TeamEntry.COLUMN_TEAM_DIV_WIN_LOSS_PCT, team.getDivisionWinLossPct());
+                values.put(TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE, team.getPlayoffEligible());
 
                 int rowsUpdated = contentResolver.update(uri, values, null, null);
 
@@ -379,7 +386,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     }
 
     @Override
-    public void queryStandings() {
+    public void queryStandings(final int queryType) {
 
         //Query the standings from the database
 
@@ -394,10 +401,15 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                         TeamEntry.COLUMN_TEAM_CURRENT_WINS,
                         TeamEntry.COLUMN_TEAM_CURRENT_LOSSES,
                         TeamEntry.COLUMN_TEAM_CURRENT_DRAWS,
-                        TeamEntry.COLUMN_TEAM_WIN_LOSS_PCT};
+                        TeamEntry.COLUMN_TEAM_WIN_LOSS_PCT,
+                        TeamEntry.COLUMN_TEAM_DIV_WINS,
+                        TeamEntry.COLUMN_TEAM_DIV_LOSSES,
+                        TeamEntry.COLUMN_TEAM_DIV_WIN_LOSS_PCT,
+                        TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE,
+                };
                 Cursor standingsCursor = contentResolver.query(TeamEntry.CONTENT_URI, standingsProjection,
                         null, null,
-                        TeamEntry.COLUMN_TEAM_DIVISION + ", " + TeamEntry.COLUMN_TEAM_WIN_LOSS_PCT + " DESC");
+                        TeamEntry.COLUMN_TEAM_DIVISION + ", " + TeamEntry.COLUMN_TEAM_WIN_LOSS_PCT + " DESC, " + TeamEntry.COLUMN_TEAM_DIV_WIN_LOSS_PCT + " DESC");
                 return standingsCursor;
             }
         });
@@ -410,11 +422,12 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
             @Override
             public void onNext(Cursor standingsCursor) {
-                mPresenter.standingsUpdated(standingsCursor);
+                mPresenter.standingsUpdated(queryType, standingsCursor);
             }
 
             @Override
             public void onError(Throwable e) {
+                Log.d("Query Error: ", "" + e);
 
             }
 

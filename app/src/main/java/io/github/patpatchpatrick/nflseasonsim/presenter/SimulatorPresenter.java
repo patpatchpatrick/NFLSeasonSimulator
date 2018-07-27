@@ -6,6 +6,8 @@ import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +20,7 @@ import io.github.patpatchpatrick.nflseasonsim.season_resources.Data;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Match;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.NFLConstants;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Schedule;
+import io.github.patpatchpatrick.nflseasonsim.season_resources.Standings;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Team;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Week;
 import io.reactivex.Scheduler;
@@ -64,9 +67,21 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     }
 
     @Override
-    public void standingsUpdated(Cursor standingsCursor) {
-        //Receive a standings cursor when the standings have been queried from the database
-        displayStandings(standingsCursor);
+    public void standingsUpdated(int queryType, Cursor standingsCursor) {
+
+        if (queryType == SimulatorModel.QUERY_REGULAR){
+            //A regular standings was queried
+            //This regular standings will be evaluated to determine team playoff eligibility
+            Standings.generatePlayoffTeams(standingsCursor, mTeamList);
+            //Teams playoff eligibility has been updated so re-query the standings
+            mModel.queryStandings(SimulatorModel.QUERY_PLAYOFF);
+        }
+        if (queryType == SimulatorModel.QUERY_PLAYOFF) {
+            //A playoff standings was queried
+            //Display playoff standings in UI
+            displayStandings(standingsCursor);
+        }
+
     }
 
     @Override
@@ -488,7 +503,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         }
 
         //After the season  is complete, query the standings (and display them)
-        mModel.queryStandings();
+        mModel.queryStandings(SimulatorModel.QUERY_REGULAR);
     }
 
     @Override
@@ -497,12 +512,29 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     }
 
     private void displayStandings(Cursor standingsCursor) {
+
+        //Decimal format for double values that will  be displayed
+        DecimalFormat df = new DecimalFormat("#.##");
+        df.setRoundingMode(RoundingMode.CEILING);
+
         String standings = "";
+        int i = 4;
+        standingsCursor.moveToPosition(-1);
         while (standingsCursor.moveToNext()) {
+            //For every 4 teams, print the division name of the team
+            if (i % 4 == 0) {
+                int teamDivison = standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DIVISION));
+                standings += "\n** " + TeamEntry.getDivisionString(teamDivison) + " **\n\n";
+            }
             standings += standingsCursor.getString(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_NAME)) + "\n";
             standings += "Wins: " + standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_WINS)) + " "
                     + "Losses: " + standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_LOSSES)) + " "
-                    + "Pct: " + standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_WIN_LOSS_PCT)) + "\n";
+                    + "Pct: " + df.format(standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_WIN_LOSS_PCT))) + "\n"
+                    + "Div Wins: " + standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DIV_WINS)) + " "
+                    + "Div Losses: " + standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DIV_LOSSES)) + " "
+                    + "Div Pct: " + df.format(standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DIV_WIN_LOSS_PCT))) + " "
+                    + "Playoff: " + standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE)) + "\n";
+            i++;
         }
         this.view.onDisplayStandings(standings);
         standingsCursor.close();

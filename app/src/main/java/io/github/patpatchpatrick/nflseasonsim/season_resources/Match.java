@@ -28,6 +28,7 @@ public class Match {
     private int mTeam1Score;
     private int mTeam2Score;
     private Boolean matchComplete;
+    private Boolean divisionalMatchup;
 
 
     public Match(Team team1, Team team2, int week, Data data) {
@@ -41,6 +42,13 @@ public class Match {
         mWeek = week;
         matchComplete = false;
 
+        //Determine if match is a divisional matchup
+        if (mTeam1.getDivision() == mTeam2.getDivision()){
+            divisionalMatchup = true;
+        } else {
+            divisionalMatchup = false;
+        }
+
     }
 
     protected void simulate() {
@@ -50,9 +58,17 @@ public class Match {
 
         //Update team records based on outcome and mark match as complete
         if (teamOneWon){
+            if (divisionalMatchup){
+                mTeam1.divisionalWin();
+                mTeam2.divisionalLoss();
+            }
             mTeam1.win();
             mTeam2.lose();
         } else {
+            if (divisionalMatchup){
+                mTeam1.divisionalLoss();
+                mTeam2.divisionalWin();
+            }
             mTeam1.lose();
             mTeam2.win();
         }
