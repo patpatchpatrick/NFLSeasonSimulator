@@ -1,5 +1,7 @@
 package io.github.patpatchpatrick.nflseasonsim.season_resources;
 
+import android.net.Uri;
+
 public interface Data {
 
     //Interface for callbacks necessary to update database
@@ -8,10 +10,8 @@ public interface Data {
     //when the presenter needs to update the database
     //The presenter will then let the model know to update the database
 
-    void insertTeamCallback(Team team);
-    void insertMatchCallback(Match match);
-    void updateMatchCallback(Match match);
-    void updateTeamCallback(Team team);
+    void updateMatchCallback(Match match, Uri uri);
+    void updateTeamCallback(Team team, Uri uri);
 
 
 }

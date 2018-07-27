@@ -2,6 +2,7 @@ package io.github.patpatchpatrick.nflseasonsim.presenter;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
+import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 
@@ -20,6 +21,7 @@ import io.github.patpatchpatrick.nflseasonsim.season_resources.Schedule;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Team;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Week;
 import io.reactivex.Scheduler;
+import io.reactivex.schedulers.Schedulers;
 
 public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.SimulatorView>
         implements SimulatorMvpContract.SimulatorPresenter, Data {
@@ -41,9 +43,30 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     @Override
     public void initializeSeason() {
         HashMap<String, Team> teamList = createTeams();
+        //Insert teams into database.  After teams are inserted, the teamsInserted() callback is
+        //received from the model
+        mModel.insertTeams(teamList);
+    }
+
+    @Override
+    public void teamsInserted() {
+        //After the teams are inserted into the DB, create the season schedule and insert the
+        //schedule matches into the DB
+        //After the matches are inserted into the DB, the matchesInserted() callback is received
+        //from the model
         Schedule seasonSchedule = createSchedule();
-        simulateSeasonInternal(seasonSchedule);
-        displayStandings();
+        mModel.insertMatches(seasonSchedule);
+    }
+
+    @Override
+    public void matchesInserted(Schedule schedule) {
+        simulateSeasonInternal(schedule);
+    }
+
+    @Override
+    public void standingsUpdated(Cursor standingsCursor) {
+        //Receive a standings cursor when the standings have been queried from the database
+        displayStandings(standingsCursor);
     }
 
     @Override
@@ -55,7 +78,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     private HashMap<String, Team> createTeams() {
         mTeamList = new HashMap<String, Team>();
         mTeamList.put(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING,
-                new Team(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING, NFLConstants.TEAM_ARIZONA_CARDINALS_ELO, 
+                new Team(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING, NFLConstants.TEAM_ARIZONA_CARDINALS_ELO,
                         NFLConstants.TEAM_ARIZONA_CARDINALS_OFFRAT, NFLConstants.TEAM_ARIZONA_CARDINALS_DEFRAT, TeamEntry.DIVISION_NFC_WEST, this));
         mTeamList.put(NFLConstants.TEAM_ATLANTA_FALCONS_STRING,
                 new Team("Atlanta Falcons", NFLConstants.TEAM_ATLANTA_FALCONS_ELO,
@@ -455,59 +478,51 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
     }
 
-    public void simulateSeasonInternal(Schedule seasonSchedule){
+    public void simulateSeasonInternal(Schedule seasonSchedule) {
         //TODO internal code to test season simulation... in final app version, use the simulateSeason method callback
         //From week 1 to week 17 (full season), simulate the season
         int i = 1;
-        while (i <= 17)  {
+        while (i <= 17) {
             seasonSchedule.getWeek(i).simulate();
             i++;
         }
 
-
+        //After the season  is complete, query the standings (and display them)
+        mModel.queryStandings();
     }
 
     @Override
     public void simulateSeason(Schedule seasonSchedule) {
 
-
     }
 
-    private void displayStandings(){
+    private void displayStandings(Cursor standingsCursor) {
         String standings = "";
-        for (String team : mTeamList.keySet()) {
-            standings += mTeamList.get(team).getName() + " ";
-            standings += "Wins: " + mTeamList.get(team).getWins() + " ";
-            standings += "Losses: " + mTeamList.get(team).getLosses() + "\n";
+        while (standingsCursor.moveToNext()) {
+            standings += standingsCursor.getString(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_NAME)) + "\n";
+            standings += "Wins: " + standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_WINS)) + " "
+                    + "Losses: " + standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_LOSSES)) + " "
+                    + "Pct: " + standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_WIN_LOSS_PCT)) + "\n";
         }
         this.view.onDisplayStandings(standings);
+        standingsCursor.close();
     }
 
 
     @Override
-    public void insertTeamCallback(Team team) {
-        //Callback is received when a new team is created
-        //The model is then notified to insert the team into the database
-        mModel.insertTeam(team);
-    }
+    public void updateMatchCallback(Match match, Uri uri) {
 
-    @Override
-    public void insertMatchCallback(Match match) {
-        //Callback is received when a new match is created
-        //The model is then notified to insert the match into the database
-        mModel.insertMatch(match);
-    }
-
-    @Override
-    public void updateMatchCallback(Match match) {
         //Callback is received when a match is completed
         //The model is then notified to update the match in the database
-        mModel.updateMatch(match);
+        mModel.updateMatch(match, uri);
     }
 
     @Override
-    public void updateTeamCallback(Team team) {
-        mModel.updateTeam(team);
+    public void updateTeamCallback(Team team, Uri uri) {
+
+        //Callback is received when a match is completed
+        //The model is then notified to update the team wins, losses and winLossPct.
+        mModel.updateTeam(team, uri);
     }
 
 }

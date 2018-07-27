@@ -1,6 +1,9 @@
 package io.github.patpatchpatrick.nflseasonsim.season_resources;
 
 import android.net.Uri;
+import android.util.Log;
+
+import java.util.concurrent.TimeUnit;
 
 public class Team {
 
@@ -48,9 +51,6 @@ public class Team {
         mPointsFor = 0;
         mPointsAllowed = 0;
 
-        //Callback to the presenter to insert team into database
-        mData.insertTeamCallback(this);
-
     }
 
     public String getName() {
@@ -68,7 +68,8 @@ public class Team {
     public void win() {
         mCurrentWins++;
         mWinLossPct = (double) mCurrentWins / (double) (mCurrentWins + mCurrentLosses);
-        mData.updateTeamCallback(this);
+
+        mData.updateTeamCallback(this, mUri);
     }
 
     public int getWins() {
@@ -102,7 +103,8 @@ public class Team {
     public void lose() {
         mCurrentLosses++;
         mWinLossPct = (double) mCurrentWins / (double) (mCurrentWins + mCurrentLosses);
-        mData.updateTeamCallback(this);
+
+        mData.updateTeamCallback(this, mUri);
     }
 
     public void addPointsFor(int pointsFor) {

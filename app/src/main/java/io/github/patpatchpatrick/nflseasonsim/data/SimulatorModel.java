@@ -2,13 +2,14 @@ package io.github.patpatchpatrick.nflseasonsim.data;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 
-import org.reactivestreams.Subscription;
+import org.reactivestreams.Subscriber;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
@@ -20,13 +21,12 @@ import io.github.patpatchpatrick.nflseasonsim.season_resources.Schedule;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Team;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.TeamEntry;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.MatchEntry;
-import io.github.patpatchpatrick.nflseasonsim.season_resources.Week;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
+import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
@@ -48,6 +48,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
         //Create new composite disposable to manage disposables from RxJava subscriptions
         CompositeDisposable compositeDisposable = new CompositeDisposable();
         mCompositeDisposable = compositeDisposable;
+
     }
 
 
@@ -86,6 +87,67 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
             @Override
             public void onComplete() {
+
+            }
+        });
+
+
+
+    }
+
+    @Override
+    public void insertMatches(final Schedule schedule) {
+
+        //Insert a schedule's matches into the db
+        //First, iterate through the schedule and add all season matches to an ArrayList
+        //Then, add an Obervable.fromIterable to iterate through the ArrayList and add each
+        //match to the db.
+        //After all matches are added to the db, notify the presenter via the matchesInserted callback
+
+        ArrayList<Match> seasonMatches = new ArrayList<>();
+        int weekNumber = 1;
+        while (weekNumber <= 17){
+            ArrayList<Match> weekMatches = schedule.getWeek(weekNumber).getMatches();
+            for (Match match: weekMatches){
+                seasonMatches.add(match);
+            }
+            weekNumber++;
+        }
+
+
+        Observable<Match> insertMatchesObservable = Observable.fromIterable(seasonMatches);
+        insertMatchesObservable.subscribeOn(AndroidSchedulers.mainThread()).observeOn(Schedulers.io()).subscribe(new Observer<Match>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+                mCompositeDisposable.add(d);
+
+            }
+
+            @Override
+            public void onNext(Match match) {
+
+                ContentValues values = new ContentValues();
+                values.put(MatchEntry.COLUMN_MATCH_TEAM_ONE, match.getTeam1().getName());
+                values.put(MatchEntry.COLUMN_MATCH_TEAM_TWO, match.getTeam2().getName());
+                values.put(MatchEntry.COLUMN_MATCH_WEEK, match.getWeek());
+                Uri uri = contentResolver.insert(MatchEntry.CONTENT_URI, values);
+
+                match.setUri(uri);
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+                Log.d("InsertMatchesError: ", "" + e);
+
+            }
+
+            @Override
+            public void onComplete() {
+
+                mPresenter.matchesInserted(schedule);
 
             }
         });
@@ -153,20 +215,92 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     }
 
     @Override
-    public void updateMatch(final Match match) {
+    public void insertTeams(HashMap<String, Team> teamList) {
+
+        //Insert a hashMap's matches into the db
+        //First, iterate through the HashMap and add all matches to an ArrayList
+        //Then, add an Obervable.fromIterable to iterate through the ArrayList and add each
+        //team to the db.
+        //After all teams are added to the db, notify the presenter via the teamsInserted callback
+
+        ArrayList<Team> teamArrayList = new ArrayList<>();
+
+        for (String teamName : teamList.keySet()){
+            teamArrayList.add(teamList.get(teamName));
+        }
+
+        Observable<Team> insertTeamsObservable = Observable.fromIterable(teamArrayList);
+        insertTeamsObservable.subscribeOn(AndroidSchedulers.mainThread()).observeOn(Schedulers.io()).subscribe(new Observer<Team>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+                mCompositeDisposable.add(d);
+
+            }
+
+            @Override
+            public void onNext(Team team) {
+
+                String name = team.getName();
+                double elo = team.getELO();
+                double offRating = team.getOffRating();
+                double defRating = team.getDefRating();
+                int currentWins = team.getWins();
+                int currentLosses = team.getLosses();
+                int currentDraws = team.getDraws();
+                int division = team.getDivision();
+
+                ContentValues values = new ContentValues();
+                values.put(TeamEntry.COLUMN_TEAM_NAME, name);
+                values.put(TeamEntry.COLUMN_TEAM_ELO, elo);
+                values.put(TeamEntry.COLUMN_TEAM_OFF_RATING, offRating);
+                values.put(TeamEntry.COLUMN_TEAM_DEF_RATING, defRating);
+                values.put(TeamEntry.COLUMN_TEAM_CURRENT_WINS, currentWins);
+                values.put(TeamEntry.COLUMN_TEAM_CURRENT_LOSSES, currentLosses);
+                values.put(TeamEntry.COLUMN_TEAM_CURRENT_DRAWS, currentDraws);
+                values.put(TeamEntry.COLUMN_TEAM_DIVISION, division);
+
+                //Insert values into database
+                Uri uri = contentResolver.insert(TeamEntry.CONTENT_URI, values);
+
+                team.setUri(uri);
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+                Log.d("InsertTeamsError: ", "" + e);
+
+            }
+
+            @Override
+            public void onComplete() {
+
+                mPresenter.teamsInserted();
+
+            }
+        });
+
+    }
+
+    @Override
+    public void updateMatch(final Match match, final Uri uri) {
 
         //Update a match in the database
 
         Observable<Integer> updateMatchObservable = Observable.fromCallable(new Callable<Integer>() {
             @Override
             public Integer call() throws Exception {
+
                 //Update match database scores and match complete values
                 ContentValues values = new ContentValues();
                 values.put(MatchEntry.COLUMN_MATCH_TEAM_ONE_SCORE, match.getTeam1Score());
                 values.put(MatchEntry.COLUMN_MATCH_TEAM_TWO_SCORE, match.getTeam2Score());
                 values.put(MatchEntry.COLUMN_MATCH_COMPLETE, MatchEntry.MATCH_COMPLETE_YES);
 
-                int rowsUpdated = contentResolver.update(match.getUri(), values, null, null);
+                int rowsUpdated = contentResolver.update(uri, values, null, null);
+
                 return rowsUpdated;
             }
         });
@@ -183,6 +317,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
             @Override
             public void onError(Throwable e) {
+                Log.d("UpdateMatchError ", "" + e);
 
             }
 
@@ -196,8 +331,9 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
     }
 
+
     @Override
-    public void updateTeam(final Team team) {
+    public void updateTeam(final Team team, final Uri uri) {
 
         //Update a team in the database
 
@@ -211,7 +347,8 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                 values.put(TeamEntry.COLUMN_TEAM_CURRENT_DRAWS, team.getDraws());
                 values.put(TeamEntry.COLUMN_TEAM_WIN_LOSS_PCT, team.getWinLossPct());
 
-                int rowsUpdated = contentResolver.update(team.getUri(), values, null, null);
+                int rowsUpdated = contentResolver.update(uri, values, null, null);
+
                 return rowsUpdated;
             }
         });
@@ -228,6 +365,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
             @Override
             public void onError(Throwable e) {
+                Log.d("UpdateTeamError: ", "" + e);
 
             }
 
@@ -242,6 +380,50 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
     @Override
     public void queryStandings() {
+
+        //Query the standings from the database
+
+        Observable<Cursor> queryStandingsObservable = Observable.fromCallable(new Callable<Cursor>() {
+            @Override
+            public Cursor call() throws Exception {
+                //Query standings
+                String[] standingsProjection = {
+                        TeamEntry._ID,
+                        TeamEntry.COLUMN_TEAM_NAME,
+                        TeamEntry.COLUMN_TEAM_DIVISION,
+                        TeamEntry.COLUMN_TEAM_CURRENT_WINS,
+                        TeamEntry.COLUMN_TEAM_CURRENT_LOSSES,
+                        TeamEntry.COLUMN_TEAM_CURRENT_DRAWS,
+                        TeamEntry.COLUMN_TEAM_WIN_LOSS_PCT};
+                Cursor standingsCursor = contentResolver.query(TeamEntry.CONTENT_URI, standingsProjection,
+                        null, null,
+                        TeamEntry.COLUMN_TEAM_DIVISION + ", " + TeamEntry.COLUMN_TEAM_WIN_LOSS_PCT + " DESC");
+                return standingsCursor;
+            }
+        });
+
+        queryStandingsObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<Cursor>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                mCompositeDisposable.add(d);
+            }
+
+            @Override
+            public void onNext(Cursor standingsCursor) {
+                mPresenter.standingsUpdated(standingsCursor);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+
 
     }
 

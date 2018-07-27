@@ -2,10 +2,14 @@ package io.github.patpatchpatrick.nflseasonsim.season_resources;
 
 import android.content.ContentResolver;
 import android.net.Uri;
+import android.util.Log;
+
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
 import io.github.patpatchpatrick.nflseasonsim.DaggerApplication;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class Match {
 
@@ -37,8 +41,6 @@ public class Match {
         mWeek = week;
         matchComplete = false;
 
-        //Callback to presenter to insert match in database
-        mData.insertMatchCallback(this);
     }
 
     protected void simulate() {
@@ -57,7 +59,7 @@ public class Match {
         matchComplete = true;
 
         //Callback to presenter to update match in database with match result
-        mData.updateMatchCallback(this);
+        mData.updateMatchCallback(this, matchUri);
 
     }
 
@@ -74,6 +76,7 @@ public class Match {
     }
 
     public void setUri(Uri uri){
+
         matchUri = uri;
     }
 

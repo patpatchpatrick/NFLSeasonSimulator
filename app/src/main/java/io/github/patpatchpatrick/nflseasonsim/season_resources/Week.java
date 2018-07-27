@@ -1,5 +1,7 @@
 package io.github.patpatchpatrick.nflseasonsim.season_resources;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 
 public class Week {
