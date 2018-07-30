@@ -398,6 +398,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                         TeamEntry._ID,
                         TeamEntry.COLUMN_TEAM_NAME,
                         TeamEntry.COLUMN_TEAM_DIVISION,
+                        TeamEntry.COLUMN_TEAM_CONFERENCE,
                         TeamEntry.COLUMN_TEAM_CURRENT_WINS,
                         TeamEntry.COLUMN_TEAM_CURRENT_LOSSES,
                         TeamEntry.COLUMN_TEAM_CURRENT_DRAWS,

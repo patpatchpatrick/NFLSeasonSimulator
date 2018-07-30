@@ -48,6 +48,7 @@ public class SeasonSimContract {
         public static final String COLUMN_TEAM_DIV_LOSSES = "divisionalLosses";
         public static final String COLUMN_TEAM_DIV_WIN_LOSS_PCT = "divisionalWinLossPct";
         public static final String COLUMN_TEAM_DIVISION = "teamDivision";
+        public static final String COLUMN_TEAM_CONFERENCE = "teamConference";
         public static final String COLUMN_TEAM_PLAYOFF_ELIGIBILE = "playoffEligible";
 
         //Define input variables for team divisions
@@ -87,6 +88,10 @@ public class SeasonSimContract {
                 }
                 return null;
         }
+
+        //Define input variables for team conference
+        public static final int CONFERENCE_AFC = 1;
+        public static final int CONFERENCE_NFC = 2;
 
         //Define input variables for playoff eligibility
         public static final int PLAYOFF_NOT_ELIGIBLE = 0;

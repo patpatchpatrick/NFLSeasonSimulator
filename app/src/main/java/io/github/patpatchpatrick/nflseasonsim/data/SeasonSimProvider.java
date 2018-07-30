@@ -400,6 +400,15 @@ public class SeasonSimProvider extends ContentProvider{
             }
         }
 
+        // If the TeamEntry.Team Conference key is present,
+        // check that the current conference value is valid.
+        if (values.containsKey(TeamEntry.COLUMN_TEAM_CONFERENCE)) {
+            Integer teamConference = values.getAsInteger(TeamEntry.COLUMN_TEAM_CONFERENCE);
+            if (teamConference == null) {
+                throw new IllegalArgumentException("Team requires valid conference int");
+            }
+        }
+
         // If the TeamEntry.Playoff Eligible key is present,
         // check that the current playoff eligibility int is valid.
         if (values.containsKey(TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE)) {

@@ -19,8 +19,9 @@ public class Team {
     //Name
     private String mName;
 
-    //Division
+    //Division and Conference
     private int mDivision;
+    private int mConference;
 
     //Ratings
     private double mElo;
@@ -61,6 +62,13 @@ public class Team {
         mPointsFor = 0;
         mPointsAllowed = 0;
         mPlayoffEligible = TeamEntry.PLAYOFF_NOT_ELIGIBLE;
+
+        //Set conference value based on division value (all AFC divisions are ints less than 4)
+        if (mDivision <= 4){
+            mConference = TeamEntry.CONFERENCE_AFC;
+        } else {
+            mConference = TeamEntry.CONFERENCE_NFC;
+        }
 
     }
 
@@ -163,5 +171,9 @@ public class Team {
 
     public int getPlayoffEligible(){
         return mPlayoffEligible;
+    }
+
+    public int getConference(){
+        return mConference;
     }
 }
