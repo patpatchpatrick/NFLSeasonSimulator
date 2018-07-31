@@ -51,6 +51,27 @@ public class Match {
 
     }
 
+    public Match(Team team1, Team team2, int week, Data data, Uri uri) {
+
+        //Inject match with dagger to get contentResolver
+        DaggerApplication.getAppComponent().inject(this);
+
+        mData = data;
+        mTeam1 = team1;
+        mTeam2 = team2;
+        mWeek = week;
+        matchComplete = false;
+        matchUri = uri;
+
+        //Determine if match is a divisional matchup
+        if (mTeam1.getDivision() == mTeam2.getDivision()){
+            divisionalMatchup = true;
+        } else {
+            divisionalMatchup = false;
+        }
+
+    }
+
     protected void simulate() {
 
         //Simulate match to determine if team one won

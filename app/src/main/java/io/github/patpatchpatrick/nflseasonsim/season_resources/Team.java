@@ -72,6 +72,36 @@ public class Team {
 
     }
 
+    public Team(String name, double elo, double offRating, double defRating, int division, Data data, Uri uri) {
+
+        mData = data;
+        mName = name;
+        mElo = elo;
+        mOffRating = offRating;
+        mDefRating = defRating;
+        mCurrentWins = 0;
+        mCurrentLosses = 0;
+        mCurrentDraws = 0;
+        mWinLossPct = 0;
+        mCurrentDivisionWins = 0;
+        mCurrentDivisionLosses = 0;
+        mCurrentDivisionWinLossPct = 0;
+        mDivisionStanding = 0;
+        mDivision = division;
+        mPointsFor = 0;
+        mPointsAllowed = 0;
+        mPlayoffEligible = TeamEntry.PLAYOFF_NOT_ELIGIBLE;
+        mUri = uri;
+
+        //Set conference value based on division value (all AFC divisions are ints less than 4)
+        if (mDivision <= 4){
+            mConference = TeamEntry.CONFERENCE_AFC;
+        } else {
+            mConference = TeamEntry.CONFERENCE_NFC;
+        }
+
+    }
+
     public String getName() {
         return mName;
     }

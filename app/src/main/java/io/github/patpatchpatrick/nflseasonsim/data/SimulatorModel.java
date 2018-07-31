@@ -6,11 +6,10 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
-import org.reactivestreams.Subscriber;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
@@ -41,6 +40,9 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
     public static final int QUERY_PLAYOFF = 1;
     public static final int QUERY_REGULAR = 2;
+    public static final int QUERY_LOAD_SEASON = 3;
+
+    private Scheduler mScheduler;
 
     public SimulatorModel(SimulatorMvpContract.SimulatorPresenter presenter) {
         mPresenter = presenter;
@@ -51,6 +53,9 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
         //Create new composite disposable to manage disposables from RxJava subscriptions
         CompositeDisposable compositeDisposable = new CompositeDisposable();
         mCompositeDisposable = compositeDisposable;
+
+        //Scheduler with fixed thread pool to prevent Schedulers.io from creating too many threads/memory leak
+        mScheduler = Schedulers.from(Executors.newFixedThreadPool(50));
 
     }
 
@@ -72,7 +77,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
             }
         });
 
-        insertMatchObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<Uri>() {
+        insertMatchObservable.subscribeOn(mScheduler).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<Uri>() {
             @Override
             public void onSubscribe(Disposable d) {
                 mCompositeDisposable.add(d);
@@ -90,6 +95,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
             @Override
             public void onComplete() {
+
 
             }
         });
@@ -119,7 +125,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
 
         Observable<Match> insertMatchesObservable = Observable.fromIterable(seasonMatches);
-        insertMatchesObservable.subscribeOn(AndroidSchedulers.mainThread()).observeOn(Schedulers.io()).subscribe(new Observer<Match>() {
+        insertMatchesObservable.subscribeOn(AndroidSchedulers.mainThread()).observeOn(mScheduler).subscribe(new Observer<Match>() {
             @Override
             public void onSubscribe(Disposable d) {
 
@@ -151,7 +157,6 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
             public void onComplete() {
 
                 mPresenter.matchesInserted(schedule);
-
             }
         });
 
@@ -192,7 +197,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
             }
         });
 
-        insertTeamObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<Uri>() {
+        insertTeamObservable.subscribeOn(mScheduler).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<Uri>() {
             @Override
             public void onSubscribe(Disposable d) {
                 mCompositeDisposable.add(d);
@@ -233,7 +238,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
         }
 
         Observable<Team> insertTeamsObservable = Observable.fromIterable(teamArrayList);
-        insertTeamsObservable.subscribeOn(AndroidSchedulers.mainThread()).observeOn(Schedulers.io()).subscribe(new Observer<Team>() {
+        insertTeamsObservable.subscribeOn(AndroidSchedulers.mainThread()).observeOn(mScheduler).subscribe(new Observer<Team>() {
             @Override
             public void onSubscribe(Disposable d) {
 
@@ -290,6 +295,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     @Override
     public void updateMatch(final Match match, final Uri uri) {
 
+
         //Update a match in the database
 
         Observable<Integer> updateMatchObservable = Observable.fromCallable(new Callable<Integer>() {
@@ -308,7 +314,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
             }
         });
 
-        updateMatchObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<Integer>() {
+        updateMatchObservable.subscribeOn(mScheduler).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<Integer>() {
             @Override
             public void onSubscribe(Disposable d) {
                 mCompositeDisposable.add(d);
@@ -326,7 +332,6 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
             @Override
             public void onComplete() {
-
             }
         });
 
@@ -337,6 +342,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
     @Override
     public void updateTeam(final Team team, final Uri uri) {
+
 
         //Update a team in the database
 
@@ -356,11 +362,13 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
                 int rowsUpdated = contentResolver.update(uri, values, null, null);
 
+                Log.d("Thread: " , "" + Thread.currentThread().getName());
+
                 return rowsUpdated;
             }
         });
 
-        updateTeamObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<Integer>() {
+        updateTeamObservable.subscribeOn(mScheduler).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<Integer>() {
             @Override
             public void onSubscribe(Disposable d) {
                 mCompositeDisposable.add(d);
@@ -378,7 +386,6 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
             @Override
             public void onComplete() {
-
             }
         });
 
@@ -407,6 +414,9 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                         TeamEntry.COLUMN_TEAM_DIV_LOSSES,
                         TeamEntry.COLUMN_TEAM_DIV_WIN_LOSS_PCT,
                         TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE,
+                        TeamEntry.COLUMN_TEAM_ELO,
+                        TeamEntry.COLUMN_TEAM_OFF_RATING,
+                        TeamEntry.COLUMN_TEAM_DEF_RATING,
                 };
                 Cursor standingsCursor = contentResolver.query(TeamEntry.CONTENT_URI, standingsProjection,
                         null, null,
@@ -415,7 +425,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
             }
         });
 
-        queryStandingsObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<Cursor>() {
+        queryStandingsObservable.subscribeOn(mScheduler).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<Cursor>() {
             @Override
             public void onSubscribe(Disposable d) {
                 mCompositeDisposable.add(d);
@@ -434,7 +444,56 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
             @Override
             public void onComplete() {
+            }
+        });
 
+
+    }
+
+    @Override
+    public void queryMatches() {
+
+        //Query the matches/schedule from the database
+
+        Observable<Cursor> queryMatchesObservable = Observable.fromCallable(new Callable<Cursor>() {
+            @Override
+            public Cursor call() throws Exception {
+                //Query standings
+                String[] matchesProjection = {
+                        MatchEntry._ID,
+                        MatchEntry.COLUMN_MATCH_TEAM_ONE,
+                        MatchEntry.COLUMN_MATCH_TEAM_TWO,
+                        MatchEntry.COLUMN_MATCH_TEAM_ONE_SCORE,
+                        MatchEntry.COLUMN_MATCH_TEAM_TWO_SCORE,
+                        MatchEntry.COLUMN_MATCH_WEEK,
+                        MatchEntry.COLUMN_MATCH_COMPLETE,
+                };
+                Cursor matchesCursor = contentResolver.query(MatchEntry.CONTENT_URI, matchesProjection,
+                        null, null,
+                        null);
+                return matchesCursor;
+            }
+        });
+
+        queryMatchesObservable.subscribeOn(mScheduler).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<Cursor>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                mCompositeDisposable.add(d);
+            }
+
+            @Override
+            public void onNext(Cursor matchesCursor) {
+                mPresenter.matchesQueried(matchesCursor);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d("Query Error: ", "" + e);
+
+            }
+
+            @Override
+            public void onComplete() {
             }
         });
 

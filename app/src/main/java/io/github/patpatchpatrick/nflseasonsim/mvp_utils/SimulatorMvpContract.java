@@ -16,17 +16,19 @@ public interface SimulatorMvpContract {
     interface SimulatorView {
 
         // button events
-        void onSimulateWeekButtonClicked();
-        void onSimulateSeasonButtonClicked();
         void onDisplayStandings(String standings);
+        void onSeasonInitialized();
+        void onSeasonLoadedFromDb();
     }
 
     interface SimulatorPresenter {
         void simulateWeek();
-        void simulateSeason(Schedule seasonSchedule);
+        void simulateSeason();
         void initializeSeason();
+        void loadSeasonFromDatabase();
         void teamsInserted();
         void matchesInserted(Schedule schedule);
+        void matchesQueried(Cursor matchesCursor);
         void standingsUpdated(int queryType, Cursor standingsCursor);
         void destroyPresenter();
     }
@@ -39,6 +41,7 @@ public interface SimulatorMvpContract {
         void updateMatch(Match match, Uri uri);
         void updateTeam(Team team, Uri uri);
         void queryStandings(int queryType);
+        void queryMatches();
         void destroyModel();
 
     }

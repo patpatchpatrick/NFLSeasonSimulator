@@ -1,6 +1,7 @@
 package io.github.patpatchpatrick.nflseasonsim.season_resources;
 
 import android.database.Cursor;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,6 +27,8 @@ public class Standings {
             String teamName = standingsCursor.getString(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_NAME));
             Team team = teams.get(teamName);
 
+            Log.d("Playoff:  ", teamName);
+
             //For every 4 teams, the first team is the division winner and is playoff eligible
             //Mark the team as playoff eligible division winner
             if (i % 4 == 0) {
@@ -44,6 +47,8 @@ public class Standings {
         //Generate two wildcard teams for each conference
         generateWildCardTeams(potentialAFCWildCardTeams);
         generateWildCardTeams(potentialNFCWildCardTeams);
+
+        standingsCursor.close();
 
     }
 

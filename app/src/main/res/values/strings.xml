@@ -4,4 +4,10 @@
     <!-- Loading  -->
     <string name="loading">Loading...</string>
 
+    <string name="ready_to_simulate">Ready to Simulate</string>
+
+    <!-- Settings Keys, Labels and Values [CHAR LIMIT=TBD] -->
+    <string name="settings_season_initialized_key">season initialized</string>
+    <string name="settings_season_intialized_title">Season Initialized</string>
+
 </resources>
