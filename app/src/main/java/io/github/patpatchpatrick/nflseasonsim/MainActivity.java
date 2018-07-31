@@ -1,10 +1,6 @@
 package io.github.patpatchpatrick.nflseasonsim;
 
-import android.content.ContentResolver;
-import android.content.Context;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,20 +8,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-
-import javax.inject.Inject;
-
-import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract;
-import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.SimulatorMvpContract;
 import io.github.patpatchpatrick.nflseasonsim.presenter.SimulatorPresenter;
-import io.github.patpatchpatrick.nflseasonsim.season_resources.Team;
 
 public class MainActivity extends AppCompatActivity implements SimulatorMvpContract.SimulatorView {
 
     Button mSimulateSeason;
-    TextView mTextView;
+    Button mSimulateWeek;
+    TextView mStandingsTextView;
+    TextView mScoresTextView;
     private SimulatorPresenter mPresenter;
     private SharedPreferences mSharedPreferences;
 
@@ -35,8 +26,10 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mTextView = (TextView) findViewById(R.id.test_dagger_text_view);
+        mStandingsTextView = (TextView) findViewById(R.id.standings_text_view);
+        mScoresTextView = (TextView) findViewById(R.id.scores_text_view);
         mSimulateSeason = (Button) findViewById(R.id.simulate_season_button);
+        mSimulateWeek = (Button) findViewById(R.id.simulate_week_button);
 
         //TODO inject presenter instead of instantiating it
         SimulatorPresenter presenter = new SimulatorPresenter(this);
@@ -46,20 +39,30 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         //If already initialized, load season from the database
         if (!SimulatorPresenter.seasonIsInitialized()) {
             mSimulateSeason.setEnabled(false);
-            mTextView.setText(getString(R.string.loading));
+            mSimulateWeek.setEnabled(false);
+            mStandingsTextView.setText(getString(R.string.loading));
             mPresenter.initializeSeason();
         } else {
             mSimulateSeason.setEnabled(false);
-            mTextView.setText(getString(R.string.loading));
+            mStandingsTextView.setText(getString(R.string.loading));
             mPresenter.loadSeasonFromDatabase();
         }
 
         mSimulateSeason.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mTextView.setText(getString(R.string.loading));
+                mStandingsTextView.setText(getString(R.string.loading));
                 mSimulateSeason.setEnabled(false);
                 mPresenter.simulateSeason();
+            }
+        });
+
+        mSimulateWeek.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mStandingsTextView.setText(getString(R.string.loading));
+                mSimulateWeek.setEnabled(false);
+                mPresenter.simulateWeek();
             }
         });
 
@@ -97,7 +100,8 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
             public void run() {
 
                 mSimulateSeason.setEnabled(true);
-                mTextView.setText(getString(R.string.ready_to_simulate));
+                mSimulateWeek.setEnabled(true);
+                mStandingsTextView.setText(getString(R.string.ready_to_simulate));
                 setSeasonInitializedPreference();
             }
         });
@@ -106,14 +110,25 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     @Override
     public void onSeasonLoadedFromDb() {
         mSimulateSeason.setEnabled(true);
-        mTextView.setText(getString(R.string.ready_to_simulate));
+        mSimulateWeek.setEnabled(true);
+        mStandingsTextView.setText(getString(R.string.ready_to_simulate));
     }
 
     @Override
     public void onDisplayStandings(String standings) {
+        //Callback received from presenter to display standings after they are loaded
         mSimulateSeason.setEnabled(true);
-        mTextView.setText(standings);
+        mSimulateWeek.setEnabled(true);
+        mStandingsTextView.setText(standings);
 
+    }
+
+    @Override
+    public void onDisplayScores(String scores) {
+        //Callback received from presenter to display scores after they are loaded
+        mSimulateSeason.setEnabled(true);
+        mSimulateWeek.setEnabled(true);
+        mScoresTextView.setText(scores + mScoresTextView.getText());
     }
 
 

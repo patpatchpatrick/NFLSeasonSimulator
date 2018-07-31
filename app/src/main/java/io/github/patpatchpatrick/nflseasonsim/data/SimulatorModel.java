@@ -38,9 +38,11 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
     private CompositeDisposable mCompositeDisposable;
 
-    public static final int QUERY_PLAYOFF = 1;
-    public static final int QUERY_REGULAR = 2;
-    public static final int QUERY_LOAD_SEASON = 3;
+    public static final int QUERY_STANDINGS_PLAYOFF = 1;
+    public static final int QUERY_STANDINGS_REGULAR = 2;
+    public static final int QUERY_STANDINGS_LOAD_SEASON = 3;
+
+    public static final int QUERY_MATCHES_ALL = 0;
 
     private Scheduler mScheduler;
 
@@ -101,7 +103,6 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
         });
 
 
-
     }
 
     @Override
@@ -115,9 +116,9 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
         ArrayList<Match> seasonMatches = new ArrayList<>();
         int weekNumber = 1;
-        while (weekNumber <= 17){
+        while (weekNumber <= 17) {
             ArrayList<Match> weekMatches = schedule.getWeek(weekNumber).getMatches();
-            for (Match match: weekMatches){
+            for (Match match : weekMatches) {
                 seasonMatches.add(match);
             }
             weekNumber++;
@@ -159,7 +160,6 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                 mPresenter.matchesInserted(schedule);
             }
         });
-
 
 
     }
@@ -233,7 +233,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
         ArrayList<Team> teamArrayList = new ArrayList<>();
 
-        for (String teamName : teamList.keySet()){
+        for (String teamName : teamList.keySet()) {
             teamArrayList.add(teamList.get(teamName));
         }
 
@@ -336,7 +336,6 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
         });
 
 
-
     }
 
 
@@ -362,7 +361,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
                 int rowsUpdated = contentResolver.update(uri, values, null, null);
 
-                Log.d("Thread: " , "" + Thread.currentThread().getName());
+                Log.d("Thread: ", "" + Thread.currentThread().getName());
 
                 return rowsUpdated;
             }
@@ -451,7 +450,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     }
 
     @Override
-    public void queryMatches() {
+    public void queryMatches(final int weekNumber) {
 
         //Query the matches/schedule from the database
 
@@ -468,9 +467,28 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                         MatchEntry.COLUMN_MATCH_WEEK,
                         MatchEntry.COLUMN_MATCH_COMPLETE,
                 };
-                Cursor matchesCursor = contentResolver.query(MatchEntry.CONTENT_URI, matchesProjection,
-                        null, null,
-                        null);
+
+                Cursor matchesCursor;
+
+                //Either query all matches or query matches for a specific week, depending on the
+                //input weekNumber integer that was given
+
+                if (weekNumber == QUERY_MATCHES_ALL) {
+
+                    matchesCursor = contentResolver.query(MatchEntry.CONTENT_URI, matchesProjection,
+                            null, null,
+                            null);
+                } else {
+
+                    String selection = MatchEntry.COLUMN_MATCH_WEEK + "=?";
+                    String[] selectionArgs = new String[]{String.valueOf(weekNumber)};
+
+                    matchesCursor = contentResolver.query(MatchEntry.CONTENT_URI, matchesProjection,
+                            selection, selectionArgs,
+                            null);
+
+                }
+
                 return matchesCursor;
             }
         });
@@ -483,7 +501,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
             @Override
             public void onNext(Cursor matchesCursor) {
-                mPresenter.matchesQueried(matchesCursor);
+                mPresenter.matchesQueried(weekNumber, matchesCursor);
             }
 
             @Override

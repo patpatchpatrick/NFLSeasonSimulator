@@ -1,19 +1,13 @@
 package io.github.patpatchpatrick.nflseasonsim.presenter;
 
-import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
-import android.view.View;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
-import io.github.patpatchpatrick.nflseasonsim.MainActivity;
 import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.SimulatorMvpContract;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.TeamEntry;
@@ -25,8 +19,6 @@ import io.github.patpatchpatrick.nflseasonsim.season_resources.Schedule;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Standings;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Team;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Week;
-import io.reactivex.Scheduler;
-import io.reactivex.schedulers.Schedulers;
 
 public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.SimulatorView>
         implements SimulatorMvpContract.SimulatorPresenter, Data {
@@ -34,6 +26,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     private HashMap<String, Team> mTeamList;
     private Schedule mSchedule;
     private SimulatorModel mModel;
+    private int mCurrentWeek;
     private static Boolean mSeasonInitialized = false;
 
     public SimulatorPresenter(SimulatorMvpContract.SimulatorView view) {
@@ -44,11 +37,18 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
     @Override
     public void simulateWeek() {
-
+        //Simulate a single week
+        mSchedule.getWeek(mCurrentWeek).simulate();
+        //After the week is complete, query the standings (and display them)
+        mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_REGULAR);
+        //Query the week scores and display them
+        mModel.queryMatches(mCurrentWeek);
+        mCurrentWeek++;
     }
 
     @Override
     public void initializeSeason() {
+        mCurrentWeek = 1;
         HashMap<String, Team> teamList = createTeams();
         //Insert teams into database.  After teams are inserted, the teamsInserted() callback is
         //received from the model
@@ -57,7 +57,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
     @Override
     public void loadSeasonFromDatabase() {
-        mModel.queryStandings(SimulatorModel.QUERY_LOAD_SEASON);
+        mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_LOAD_SEASON);
         this.view.onSeasonLoadedFromDb();
     }
 
@@ -80,125 +80,143 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     }
 
     @Override
-    public void matchesQueried(Cursor matchesCursor) {
+    public void matchesQueried(int queryType, Cursor matchesCursor) {
 
-        //Initialize all schedule, weeks, and matches.  Add weeks to schedule.
-        Schedule seasonSchedule = new Schedule();
-        Week weekOne = new Week(1);
-        Week weekTwo = new Week(2);
-        Week weekThree = new Week(3);
-        Week weekFour = new Week(4);
-        Week weekFive = new Week(5);
-        Week weekSix = new Week(6);
-        Week weekSeven = new Week(7);
-        Week weekEight = new Week(8);
-        Week weekNine = new Week(9);
-        Week weekTen = new Week(10);
-        Week weekEleven = new Week(11);
-        Week weekTwelve = new Week(12);
-        Week weekThirteen = new Week(13);
-        Week weekFourteen = new Week(14);
-        Week weekFifteen = new Week(15);
-        Week weekSixteen = new Week(16);
-        Week weekSeventeen = new Week(17);
+        //If you are not querying all matches, put the score info in a string and display it in the main activity
+        //Otherwise, add the match info to the schedule under the ELSE statement
 
-        //Get matches from database cursor and add them to the schedule
-        matchesCursor.moveToPosition(-1);
-        while (matchesCursor.moveToNext()) {
+        if (queryType != SimulatorModel.QUERY_MATCHES_ALL) {
 
-            String teamOne = matchesCursor.getString(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_ONE));
-            String teamTwo = matchesCursor.getString(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_TWO));
-            int matchWeek = matchesCursor.getInt(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_WEEK));
-            int ID = matchesCursor.getInt(matchesCursor.getColumnIndexOrThrow(MatchEntry._ID));
-            Uri matchUri = ContentUris.withAppendedId(MatchEntry.CONTENT_URI, ID);
+            int weekNumber = queryType;
 
-            switch (matchWeek) {
+            String scoreString = "** Week " + weekNumber + " **\n";
 
-                case 1:
-                    weekOne.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 1, this, matchUri));
-                    break;
-                case 2:
-                    weekTwo.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 2, this, matchUri));
-                    break;
-                case 3:
-                    weekThree.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 3, this, matchUri));
-                    break;
-                case 4:
-                    weekFour.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 4, this, matchUri));
-                    break;
-                case 5:
-                    weekFive.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 5, this, matchUri));
-                    break;
-                case 6:
-                    weekSix.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 6, this, matchUri));
-                    break;
-                case 7:
-                    weekSeven.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 7, this, matchUri));
-                    break;
-                case 8:
-                    weekEight.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 8, this, matchUri));
-                    break;
-                case 9:
-                    weekNine.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 9, this, matchUri));
-                    break;
-                case 10:
-                    weekTen.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 10, this, matchUri));
-                    break;
-                case 11:
-                    weekEleven.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 11, this, matchUri));
-                    break;
-                case 12:
-                    weekTwelve.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 12, this, matchUri));
-                    break;
-                case 13:
-                    weekThirteen.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 13, this, matchUri));
-                    break;
-                case 14:
-                    weekFourteen.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 14, this, matchUri));
-                    break;
-                case 15:
-                    weekFifteen.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 15, this, matchUri));
-                    break;
-                case 16:
-                    weekSixteen.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 16, this, matchUri));
-                    break;
-                case 17:
-                    weekSeventeen.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 17, this, matchUri));
-                    break;
+            matchesCursor.moveToPosition(-1);
+            while (matchesCursor.moveToNext()) {
+
+                String teamOne = matchesCursor.getString(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_ONE));
+                String teamTwo = matchesCursor.getString(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_TWO));
+                int scoreOne = matchesCursor.getInt(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_ONE_SCORE));
+                int scoreTwo = matchesCursor.getInt(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_TWO_SCORE));
+
+                scoreString += teamOne + " " + scoreOne + "\n" + teamTwo + " " + scoreTwo + "\n" + "**********" + "\n";
+            }
+
+            this.view.onDisplayScores(scoreString);
+
+
+        } else {
+
+            //Initialize all schedule, weeks, and matches.  Add weeks to schedule.
+            Schedule seasonSchedule = new Schedule();
+            Week weekOne = new Week(1);
+            Week weekTwo = new Week(2);
+            Week weekThree = new Week(3);
+            Week weekFour = new Week(4);
+            Week weekFive = new Week(5);
+            Week weekSix = new Week(6);
+            Week weekSeven = new Week(7);
+            Week weekEight = new Week(8);
+            Week weekNine = new Week(9);
+            Week weekTen = new Week(10);
+            Week weekEleven = new Week(11);
+            Week weekTwelve = new Week(12);
+            Week weekThirteen = new Week(13);
+            Week weekFourteen = new Week(14);
+            Week weekFifteen = new Week(15);
+            Week weekSixteen = new Week(16);
+            Week weekSeventeen = new Week(17);
+
+            //Get matches from database cursor and add them to the schedule
+            matchesCursor.moveToPosition(-1);
+            while (matchesCursor.moveToNext()) {
+
+                String teamOne = matchesCursor.getString(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_ONE));
+                String teamTwo = matchesCursor.getString(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_TWO));
+                int matchWeek = matchesCursor.getInt(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_WEEK));
+                int ID = matchesCursor.getInt(matchesCursor.getColumnIndexOrThrow(MatchEntry._ID));
+                Uri matchUri = ContentUris.withAppendedId(MatchEntry.CONTENT_URI, ID);
+
+                switch (matchWeek) {
+
+                    case 1:
+                        weekOne.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 1, this, matchUri));
+                        break;
+                    case 2:
+                        weekTwo.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 2, this, matchUri));
+                        break;
+                    case 3:
+                        weekThree.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 3, this, matchUri));
+                        break;
+                    case 4:
+                        weekFour.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 4, this, matchUri));
+                        break;
+                    case 5:
+                        weekFive.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 5, this, matchUri));
+                        break;
+                    case 6:
+                        weekSix.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 6, this, matchUri));
+                        break;
+                    case 7:
+                        weekSeven.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 7, this, matchUri));
+                        break;
+                    case 8:
+                        weekEight.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 8, this, matchUri));
+                        break;
+                    case 9:
+                        weekNine.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 9, this, matchUri));
+                        break;
+                    case 10:
+                        weekTen.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 10, this, matchUri));
+                        break;
+                    case 11:
+                        weekEleven.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 11, this, matchUri));
+                        break;
+                    case 12:
+                        weekTwelve.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 12, this, matchUri));
+                        break;
+                    case 13:
+                        weekThirteen.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 13, this, matchUri));
+                        break;
+                    case 14:
+                        weekFourteen.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 14, this, matchUri));
+                        break;
+                    case 15:
+                        weekFifteen.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 15, this, matchUri));
+                        break;
+                    case 16:
+                        weekSixteen.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 16, this, matchUri));
+                        break;
+                    case 17:
+                        weekSeventeen.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 17, this, matchUri));
+                        break;
+
+                }
+
 
             }
 
+            matchesCursor.close();
 
-        }
+            seasonSchedule.addWeek(weekOne);
+            seasonSchedule.addWeek(weekTwo);
+            seasonSchedule.addWeek(weekThree);
+            seasonSchedule.addWeek(weekFour);
+            seasonSchedule.addWeek(weekFive);
+            seasonSchedule.addWeek(weekSix);
+            seasonSchedule.addWeek(weekSeven);
+            seasonSchedule.addWeek(weekEight);
+            seasonSchedule.addWeek(weekNine);
+            seasonSchedule.addWeek(weekTen);
+            seasonSchedule.addWeek(weekEleven);
+            seasonSchedule.addWeek(weekTwelve);
+            seasonSchedule.addWeek(weekThirteen);
+            seasonSchedule.addWeek(weekFourteen);
+            seasonSchedule.addWeek(weekFifteen);
+            seasonSchedule.addWeek(weekSixteen);
+            seasonSchedule.addWeek(weekSeventeen);
 
-        matchesCursor.close();
-
-        seasonSchedule.addWeek(weekOne);
-        seasonSchedule.addWeek(weekTwo);
-        seasonSchedule.addWeek(weekThree);
-        seasonSchedule.addWeek(weekFour);
-        seasonSchedule.addWeek(weekFive);
-        seasonSchedule.addWeek(weekSix);
-        seasonSchedule.addWeek(weekSeven);
-        seasonSchedule.addWeek(weekEight);
-        seasonSchedule.addWeek(weekNine);
-        seasonSchedule.addWeek(weekTen);
-        seasonSchedule.addWeek(weekEleven);
-        seasonSchedule.addWeek(weekTwelve);
-        seasonSchedule.addWeek(weekThirteen);
-        seasonSchedule.addWeek(weekFourteen);
-        seasonSchedule.addWeek(weekFifteen);
-        seasonSchedule.addWeek(weekSixteen);
-        seasonSchedule.addWeek(weekSeventeen);
-
-        mSchedule = seasonSchedule;
-
-        int week = 1;
-        while (week <= 17){
-            Log.d("MatchT1:  ", mSchedule.getWeek(week).getMatches().get(0).getTeam1().getName());
-            Log.d("MatchT1:  ", mSchedule.getWeek(week).getMatches().get(0).getTeam2().getName());
-            Log.d("MatchT1:  ", mSchedule.getWeek(week).getMatches().get(6).getTeam2().getName());
-            week++;
+            mSchedule = seasonSchedule;
         }
 
     }
@@ -206,33 +224,28 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     @Override
     public void standingsUpdated(int queryType, Cursor standingsCursor) {
 
-        if (queryType == SimulatorModel.QUERY_REGULAR) {
+        if (queryType == SimulatorModel.QUERY_STANDINGS_REGULAR) {
             //A regular standings was queried
             //This regular standings will be evaluated to determine team playoff eligibility
-
-            for (String team : mTeamList.keySet()){
-                Log.d("Team Name", mTeamList.get(team).getName());
-                Log.d("Team WL: ", "" + mTeamList.get(team).getDivisionWinLossPct());
-            }
-
-
             Standings.generatePlayoffTeams(standingsCursor, mTeamList);
             //Teams playoff eligibility has been updated so re-query the standings
-            mModel.queryStandings(SimulatorModel.QUERY_PLAYOFF);
+            mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_PLAYOFF);
         }
-        if (queryType == SimulatorModel.QUERY_PLAYOFF) {
+        if (queryType == SimulatorModel.QUERY_STANDINGS_PLAYOFF) {
             //A playoff standings was queried
             //Display playoff standings in UI
             displayStandings(standingsCursor);
         }
-        if (queryType == SimulatorModel.QUERY_LOAD_SEASON) {
+        if (queryType == SimulatorModel.QUERY_STANDINGS_LOAD_SEASON) {
             createTeamsFromDb(standingsCursor);
-            mModel.queryMatches();
+            mModel.queryMatches(SimulatorModel.QUERY_MATCHES_ALL);
         }
 
     }
 
     private void createTeamsFromDb(Cursor standingsCursor) {
+
+        //Create team objects from database
 
         mTeamList = new HashMap<String, Team>();
 
@@ -678,7 +691,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         }
 
         //After the season  is complete, query the standings (and display them)
-        mModel.queryStandings(SimulatorModel.QUERY_REGULAR);
+        mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_REGULAR);
     }
 
     private void displayStandings(Cursor standingsCursor) {
@@ -697,12 +710,8 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
                 standings += "\n** " + TeamEntry.getDivisionString(teamDivison) + " **\n\n";
             }
             standings += standingsCursor.getString(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_NAME)) + "\n";
-            standings += "Wins: " + standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_WINS)) + " "
-                    + "Losses: " + standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_LOSSES)) + " "
-                    + "Pct: " + df.format(standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_WIN_LOSS_PCT))) + "\n"
-                    + "Div Wins: " + standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DIV_WINS)) + " "
-                    + "Div Losses: " + standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DIV_LOSSES)) + " "
-                    + "Div Pct: " + df.format(standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DIV_WIN_LOSS_PCT))) + " "
+            standings += standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_WINS)) + " - "
+                    + standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_LOSSES)) + " "
                     + "Playoff: " + standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE)) + "\n";
             i++;
         }
