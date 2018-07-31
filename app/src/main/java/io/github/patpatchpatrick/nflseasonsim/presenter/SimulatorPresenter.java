@@ -26,7 +26,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     private HashMap<String, Team> mTeamList;
     private Schedule mSchedule;
     private SimulatorModel mModel;
-    private int mCurrentWeek;
+    private static int mCurrentWeek;
     private static Boolean mSeasonInitialized = false;
 
     public SimulatorPresenter(SimulatorMvpContract.SimulatorView view) {
@@ -59,6 +59,14 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     public void loadSeasonFromDatabase() {
         mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_LOAD_SEASON);
         this.view.onSeasonLoadedFromDb();
+    }
+
+    @Override
+    public void loadAlreadySimulatedData() {
+        //Load the standings, as well as the matches that have already been simulated (last week's matches)
+        mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_REGULAR);
+        mModel.queryMatches(mCurrentWeek - 1);
+        this.view.onPriorSimulatedDataLoaded();
     }
 
     @Override
@@ -102,7 +110,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
                 scoreString += teamOne + " " + scoreOne + "\n" + teamTwo + " " + scoreTwo + "\n" + "**********" + "\n";
             }
 
-            this.view.onDisplayScores(scoreString);
+            this.view.onDisplayScores(queryType, scoreString);
 
 
         } else {
@@ -254,6 +262,8 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
             int ID = standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry._ID));
             String teamName = standingsCursor.getString(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_NAME));
+            int teamWins = standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_WINS));
+            int teamLosses = standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_LOSSES));
             Double teamElo = standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_ELO));
             Double offRating = standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_OFF_RATING));
             Double defRating = standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DEF_RATING));
@@ -263,7 +273,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
             mTeamList.put(teamName,
                     new Team(teamName, teamElo,
-                            offRating, defRating, division, this, teamUri));
+                            offRating, defRating, division, this, teamWins, teamLosses, teamUri));
 
         }
 
@@ -743,5 +753,14 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     public static void setSeasonInitialized(Boolean seasonIsInitialized) {
         mSeasonInitialized = seasonIsInitialized;
     }
+
+    public static void setCurrentWeek(int currentWeek) {
+        mCurrentWeek = currentWeek;
+    }
+
+    public static int getCurrentWeek() {
+        return mCurrentWeek;
+    }
+
 
 }

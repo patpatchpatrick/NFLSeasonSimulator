@@ -72,15 +72,15 @@ public class Team {
 
     }
 
-    public Team(String name, double elo, double offRating, double defRating, int division, Data data, Uri uri) {
+    public Team(String name, double elo, double offRating, double defRating, int division, Data data, int wins, int losses, Uri uri) {
 
         mData = data;
         mName = name;
         mElo = elo;
         mOffRating = offRating;
         mDefRating = defRating;
-        mCurrentWins = 0;
-        mCurrentLosses = 0;
+        mCurrentWins = wins;
+        mCurrentLosses = losses;
         mCurrentDraws = 0;
         mWinLossPct = 0;
         mCurrentDivisionWins = 0;

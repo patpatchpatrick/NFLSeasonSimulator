@@ -17,9 +17,10 @@ public interface SimulatorMvpContract {
 
         // button events
         void onDisplayStandings(String standings);
-        void onDisplayScores(String scores);
+        void onDisplayScores(int weekNumber, String scores);
         void onSeasonInitialized();
         void onSeasonLoadedFromDb();
+        void onPriorSimulatedDataLoaded();
     }
 
     interface SimulatorPresenter {
@@ -27,6 +28,7 @@ public interface SimulatorMvpContract {
         void simulateSeason();
         void initializeSeason();
         void loadSeasonFromDatabase();
+        void loadAlreadySimulatedData();
         void teamsInserted();
         void matchesInserted(Schedule schedule);
         void matchesQueried(int queryType, Cursor matchesCursor);

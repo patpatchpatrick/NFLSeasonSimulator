@@ -6,4 +6,13 @@
         android:key="@string/settings_season_initialized_key"
         android:title="@string/settings_season_intialized_title" />
 
+    <ListPreference
+        android:defaultValue="@integer/settings_value_week_one"
+        android:entries="@array/settings_week_number_labels"
+        android:entryValues="@array/settings_week_number_values"
+        android:key="@string/settings_week_num_key"
+        android:title="@string/settings_week_number_title">
+
+    </ListPreference>
+
 </PreferenceScreen>

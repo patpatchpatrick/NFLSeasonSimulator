@@ -9,5 +9,24 @@
     <!-- Settings Keys, Labels and Values [CHAR LIMIT=TBD] -->
     <string name="settings_season_initialized_key">season initialized</string>
     <string name="settings_season_intialized_title">Season Initialized</string>
+    <string name="settings_week_num_key">week number</string>
+    <string name="settings_week_number_title">Week Number</string>
+    <string name="settings_label_week_one">Week One</string>
+    <string name="settings_label_week_two">Week Two</string>
+    <string name="settings_label_week_three">Week Three</string>
+    <string name="settings_label_week_four">Week Four</string>
+    <string name="settings_label_week_five">Week Five</string>
+    <string name="settings_label_week_six">Week Six</string>
+    <string name="settings_label_week_seven">Week Seven</string>
+    <string name="settings_label_week_eight">Week Eight</string>
+    <string name="settings_label_week_nine">Week Nine</string>
+    <string name="settings_label_week_ten">Week Ten</string>
+    <string name="settings_label_week_eleven">Week Eleven</string>
+    <string name="settings_label_week_twelve">Week Twelve</string>
+    <string name="settings_label_week_thirteen">Week thirteen</string>
+    <string name="settings_label_week_fourteen">Week Fourteen</string>
+    <string name="settings_label_week_fifteen">Week Fifteen</string>
+    <string name="settings_label_week_sixteen">Week Sixteen</string>
+    <string name="settings_label_week_seventeen">Week Seventeen</string>
 
 </resources>

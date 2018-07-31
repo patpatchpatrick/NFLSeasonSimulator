@@ -25,6 +25,9 @@ public class Standings {
         while (standingsCursor.moveToNext()) {
 
             String teamName = standingsCursor.getString(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_NAME));
+            if (teamName == null){
+                Log.d("nullError",  "1" + teamName);
+            }
             Team team = teams.get(teamName);
 
             Log.d("Playoff:  ", teamName);
@@ -97,6 +100,9 @@ public class Standings {
         ArrayList<Team> wildCardDrawTeams = new ArrayList<>();
         wildCardDrawTeams.add(drawTeams.get(teamNumber));
         while (true) {
+            if (teamNumber + 1 >= drawTeams.size()){
+                Log.d("Max ", "Size reached");
+                break;}
             if (drawTeams.get(teamNumber + 1).getWinLossPct() == drawTeams.get(teamNumber).getWinLossPct()) {
                 wildCardDrawTeams.add(drawTeams.get(teamNumber + 1));
             } else {

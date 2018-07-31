@@ -22,7 +22,6 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setUpSharedPreferences();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -35,24 +34,22 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         SimulatorPresenter presenter = new SimulatorPresenter(this);
         mPresenter = presenter;
 
+        setUpSharedPreferences();
+
         //Initialize the season if not yet initialized
         //If already initialized, load season from the database
         if (!SimulatorPresenter.seasonIsInitialized()) {
-            mSimulateSeason.setEnabled(false);
-            mSimulateWeek.setEnabled(false);
-            mStandingsTextView.setText(getString(R.string.loading));
+            setViewsNotReadyToSimulate();
             mPresenter.initializeSeason();
         } else {
-            mSimulateSeason.setEnabled(false);
-            mStandingsTextView.setText(getString(R.string.loading));
+            setViewsNotReadyToSimulate();
             mPresenter.loadSeasonFromDatabase();
         }
 
         mSimulateSeason.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mStandingsTextView.setText(getString(R.string.loading));
-                mSimulateSeason.setEnabled(false);
+                setViewsNotReadyToSimulate();
                 mPresenter.simulateSeason();
             }
         });
@@ -60,8 +57,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mSimulateWeek.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mStandingsTextView.setText(getString(R.string.loading));
-                mSimulateWeek.setEnabled(false);
+                setViewsNotReadyToSimulate();
                 mPresenter.simulateWeek();
             }
         });
@@ -78,12 +74,15 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
     private void setUpSharedPreferences() {
 
-        //Get default shared pref values
+        //Get default shared pref values and set other variables accordingly
 
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         Boolean seasonInitialized = false;
         seasonInitialized = mSharedPreferences.getBoolean(getString(R.string.settings_season_initialized_key), getResources().getBoolean(R.bool.pref_season_initialized_default));
         SimulatorPresenter.setSeasonInitialized(seasonInitialized);
+        int currentWeek = 1;
+        currentWeek = mSharedPreferences.getInt(getString(R.string.settings_week_num_key), 1);
+        SimulatorPresenter.setCurrentWeek(currentWeek);
     }
 
     @Override
@@ -99,9 +98,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
             @Override
             public void run() {
 
-                mSimulateSeason.setEnabled(true);
-                mSimulateWeek.setEnabled(true);
-                mStandingsTextView.setText(getString(R.string.ready_to_simulate));
+                setViewsReadyToSimulate();
                 setSeasonInitializedPreference();
             }
         });
@@ -109,9 +106,16 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
     @Override
     public void onSeasonLoadedFromDb() {
-        mSimulateSeason.setEnabled(true);
-        mSimulateWeek.setEnabled(true);
-        mStandingsTextView.setText(getString(R.string.ready_to_simulate));
+        if (SimulatorPresenter.getCurrentWeek() > 1) {
+            mPresenter.loadAlreadySimulatedData();
+        } else {
+            setViewsReadyToSimulate();
+        }
+    }
+
+    @Override
+    public void onPriorSimulatedDataLoaded() {
+        setViewsReadyToSimulate();
     }
 
     @Override
@@ -124,11 +128,22 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     }
 
     @Override
-    public void onDisplayScores(String scores) {
+    public void onDisplayScores(int weekNumber, String scores) {
         //Callback received from presenter to display scores after they are loaded
+        //Also receive the weekNumber that was simulated so we can store it in sharedPrefs
+        //When app is reloaded, we can automatically show scores/weeks that have already been simulated
         mSimulateSeason.setEnabled(true);
         mSimulateWeek.setEnabled(true);
         mScoresTextView.setText(scores + mScoresTextView.getText());
+        setWeekNumberPreference(weekNumber);
+    }
+
+    private void setWeekNumberPreference(int weekNumber) {
+        //Set season weekNumber preference to the current week
+        //The current week is one more than the week that was simulated
+        SharedPreferences.Editor prefs = mSharedPreferences.edit();
+        prefs.putInt(getString(R.string.settings_week_num_key), weekNumber + 1);
+        prefs.commit();
     }
 
 
@@ -136,5 +151,23 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     protected void onDestroy() {
         super.onDestroy();
         mPresenter.destroyPresenter();
+    }
+
+    private void setViewsReadyToSimulate() {
+
+        //App is ready for simulation, set buttons to enabled and textview to "ready to simulate"
+
+        mSimulateSeason.setEnabled(true);
+        mSimulateWeek.setEnabled(true);
+        mStandingsTextView.setText(getString(R.string.ready_to_simulate));
+    }
+
+    private void setViewsNotReadyToSimulate() {
+
+        //App is not ready for simulation, set buttons to disabled and textView to "Loading..."
+
+        mSimulateSeason.setEnabled(false);
+        mSimulateWeek.setEnabled(false);
+        mStandingsTextView.setText(getString(R.string.loading));
     }
 }
