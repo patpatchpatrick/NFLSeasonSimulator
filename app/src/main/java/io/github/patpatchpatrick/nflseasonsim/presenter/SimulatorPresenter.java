@@ -3,6 +3,7 @@ package io.github.patpatchpatrick.nflseasonsim.presenter;
 import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -42,7 +43,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         //After the week is complete, query the standings (and display them)
         mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_REGULAR);
         //Query the week scores and display them
-        mModel.queryMatches(mCurrentWeek);
+        mModel.queryMatches(mCurrentWeek, true);
         mCurrentWeek++;
     }
 
@@ -65,7 +66,8 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     public void loadAlreadySimulatedData() {
         //Load the standings, as well as the matches that have already been simulated (last week's matches)
         mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_REGULAR);
-        mModel.queryMatches(mCurrentWeek - 1);
+        //Query all weeks that have already occurred;
+        mModel.queryMatches(mCurrentWeek - 1, false);
         this.view.onPriorSimulatedDataLoaded();
     }
 
@@ -235,7 +237,9 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         if (queryType == SimulatorModel.QUERY_STANDINGS_REGULAR) {
             //A regular standings was queried
             //This regular standings will be evaluated to determine team playoff eligibility
-            Standings.generatePlayoffTeams(standingsCursor, mTeamList);
+            if (mTeamList != null) {
+                Standings.generatePlayoffTeams(standingsCursor, mTeamList);
+            }
             //Teams playoff eligibility has been updated so re-query the standings
             mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_PLAYOFF);
         }
@@ -246,7 +250,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         }
         if (queryType == SimulatorModel.QUERY_STANDINGS_LOAD_SEASON) {
             createTeamsFromDb(standingsCursor);
-            mModel.queryMatches(SimulatorModel.QUERY_MATCHES_ALL);
+            mModel.queryMatches(SimulatorModel.QUERY_MATCHES_ALL, false);
         }
 
     }
@@ -258,6 +262,9 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         mTeamList = new HashMap<String, Team>();
 
         standingsCursor.moveToPosition(-1);
+
+        Log.d("CursorSize: ", "" + standingsCursor.getCount());
+
         while (standingsCursor.moveToNext()) {
 
             int ID = standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry._ID));
@@ -694,10 +701,9 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     @Override
     public void simulateSeason() {
         //From week 1 to week 17 (full season), simulate the season
-        int i = 1;
-        while (i <= 17) {
-            mSchedule.getWeek(i).simulate();
-            i++;
+        while (mCurrentWeek <= 17) {
+            mSchedule.getWeek(mCurrentWeek).simulate();
+            mCurrentWeek++;
         }
 
         //After the season  is complete, query the standings (and display them)

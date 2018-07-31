@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
             public void onClick(View view) {
                 setViewsNotReadyToSimulate();
                 mPresenter.simulateSeason();
+
             }
         });
 
@@ -115,7 +116,11 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
     @Override
     public void onPriorSimulatedDataLoaded() {
-        setViewsReadyToSimulate();
+        if (regularSeasonIsComplete()) {
+            setViewsNotReadyToSimulate();
+        } else {
+            setViewsReadyToSimulate();
+        }
     }
 
     @Override
@@ -124,6 +129,11 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mSimulateSeason.setEnabled(true);
         mSimulateWeek.setEnabled(true);
         mStandingsTextView.setText(standings);
+        setWeekNumberPreference(SimulatorPresenter.getCurrentWeek());
+        if (regularSeasonIsComplete()) {
+            setViewsNotReadyToSimulate();
+            mStandingsTextView.setText("***REGULAR SEASON COMPLETE*** \n\n" + mStandingsTextView.getText());
+        }
 
     }
 
@@ -135,14 +145,17 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mSimulateSeason.setEnabled(true);
         mSimulateWeek.setEnabled(true);
         mScoresTextView.setText(scores + mScoresTextView.getText());
-        setWeekNumberPreference(weekNumber);
+        setWeekNumberPreference(SimulatorPresenter.getCurrentWeek());
+        if (regularSeasonIsComplete()) {
+            setViewsNotReadyToSimulate();
+        }
     }
 
     private void setWeekNumberPreference(int weekNumber) {
         //Set season weekNumber preference to the current week
         //The current week is one more than the week that was simulated
         SharedPreferences.Editor prefs = mSharedPreferences.edit();
-        prefs.putInt(getString(R.string.settings_week_num_key), weekNumber + 1);
+        prefs.putInt(getString(R.string.settings_week_num_key), weekNumber);
         prefs.commit();
     }
 
@@ -168,6 +181,17 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
         mSimulateSeason.setEnabled(false);
         mSimulateWeek.setEnabled(false);
-        mStandingsTextView.setText(getString(R.string.loading));
+        if (!regularSeasonIsComplete()) {
+            mStandingsTextView.setText(getString(R.string.loading));
+        }
     }
+
+    private Boolean regularSeasonIsComplete() {
+        if (SimulatorPresenter.getCurrentWeek() > 17) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }

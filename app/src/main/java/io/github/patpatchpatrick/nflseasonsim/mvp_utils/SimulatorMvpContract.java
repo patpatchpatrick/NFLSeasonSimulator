@@ -44,7 +44,7 @@ public interface SimulatorMvpContract {
         void updateMatch(Match match, Uri uri);
         void updateTeam(Team team, Uri uri);
         void queryStandings(int queryType);
-        void queryMatches(int weekNumber);
+        void queryMatches(int weekNumber, boolean singleMatch);
         void destroyModel();
 
     }

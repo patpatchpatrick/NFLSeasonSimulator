@@ -28,6 +28,9 @@ public class Standings {
             if (teamName == null){
                 Log.d("nullError",  "1" + teamName);
             }
+            if (teams == null){
+                Log.d("nullErrr",  "null hashmap");
+            }
             Team team = teams.get(teamName);
 
             Log.d("Playoff:  ", teamName);

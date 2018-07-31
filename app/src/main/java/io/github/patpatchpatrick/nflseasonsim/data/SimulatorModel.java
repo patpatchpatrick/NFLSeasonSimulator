@@ -450,7 +450,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     }
 
     @Override
-    public void queryMatches(final int weekNumber) {
+    public void queryMatches(final int weekNumber, final boolean singleMatch) {
 
         //Query the matches/schedule from the database
 
@@ -475,10 +475,14 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
                 if (weekNumber == QUERY_MATCHES_ALL) {
 
+                    //Query all matches
+
                     matchesCursor = contentResolver.query(MatchEntry.CONTENT_URI, matchesProjection,
                             null, null,
                             null);
-                } else {
+                } else if (singleMatch == true) {
+
+                    //Query a single week's matches
 
                     String selection = MatchEntry.COLUMN_MATCH_WEEK + "=?";
                     String[] selectionArgs = new String[]{String.valueOf(weekNumber)};
@@ -487,7 +491,19 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                             selection, selectionArgs,
                             null);
 
+                } else {
+
+                    //Query all matches up to and including a single week
+
+                    String selection = MatchEntry.COLUMN_MATCH_WEEK + "<=?";
+                    String[] selectionArgs = new String[]{String.valueOf(weekNumber)};
+
+                    matchesCursor = contentResolver.query(MatchEntry.CONTENT_URI, matchesProjection,
+                            selection, selectionArgs,
+                            MatchEntry.COLUMN_MATCH_WEEK + " DESC");
+
                 }
+
 
                 return matchesCursor;
             }

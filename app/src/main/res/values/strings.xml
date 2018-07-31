@@ -1,10 +1,11 @@
 <resources>
     <string name="app_name">NFLSeasonSim</string>
 
-    <!-- Loading  -->
+    <!-- Main Activity Strings  -->
     <string name="loading">Loading...</string>
-
     <string name="ready_to_simulate">Ready to Simulate</string>
+    <string name="regular_season_complete">Regular Season Complete</string>
+
 
     <!-- Settings Keys, Labels and Values [CHAR LIMIT=TBD] -->
     <string name="settings_season_initialized_key">season initialized</string>
