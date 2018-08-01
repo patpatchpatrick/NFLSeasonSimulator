@@ -271,6 +271,10 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             String teamName = standingsCursor.getString(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_NAME));
             int teamWins = standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_WINS));
             int teamLosses = standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_LOSSES));
+            double winLossPct = standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_WIN_LOSS_PCT));
+            int divisionWins = standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DIV_WINS));
+            int divisionLosses = standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DIV_LOSSES));
+            double divWinLossPct = standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DIV_WIN_LOSS_PCT));
             Double teamElo = standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_ELO));
             Double offRating = standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_OFF_RATING));
             Double defRating = standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DEF_RATING));
@@ -280,7 +284,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
             mTeamList.put(teamName,
                     new Team(teamName, teamElo,
-                            offRating, defRating, division, this, teamWins, teamLosses, teamUri));
+                            offRating, defRating, division, this, teamWins, teamLosses, divisionWins, divisionLosses, winLossPct, divWinLossPct, teamUri));
 
         }
 
@@ -708,6 +712,8 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
         //After the season  is complete, query the standings (and display them)
         mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_REGULAR);
+        //Query all weeks that have already occurred;
+        mModel.queryMatches(mCurrentWeek - 1, false);
     }
 
     private void displayStandings(Cursor standingsCursor) {

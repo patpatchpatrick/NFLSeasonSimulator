@@ -3,6 +3,7 @@ package io.github.patpatchpatrick.nflseasonsim.season_resources;
 import android.database.Cursor;
 import android.util.Log;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -19,6 +20,8 @@ public class Standings {
 
         ArrayList<Team> potentialAFCWildCardTeams = new ArrayList<>();
         ArrayList<Team> potentialNFCWildCardTeams = new ArrayList<>();
+        ArrayList<Team> divisionWinnersAFC = new ArrayList<>();
+        ArrayList<Team> divisionWinnersNFC = new ArrayList<>();
 
         standingsCursor.moveToPosition(-1);
         int i = 4;
@@ -37,18 +40,30 @@ public class Standings {
 
             //For every 4 teams, the first team is the division winner and is playoff eligible
             //Mark the team as playoff eligible division winner
-            if (i % 4 == 0) {
-                team.setPlayoffEligible(TeamEntry.PLAYOFF_DIVISION_WINNER);
+            int teamConference = team.getConference();
 
-                //If team is not the division winner, add them to the correct conference ArrayList of
-                //potential wildcard teams
-            } else if (team.getConference() == TeamEntry.CONFERENCE_AFC) {
+            if (i % 4 == 0) {
+
+                if (teamConference == TeamEntry.CONFERENCE_AFC){
+                    divisionWinnersAFC.add(team);
+                } else {
+                    divisionWinnersNFC.add(team);
+                }
+
+                //If team is not the division winner, update them as not playoff eligible and
+                // add them to the correct conference ArrayList of potential wildcard teams
+            } else if (teamConference == TeamEntry.CONFERENCE_AFC) {
+                team.setPlayoffEligible(TeamEntry.PLAYOFF_NOT_ELIGIBLE);
                 potentialAFCWildCardTeams.add(team);
             } else {
+                team.setPlayoffEligible(TeamEntry.PLAYOFF_NOT_ELIGIBLE);
                 potentialNFCWildCardTeams.add(team);
             }
             i++;
         }
+
+        generateDivisionWinnerSeeds(divisionWinnersAFC);
+        generateDivisionWinnerSeeds(divisionWinnersNFC);
 
         //Generate two wildcard teams for each conference
         generateWildCardTeams(potentialAFCWildCardTeams);
@@ -73,9 +88,9 @@ public class Standings {
         //Otherwise, run a random draw to randomly select teams that have the same win loss percentage to determine the wildcards
 
         if (potentialWildCardTeams.get(0).getWinLossPct() > potentialWildCardTeams.get(1).getWinLossPct()) {
-            potentialWildCardTeams.get(0).setPlayoffEligible(TeamEntry.PLAYOFF_WILD_CARD);
+            potentialWildCardTeams.get(0).setPlayoffEligible(5);
             if (potentialWildCardTeams.get(1).getWinLossPct() > potentialWildCardTeams.get(2).getWinLossPct()) {
-                potentialWildCardTeams.get(1).setPlayoffEligible(TeamEntry.PLAYOFF_WILD_CARD);
+                potentialWildCardTeams.get(1).setPlayoffEligible(6);
             } else {
                 randomWildCardDraw(potentialWildCardTeams,  1);
             }
@@ -115,15 +130,39 @@ public class Standings {
         }
         int wildCardDrawSize = wildCardDrawTeams.size();
         int randomWildCardTeam = (int) (Math.random() * wildCardDrawSize);
-        wildCardDrawTeams.get(randomWildCardTeam).setPlayoffEligible(TeamEntry.PLAYOFF_WILD_CARD);
+        wildCardDrawTeams.get(randomWildCardTeam).setPlayoffEligible(6);
 
         if (numberOfTeamsToDraw > 1) {
             wildCardDrawTeams.remove(randomWildCardTeam);
             wildCardDrawSize = wildCardDrawTeams.size();
             randomWildCardTeam = (int) (Math.random() * wildCardDrawSize);
-            wildCardDrawTeams.get(randomWildCardTeam).setPlayoffEligible(TeamEntry.PLAYOFF_WILD_CARD);
+            wildCardDrawTeams.get(randomWildCardTeam).setPlayoffEligible(5);
         }
         
+    }
+
+    private static void generateDivisionWinnerSeeds(ArrayList<Team> divisionWinners){
+
+        //Shuffle the arraylist to randomize it, then sort by division win percentage to determine playoff order
+
+        Collections.shuffle(divisionWinners);
+
+        //Sort the division winners by win loss percentage in descending order
+        Collections.sort(divisionWinners, new Comparator<Team>() {
+            @Override
+            public int compare(Team teamOne, Team teamTwo) {
+                return teamOne.getWinLossPct() > teamTwo.getWinLossPct() ? -1 : (teamOne.getWinLossPct() < teamTwo.getWinLossPct()) ? 1 : 0;
+            }
+        });
+
+
+        //Set playoff order on all 4 division winners
+        for (int i = 0; i <= 3; i++){
+            divisionWinners.get(i).setPlayoffEligible(i + 1);
+        }
+
+
+
     }
 
 }
