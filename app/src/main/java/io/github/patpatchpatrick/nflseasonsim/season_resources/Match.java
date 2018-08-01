@@ -9,6 +9,8 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 
 import io.github.patpatchpatrick.nflseasonsim.DaggerApplication;
+import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract;
+import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.TeamEntry;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class Match {
@@ -29,6 +31,7 @@ public class Match {
     private int mTeam2Score;
     private Boolean matchComplete;
     private Boolean divisionalMatchup;
+    private Boolean playoffMatchup;
 
 
     public Match(Team team1, Team team2, int week, Data data) {
@@ -47,6 +50,12 @@ public class Match {
             divisionalMatchup = true;
         } else {
             divisionalMatchup = false;
+        }
+
+        if (mWeek > 17){
+            playoffMatchup = true;
+        } else {
+            playoffMatchup = false;
         }
 
     }
@@ -69,6 +78,11 @@ public class Match {
         } else {
             divisionalMatchup = false;
         }
+        if (mWeek > 17){
+            playoffMatchup = true;
+        } else {
+            playoffMatchup = false;
+        }
 
     }
 
@@ -83,12 +97,18 @@ public class Match {
                 mTeam1.divisionalWin();
                 mTeam2.divisionalLoss();
             }
+            if (playoffMatchup){
+                mTeam2.setPlayoffEligible(TeamEntry.PLAYOFF_NOT_ELIGIBLE);
+            }
             mTeam1.win();
             mTeam2.lose();
         } else {
             if (divisionalMatchup){
                 mTeam1.divisionalLoss();
                 mTeam2.divisionalWin();
+            }
+            if (playoffMatchup){
+                mTeam1.setPlayoffEligible(TeamEntry.PLAYOFF_NOT_ELIGIBLE);
             }
             mTeam1.lose();
             mTeam2.win();

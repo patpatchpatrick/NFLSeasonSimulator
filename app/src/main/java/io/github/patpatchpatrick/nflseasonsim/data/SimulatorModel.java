@@ -47,6 +47,9 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
     public static final int INSERT_MATCHES_SCHEDULE = 0;
     public static final int INSERT_MATCHES_PLAYOFFS_WILDCARD = 1;
+    public static final int INSERT_MATCHES_PLAYOFFS_DIVISIONAL = 2;
+    public static final int INSERT_MATCHES_PLAYOFFS_CHAMPIONSHIP = 3;
+    public static final int INSERT_MATCHES_PLAYOFFS_SUPERBOWL = 4;
 
     private Scheduler mScheduler;
 
@@ -168,7 +171,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     }
 
     @Override
-    public void insertMatches(Week week) {
+    public void insertMatches(final int insertType, Week week) {
 
         //Insert a week's matches into the database
 
@@ -207,7 +210,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
             @Override
             public void onComplete() {
 
-                mPresenter.matchesInserted(INSERT_MATCHES_PLAYOFFS_WILDCARD, null);
+                mPresenter.matchesInserted(insertType, null);
             }
         });
 
@@ -231,6 +234,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                 int currentLosses = team.getLosses();
                 int currentDraws = team.getDraws();
                 int division = team.getDivision();
+                int conference = team.getConference();
 
                 ContentValues values = new ContentValues();
                 values.put(TeamEntry.COLUMN_TEAM_NAME, name);
@@ -241,6 +245,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                 values.put(TeamEntry.COLUMN_TEAM_CURRENT_LOSSES, currentLosses);
                 values.put(TeamEntry.COLUMN_TEAM_CURRENT_DRAWS, currentDraws);
                 values.put(TeamEntry.COLUMN_TEAM_DIVISION, division);
+                values.put(TeamEntry.COLUMN_TEAM_CONFERENCE,  conference);
 
                 //Insert values into database
                 Uri uri = contentResolver.insert(TeamEntry.CONTENT_URI, values);
@@ -308,6 +313,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                 int currentLosses = team.getLosses();
                 int currentDraws = team.getDraws();
                 int division = team.getDivision();
+                int conference = team.getConference();
 
                 ContentValues values = new ContentValues();
                 values.put(TeamEntry.COLUMN_TEAM_NAME, name);
@@ -318,6 +324,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                 values.put(TeamEntry.COLUMN_TEAM_CURRENT_LOSSES, currentLosses);
                 values.put(TeamEntry.COLUMN_TEAM_CURRENT_DRAWS, currentDraws);
                 values.put(TeamEntry.COLUMN_TEAM_DIVISION, division);
+                values.put(TeamEntry.COLUMN_TEAM_CONFERENCE, conference);
 
                 //Insert values into database
                 Uri uri = contentResolver.insert(TeamEntry.CONTENT_URI, values);
@@ -475,6 +482,9 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
                 if (queryType == QUERY_STANDINGS_POSTSEASON) {
 
+                    //For postseason query,  don't query teams that aren't playoff eligible
+                    //Sort by playoff seed and conference
+
                     String selection = TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE + "!=?";
                     String[] selectionArgs = new String[]{String.valueOf(TeamEntry.PLAYOFF_NOT_ELIGIBLE)};
 
@@ -519,7 +529,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     }
 
     @Override
-    public void queryMatches(final int weekNumber, final boolean singleMatch) {
+    public void queryMatches(final int weekNumber, final boolean singleMatch, final boolean matchesPlayed) {
 
         //Query the matches/schedule from the database
 
@@ -586,7 +596,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
             @Override
             public void onNext(Cursor matchesCursor) {
-                mPresenter.matchesQueried(weekNumber, matchesCursor);
+                mPresenter.matchesQueried(weekNumber, matchesCursor, matchesPlayed);
             }
 
             @Override

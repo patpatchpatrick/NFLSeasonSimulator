@@ -8,6 +8,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract;
+import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.MatchEntry;
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.SimulatorMvpContract;
 import io.github.patpatchpatrick.nflseasonsim.presenter.SimulatorPresenter;
 
@@ -18,6 +20,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     Button mStartPlayoffs;
     TextView mStandingsTextView;
     TextView mScoresTextView;
+    Boolean mPlayoffsStarted = false;
     private SimulatorPresenter mPresenter;
     private SharedPreferences mSharedPreferences;
 
@@ -60,14 +63,23 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mSimulateWeek.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Disable the buttons until week is finished simulating
                 setViewsNotReadyToSimulate();
-                mPresenter.simulateWeek();
+
+                //Simulate either a regular week or playoff week depending on whether or not playoffs have started
+                if (!mPlayoffsStarted) {
+                    mPresenter.simulateWeek();
+                }
+                if (mPlayoffsStarted) {
+                    mPresenter.simulatePlayoffWeek();
+                }
             }
         });
 
         mStartPlayoffs.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mPlayoffsStarted = true;
                 mPresenter.initiatePlayoffs();
             }
         });
@@ -140,29 +152,50 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mStandingsTextView.setText(standings);
         setWeekNumberPreference(SimulatorPresenter.getCurrentWeek());
         if (regularSeasonIsComplete()) {
-            setViewsNotReadyToSimulate();
-            mStandingsTextView.setText("***REGULAR SEASON COMPLETE*** \n\n" + mStandingsTextView.getText());
+            if (!mPlayoffsStarted) {
+                setViewsNotReadyToSimulate();
+            }
+            if (mPlayoffsStarted) {
+                if (playoffsComplete()) {
+                    setViewsPlayoffsComplete();
+                } else {
+                    setViewsPlayoffs();
+                }
+            }
         }
 
     }
 
     @Override
-    public void onDisplayScores(int weekNumber, String scores) {
+    public void onDisplayScores(int weekNumber, String scores, boolean matchesPlayed) {
         //Callback received from presenter to display scores after they are loaded
         //Also receive the weekNumber that was simulated so we can store it in sharedPrefs
         //When app is reloaded, we can automatically show scores/weeks that have already been simulated
         mSimulateSeason.setEnabled(true);
         mSimulateWeek.setEnabled(true);
-        if (weekNumber == 18) {
+        if (weekNumber == MatchEntry.MATCH_WEEK_WILDCARD) {
             mScoresTextView.setText(scores);
+            mScoresTextView.setTag(scores);
+            setViewsPlayoffs();
+        } else if (weekNumber > MatchEntry.MATCH_WEEK_WILDCARD) {
+            if (matchesPlayed){
+                mScoresTextView.setTag(scores + mScoresTextView.getTag());
+            }
+            mScoresTextView.setText(scores + mScoresTextView.getTag());
+            setViewsPlayoffs();
         } else {
             mScoresTextView.setText(scores + mScoresTextView.getText());
+            if (regularSeasonIsComplete()) {
+                setViewsNotReadyToSimulate();
+            }
+        }
+        if (playoffsComplete()) {
+            //If playoffs are complete, set playoff complete views (ready views to restart simulation)
+            setViewsPlayoffsComplete();
         }
 
         setWeekNumberPreference(SimulatorPresenter.getCurrentWeek());
-        if (regularSeasonIsComplete()) {
-            setViewsNotReadyToSimulate();
-        }
+
     }
 
     private void setWeekNumberPreference(int weekNumber) {
@@ -198,13 +231,39 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         if (!regularSeasonIsComplete()) {
             mStandingsTextView.setText(getString(R.string.loading));
         }
-        if (regularSeasonIsComplete()) {
+        if (regularSeasonIsComplete() && !mPlayoffsStarted) {
             mStartPlayoffs.setVisibility(View.VISIBLE);
         }
     }
 
+    private void setViewsPlayoffs() {
+
+        //Playoffs have begun, set up the views for the playoffs
+        //Hide the start playoffs button, and enable the simulate week button
+        mStartPlayoffs.setVisibility(View.GONE);
+        mSimulateSeason.setVisibility(View.INVISIBLE);
+        mSimulateWeek.setEnabled(true);
+    }
+
+    private void setViewsPlayoffsComplete() {
+
+        //Playoffs are complete
+        mSimulateSeason.setVisibility(View.INVISIBLE);
+        mSimulateWeek.setVisibility(View.INVISIBLE);
+        mStartPlayoffs.setVisibility(View.GONE);
+
+    }
+
     private Boolean regularSeasonIsComplete() {
         if (SimulatorPresenter.getCurrentWeek() > 17) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private Boolean playoffsComplete() {
+        if (SimulatorPresenter.getCurrentWeek() > MatchEntry.MATCH_WEEK_SUPERBOWL) {
             return true;
         } else {
             return false;

@@ -45,7 +45,16 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         //After the week is complete, query the standings (and display them)
         mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_REGULAR);
         //Query the week scores and display them
-        mModel.queryMatches(mCurrentWeek, true);
+        mModel.queryMatches(mCurrentWeek, true, true);
+        mCurrentWeek++;
+    }
+
+    @Override
+    public void simulatePlayoffWeek() {
+        //Simulate a single week
+        mSchedule.getWeek(mCurrentWeek).simulate();
+        //After the week is complete, query the standings (and display them)
+        mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_POSTSEASON);
         mCurrentWeek++;
     }
 
@@ -76,7 +85,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         //Load the standings, as well as the matches that have already been simulated (last week's matches)
         mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_REGULAR);
         //Query all weeks that have already occurred;
-        mModel.queryMatches(mCurrentWeek - 1, false);
+        mModel.queryMatches(mCurrentWeek - 1, false, true);
         this.view.onPriorSimulatedDataLoaded();
     }
 
@@ -91,20 +100,31 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     }
 
     @Override
-    public void matchesInserted(int insertType,  Schedule schedule) {
+    public void matchesInserted(int insertType, Schedule schedule) {
 
-        if (insertType == SimulatorModel.INSERT_MATCHES_SCHEDULE){
-        //Notify main activity view that season is initialized
-        mSeasonInitialized = true;
-        this.view.onSeasonInitialized();}
+        if (insertType == SimulatorModel.INSERT_MATCHES_SCHEDULE) {
+            //Notify main activity view that season is initialized
+            mSeasonInitialized = true;
+            this.view.onSeasonInitialized();
+        }
 
-        if (insertType == SimulatorModel.INSERT_MATCHES_PLAYOFFS_WILDCARD){
-            mModel.queryMatches(MatchEntry.MATCH_WEEK_WILDCARD,  true);
+        if (insertType == SimulatorModel.INSERT_MATCHES_PLAYOFFS_WILDCARD) {
+            mModel.queryMatches(MatchEntry.MATCH_WEEK_WILDCARD, true, false);
+        }
+
+        if (insertType ==  SimulatorModel.INSERT_MATCHES_PLAYOFFS_DIVISIONAL){
+            mModel.queryMatches(MatchEntry.MATCH_WEEK_DIVISIONAL,  true, false);
+        }
+        if (insertType ==  SimulatorModel.INSERT_MATCHES_PLAYOFFS_CHAMPIONSHIP){
+            mModel.queryMatches(MatchEntry.MATCH_WEEK_CHAMPIONSHIP,  true, false);
+        }
+        if (insertType ==  SimulatorModel.INSERT_MATCHES_PLAYOFFS_SUPERBOWL){
+            mModel.queryMatches(MatchEntry.MATCH_WEEK_SUPERBOWL,  true, false);
         }
     }
 
     @Override
-    public void matchesQueried(int queryType, Cursor matchesCursor) {
+    public void matchesQueried(int queryType, Cursor matchesCursor, boolean matchesPlayed) {
 
         //If you are not querying all matches, put the score info in a string and display it in the main activity
         //Otherwise, add the match info to the schedule under the ELSE statement
@@ -116,8 +136,17 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             String scoreString;
 
             scoreString = "** Week " + weekNumber + " **\n";
-            if (queryType == MatchEntry.MATCH_WEEK_WILDCARD){
+            if (queryType == MatchEntry.MATCH_WEEK_WILDCARD) {
                 scoreString = "** Wildcard Playoffs **\n";
+            }
+            if (queryType == MatchEntry.MATCH_WEEK_DIVISIONAL) {
+                scoreString = "** Divisional Playoffs **\n";
+            }
+            if (queryType == MatchEntry.MATCH_WEEK_CHAMPIONSHIP) {
+                scoreString = "** Conference Championships **\n";
+            }
+            if (queryType == MatchEntry.MATCH_WEEK_SUPERBOWL) {
+                scoreString = "** Superbowl **\n";
             }
 
             matchesCursor.moveToPosition(-1);
@@ -131,7 +160,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
                 scoreString += teamOne + " " + scoreOne + "\n" + teamTwo + " " + scoreTwo + "\n" + "**********" + "\n";
             }
 
-            this.view.onDisplayScores(queryType, scoreString);
+            this.view.onDisplayScores(queryType, scoreString, matchesPlayed);
 
 
         } else {
@@ -269,10 +298,11 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         }
         if (queryType == SimulatorModel.QUERY_STANDINGS_LOAD_SEASON) {
             createTeamsFromDb(standingsCursor);
-            mModel.queryMatches(SimulatorModel.QUERY_MATCHES_ALL, false);
+            mModel.queryMatches(SimulatorModel.QUERY_MATCHES_ALL, false, true);
         }
         if (queryType == SimulatorModel.QUERY_STANDINGS_POSTSEASON) {
             createPlayoffMatchups(standingsCursor);
+            displayPlayoffStandings(standingsCursor);
 
         }
 
@@ -736,14 +766,15 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         //After the season  is complete, query the standings (and display them)
         mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_REGULAR);
         //Query all weeks that have already occurred;
-        mModel.queryMatches(mCurrentWeek - 1, false);
+        mModel.queryMatches(mCurrentWeek - 1, false, true);
     }
 
     private void displayStandings(Cursor standingsCursor) {
 
-        //Decimal format for double values that will  be displayed
-        DecimalFormat df = new DecimalFormat("#.##");
-        df.setRoundingMode(RoundingMode.CEILING);
+
+        //Display the team standings
+        //For ever 4 teams, print the division name
+        //Print  teamName, wins, losses and playoff seeding if the team is playoff eligible
 
         String standings = "";
         int i = 4;
@@ -762,6 +793,39 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         }
         this.view.onDisplayStandings(standings);
         standingsCursor.close();
+    }
+
+    private void displayPlayoffStandings(Cursor standingsCursor) {
+
+        int remainingPlayoffTeams = standingsCursor.getCount();
+
+        //Display the AFC and NFC playoff teams with their playoff seeds
+
+        String standings = "";
+        int i = 1;
+        standingsCursor.moveToPosition(-1);
+        while (standingsCursor.moveToNext()) {
+            if (remainingPlayoffTeams == 12) {
+                if (i == 1) {
+                    standings += "\n** AFC Playoff Standings **\n\n";
+                } else if (i == 7) {
+                    standings += "\n** NFC Playoff Standings **\n\n";
+                }
+            } else if (remainingPlayoffTeams == 8){
+                if (i == 1) {
+                    standings += "\n** AFC Playoff Standings **\n\n";
+                } else if (i == 5) {
+                    standings += "\n** NFC Playoff Standings **\n\n";
+                }
+            }
+            standings += standingsCursor.getString(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_NAME)) + "\n";
+            standings += "Seed: " + standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE)) + "\n";
+            i++;
+        }
+
+        standingsCursor.close();
+        this.view.onDisplayStandings(standings);
+
     }
 
 
@@ -798,21 +862,15 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     }
 
     public void createPlayoffMatchups(Cursor standingsCursor) {
-        //Initialize all playoffs schedule
-        mPlayoffs = new Schedule();
-        Week wildCard = new Week(MatchEntry.MATCH_WEEK_WILDCARD);
-        Week divisional = new Week(MatchEntry.MATCH_WEEK_DIVISIONAL);
-        Week championship = new Week(MatchEntry.MATCH_WEEK_CHAMPIONSHIP);
-        Week superbowl = new Week(MatchEntry.MATCH_WEEK_SUPERBOWL);
 
-
-
-        //Initialize wildcard matchups from cursor
-        // Seed 3 plays 6, 5 plays 4 for both conferences
+        //If standings cursor count is 12, the playoffs are just starting because there are still 12 teams
+        //Therefore, initialize the playoffs schedule and set the wildcard matchups
+        int remainingPlayoffTeams = standingsCursor.getCount();
 
         ArrayList<Team> afcTeams = new ArrayList<>();
         ArrayList<Team> nfcTeams = new ArrayList<>();
 
+        //Go through the cursor and add the teams to their respective conference in order of their seed (cursor is sorted by seed)
         standingsCursor.moveToPosition(-1);
         while (standingsCursor.moveToNext()) {
             int teamConference = standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CONFERENCE));
@@ -820,19 +878,91 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             String teamName = standingsCursor.getString(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_NAME));
             Log.d("PLAYOFF TEMS: ", teamName);
             Team team = mTeamList.get(teamName);
-            if (team.getConference() == TeamEntry.CONFERENCE_AFC){
+            if (team.getConference() == TeamEntry.CONFERENCE_AFC) {
                 afcTeams.add(team);
             } else {
                 nfcTeams.add(team);
             }
         }
 
-        wildCard.addMatch(new Match(afcTeams.get(2), afcTeams.get(5), MatchEntry.MATCH_WEEK_WILDCARD, this));
-        wildCard.addMatch(new Match(afcTeams.get(3), afcTeams.get(4), MatchEntry.MATCH_WEEK_WILDCARD, this));
-        wildCard.addMatch(new Match(nfcTeams.get(2), nfcTeams.get(5), MatchEntry.MATCH_WEEK_WILDCARD, this));
-        wildCard.addMatch(new Match(nfcTeams.get(3), nfcTeams.get(4), MatchEntry.MATCH_WEEK_WILDCARD, this));
+        if (remainingPlayoffTeams == 12) {
 
-        mModel.insertMatches(wildCard);
+            //Initialize all playoffs schedule
+            Week wildCard = new Week(MatchEntry.MATCH_WEEK_WILDCARD);
+
+            //Initialize wildcard matchups from cursor
+            // Seed 3 plays 6, 5 plays 4 for both conferences
+            wildCard.addMatch(new Match(afcTeams.get(2), afcTeams.get(5), MatchEntry.MATCH_WEEK_WILDCARD, this));
+            wildCard.addMatch(new Match(afcTeams.get(3), afcTeams.get(4), MatchEntry.MATCH_WEEK_WILDCARD, this));
+            wildCard.addMatch(new Match(nfcTeams.get(2), nfcTeams.get(5), MatchEntry.MATCH_WEEK_WILDCARD, this));
+            wildCard.addMatch(new Match(nfcTeams.get(3), nfcTeams.get(4), MatchEntry.MATCH_WEEK_WILDCARD, this));
+
+            //Add the week to the schedule and insert the matches in the database
+            mSchedule.addWeek(wildCard);
+            mModel.insertMatches(SimulatorModel.INSERT_MATCHES_PLAYOFFS_WILDCARD, wildCard);
+        }
+
+        if (remainingPlayoffTeams == 8) {
+
+            //Query the wildcard match scores
+            mModel.queryMatches(MatchEntry.MATCH_WEEK_WILDCARD, true, true);
+
+            Week divisional = new Week(MatchEntry.MATCH_WEEK_DIVISIONAL);
+
+            //Initialize divisional matchups from cursor
+            // Highest remaining seed plays lowest and the two middle seeds play
+            divisional.addMatch(new Match(afcTeams.get(0), afcTeams.get(3), MatchEntry.MATCH_WEEK_DIVISIONAL, this));
+            divisional.addMatch(new Match(afcTeams.get(1), afcTeams.get(2), MatchEntry.MATCH_WEEK_DIVISIONAL, this));
+            divisional.addMatch(new Match(nfcTeams.get(0), nfcTeams.get(3), MatchEntry.MATCH_WEEK_DIVISIONAL, this));
+            divisional.addMatch(new Match(nfcTeams.get(1), nfcTeams.get(2), MatchEntry.MATCH_WEEK_DIVISIONAL, this));
+
+            //Add the week to the schedule and  insert the matches in the database
+            mSchedule.addWeek(divisional);
+            mModel.insertMatches(SimulatorModel.INSERT_MATCHES_PLAYOFFS_DIVISIONAL, divisional);
+
+
+        }
+        if (remainingPlayoffTeams == 4) {
+
+            //Query the divisional match scores
+            mModel.queryMatches(MatchEntry.MATCH_WEEK_DIVISIONAL, true, true);
+
+            Week championship = new Week(MatchEntry.MATCH_WEEK_CHAMPIONSHIP);
+
+            //Initialize conference championship matchups from cursor
+            // Highest remaining seed plays lowest
+            championship.addMatch(new Match(afcTeams.get(0), afcTeams.get(1), MatchEntry.MATCH_WEEK_CHAMPIONSHIP, this));
+            championship.addMatch(new Match(nfcTeams.get(0), nfcTeams.get(1), MatchEntry.MATCH_WEEK_CHAMPIONSHIP, this));
+
+            //Add the week to the schedule and insert the matches in the database
+            mSchedule.addWeek(championship);
+            mModel.insertMatches(SimulatorModel.INSERT_MATCHES_PLAYOFFS_CHAMPIONSHIP, championship);
+
+        }
+        if (remainingPlayoffTeams == 2) {
+
+            //Query the championship match scores
+            mModel.queryMatches(MatchEntry.MATCH_WEEK_CHAMPIONSHIP, true, true);
+
+            Week superbowl = new Week(MatchEntry.MATCH_WEEK_SUPERBOWL);
+
+            //Initialize superbowl
+            // Highest remaining seed plays lowest
+            superbowl.addMatch(new Match(afcTeams.get(0), nfcTeams.get(0), MatchEntry.MATCH_WEEK_SUPERBOWL, this));
+
+            //Add the week to the schedule and insert the matches in the database
+            mSchedule.addWeek(superbowl);
+            mModel.insertMatches(SimulatorModel.INSERT_MATCHES_PLAYOFFS_SUPERBOWL, superbowl);
+
+        }
+
+        if (remainingPlayoffTeams == 1) {
+
+            //Query the superbowl match scores
+            mModel.queryMatches(MatchEntry.MATCH_WEEK_SUPERBOWL, true, true);
+
+        }
+
 
     }
 

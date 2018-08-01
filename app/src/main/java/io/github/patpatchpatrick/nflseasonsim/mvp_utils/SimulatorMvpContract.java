@@ -18,7 +18,7 @@ public interface SimulatorMvpContract {
 
         // button events
         void onDisplayStandings(String standings);
-        void onDisplayScores(int weekNumber, String scores);
+        void onDisplayScores(int weekNumber, String scores, boolean matchesPlayed);
         void onSeasonInitialized();
         void onSeasonLoadedFromDb();
         void onPriorSimulatedDataLoaded();
@@ -26,6 +26,7 @@ public interface SimulatorMvpContract {
 
     interface SimulatorPresenter {
         void simulateWeek();
+        void simulatePlayoffWeek();
         void simulateSeason();
         void initializeSeason();
         void initiatePlayoffs();
@@ -33,7 +34,7 @@ public interface SimulatorMvpContract {
         void loadAlreadySimulatedData();
         void teamsInserted();
         void matchesInserted(int insertType, Schedule schedule);
-        void matchesQueried(int queryType, Cursor matchesCursor);
+        void matchesQueried(int queryType, Cursor matchesCursor,  boolean matchesPlayed);
         void teamsOrStandingsQueried(int queryType, Cursor standingsCursor);
         void destroyPresenter();
     }
@@ -41,13 +42,13 @@ public interface SimulatorMvpContract {
     interface SimulatorModel {
         void insertMatch(Match match);
         void insertMatches(int insertType,  Schedule schedule);
-        void insertMatches(Week week);
+        void insertMatches(int insertType, Week week);
         void insertTeam(Team team);
         void insertTeams(HashMap<String, Team> teamList);
         void updateMatch(Match match, Uri uri);
         void updateTeam(Team team, Uri uri);
         void queryStandings(int queryType);
-        void queryMatches(int weekNumber, boolean singleMatch);
+        void queryMatches(int weekNumber, boolean singleMatch, boolean matchesPlayed);
         void destroyModel();
 
     }
