@@ -15,6 +15,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
     Button mSimulateSeason;
     Button mSimulateWeek;
+    Button mStartPlayoffs;
     TextView mStandingsTextView;
     TextView mScoresTextView;
     private SimulatorPresenter mPresenter;
@@ -29,6 +30,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mScoresTextView = (TextView) findViewById(R.id.scores_text_view);
         mSimulateSeason = (Button) findViewById(R.id.simulate_season_button);
         mSimulateWeek = (Button) findViewById(R.id.simulate_week_button);
+        mStartPlayoffs = (Button) findViewById(R.id.start_playoffs_button);
 
         //TODO inject presenter instead of instantiating it
         SimulatorPresenter presenter = new SimulatorPresenter(this);
@@ -60,6 +62,13 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
             public void onClick(View view) {
                 setViewsNotReadyToSimulate();
                 mPresenter.simulateWeek();
+            }
+        });
+
+        mStartPlayoffs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mPresenter.initiatePlayoffs();
             }
         });
 
@@ -144,7 +153,12 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         //When app is reloaded, we can automatically show scores/weeks that have already been simulated
         mSimulateSeason.setEnabled(true);
         mSimulateWeek.setEnabled(true);
-        mScoresTextView.setText(scores + mScoresTextView.getText());
+        if (weekNumber == 18) {
+            mScoresTextView.setText(scores);
+        } else {
+            mScoresTextView.setText(scores + mScoresTextView.getText());
+        }
+
         setWeekNumberPreference(SimulatorPresenter.getCurrentWeek());
         if (regularSeasonIsComplete()) {
             setViewsNotReadyToSimulate();
@@ -183,6 +197,9 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mSimulateWeek.setEnabled(false);
         if (!regularSeasonIsComplete()) {
             mStandingsTextView.setText(getString(R.string.loading));
+        }
+        if (regularSeasonIsComplete()) {
+            mStartPlayoffs.setVisibility(View.VISIBLE);
         }
     }
 

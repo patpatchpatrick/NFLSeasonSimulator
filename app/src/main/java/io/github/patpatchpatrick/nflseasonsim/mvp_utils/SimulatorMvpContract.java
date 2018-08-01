@@ -10,6 +10,7 @@ import io.github.patpatchpatrick.nflseasonsim.season_resources.Match;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Schedule;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Standings;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Team;
+import io.github.patpatchpatrick.nflseasonsim.season_resources.Week;
 
 public interface SimulatorMvpContract {
 
@@ -27,18 +28,20 @@ public interface SimulatorMvpContract {
         void simulateWeek();
         void simulateSeason();
         void initializeSeason();
+        void initiatePlayoffs();
         void loadSeasonFromDatabase();
         void loadAlreadySimulatedData();
         void teamsInserted();
-        void matchesInserted(Schedule schedule);
+        void matchesInserted(int insertType, Schedule schedule);
         void matchesQueried(int queryType, Cursor matchesCursor);
-        void standingsUpdated(int queryType, Cursor standingsCursor);
+        void teamsOrStandingsQueried(int queryType, Cursor standingsCursor);
         void destroyPresenter();
     }
 
     interface SimulatorModel {
         void insertMatch(Match match);
-        void insertMatches(Schedule schedule);
+        void insertMatches(int insertType,  Schedule schedule);
+        void insertMatches(Week week);
         void insertTeam(Team team);
         void insertTeams(HashMap<String, Team> teamList);
         void updateMatch(Match match, Uri uri);

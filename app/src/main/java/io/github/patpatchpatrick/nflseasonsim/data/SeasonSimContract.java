@@ -130,6 +130,12 @@ public class SeasonSimContract {
         public static final int MATCH_COMPLETE_NO = 0;
         public static final int MATCH_COMPLETE_YES = 1;
 
+        //Define input variables for match playoff weeks
+        public static final int MATCH_WEEK_WILDCARD = 18;
+        public static final int MATCH_WEEK_DIVISIONAL = 19;
+        public static final int MATCH_WEEK_CHAMPIONSHIP = 20;
+        public static final int MATCH_WEEK_SUPERBOWL = 21;
+
 
 
 

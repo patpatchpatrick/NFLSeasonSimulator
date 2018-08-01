@@ -20,6 +20,7 @@ import io.github.patpatchpatrick.nflseasonsim.season_resources.Schedule;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Team;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.TeamEntry;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.MatchEntry;
+import io.github.patpatchpatrick.nflseasonsim.season_resources.Week;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.Scheduler;
@@ -41,8 +42,11 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     public static final int QUERY_STANDINGS_PLAYOFF = 1;
     public static final int QUERY_STANDINGS_REGULAR = 2;
     public static final int QUERY_STANDINGS_LOAD_SEASON = 3;
-
+    public static final int QUERY_STANDINGS_POSTSEASON = 4;
     public static final int QUERY_MATCHES_ALL = 0;
+
+    public static final int INSERT_MATCHES_SCHEDULE = 0;
+    public static final int INSERT_MATCHES_PLAYOFFS_WILDCARD = 1;
 
     private Scheduler mScheduler;
 
@@ -106,14 +110,13 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     }
 
     @Override
-    public void insertMatches(final Schedule schedule) {
+    public void insertMatches(final int insertType, final Schedule schedule) {
 
-        //Insert a schedule's matches into the db
+        //Insert a regular season schedule's matches into the db
         //First, iterate through the schedule and add all season matches to an ArrayList
         //Then, add an Obervable.fromIterable to iterate through the ArrayList and add each
         //match to the db.
         //After all matches are added to the db, notify the presenter via the matchesInserted callback
-
         ArrayList<Match> seasonMatches = new ArrayList<>();
         int weekNumber = 1;
         while (weekNumber <= 17) {
@@ -157,9 +160,57 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
             @Override
             public void onComplete() {
 
-                mPresenter.matchesInserted(schedule);
+                mPresenter.matchesInserted(insertType, schedule);
             }
         });
+
+
+    }
+
+    @Override
+    public void insertMatches(Week week) {
+
+        //Insert a week's matches into the database
+
+            ArrayList<Match> weekMatches = week.getMatches();
+
+
+        Observable<Match> insertMatchesObservable = Observable.fromIterable(weekMatches);
+        insertMatchesObservable.subscribeOn(AndroidSchedulers.mainThread()).observeOn(mScheduler).subscribe(new Observer<Match>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+                mCompositeDisposable.add(d);
+
+            }
+
+            @Override
+            public void onNext(Match match) {
+
+                ContentValues values = new ContentValues();
+                values.put(MatchEntry.COLUMN_MATCH_TEAM_ONE, match.getTeam1().getName());
+                values.put(MatchEntry.COLUMN_MATCH_TEAM_TWO, match.getTeam2().getName());
+                values.put(MatchEntry.COLUMN_MATCH_WEEK, match.getWeek());
+                Uri uri = contentResolver.insert(MatchEntry.CONTENT_URI, values);
+
+                match.setUri(uri);
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+                Log.d("InsertMatchesError: ", "" + e);
+
+            }
+
+            @Override
+            public void onComplete() {
+
+                mPresenter.matchesInserted(INSERT_MATCHES_PLAYOFFS_WILDCARD, null);
+            }
+        });
+
 
 
     }
@@ -417,9 +468,27 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                         TeamEntry.COLUMN_TEAM_OFF_RATING,
                         TeamEntry.COLUMN_TEAM_DEF_RATING,
                 };
-                Cursor standingsCursor = contentResolver.query(TeamEntry.CONTENT_URI, standingsProjection,
-                        null, null,
-                        TeamEntry.COLUMN_TEAM_DIVISION + ", " + TeamEntry.COLUMN_TEAM_WIN_LOSS_PCT + " DESC, " + TeamEntry.COLUMN_TEAM_DIV_WIN_LOSS_PCT + " DESC");
+
+                Cursor standingsCursor;
+
+                //Query the team data depending on queryType requested
+
+                if (queryType == QUERY_STANDINGS_POSTSEASON) {
+
+                    String selection = TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE + "!=?";
+                    String[] selectionArgs = new String[]{String.valueOf(TeamEntry.PLAYOFF_NOT_ELIGIBLE)};
+
+                    standingsCursor = contentResolver.query(TeamEntry.CONTENT_URI, standingsProjection,
+                            selection, selectionArgs,
+                            TeamEntry.COLUMN_TEAM_CONFERENCE + ", " + TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE);
+
+                } else {
+
+                    standingsCursor = contentResolver.query(TeamEntry.CONTENT_URI, standingsProjection,
+                            null, null,
+                            TeamEntry.COLUMN_TEAM_DIVISION + ", " + TeamEntry.COLUMN_TEAM_WIN_LOSS_PCT + " DESC, " + TeamEntry.COLUMN_TEAM_DIV_WIN_LOSS_PCT + " DESC");
+                }
+
                 return standingsCursor;
             }
         });
@@ -432,7 +501,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
             @Override
             public void onNext(Cursor standingsCursor) {
-                mPresenter.standingsUpdated(queryType, standingsCursor);
+                mPresenter.teamsOrStandingsQueried(queryType, standingsCursor);
             }
 
             @Override
