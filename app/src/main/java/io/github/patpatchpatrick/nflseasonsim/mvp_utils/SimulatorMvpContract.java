@@ -22,6 +22,7 @@ public interface SimulatorMvpContract {
         void onSeasonInitialized();
         void onSeasonLoadedFromDb();
         void onPriorSimulatedDataLoaded();
+        void onDataDeleted();
     }
 
     interface SimulatorPresenter {
@@ -36,6 +37,8 @@ public interface SimulatorMvpContract {
         void matchesInserted(int insertType, Schedule schedule);
         void matchesQueried(int queryType, Cursor matchesCursor,  boolean matchesPlayed);
         void teamsOrStandingsQueried(int queryType, Cursor standingsCursor);
+        void resetSeason();
+        void dataDeleted();
         void destroyPresenter();
     }
 
@@ -49,6 +52,7 @@ public interface SimulatorMvpContract {
         void updateTeam(Team team, Uri uri);
         void queryStandings(int queryType);
         void queryMatches(int weekNumber, boolean singleMatch, boolean matchesPlayed);
+        void deleteAllData();
         void destroyModel();
 
     }

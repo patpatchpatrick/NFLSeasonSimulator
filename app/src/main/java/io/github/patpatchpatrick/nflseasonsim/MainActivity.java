@@ -18,6 +18,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     Button mSimulateSeason;
     Button mSimulateWeek;
     Button mStartPlayoffs;
+    Button mResetButton;
     TextView mStandingsTextView;
     TextView mScoresTextView;
     Boolean mPlayoffsStarted = false;
@@ -34,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mSimulateSeason = (Button) findViewById(R.id.simulate_season_button);
         mSimulateWeek = (Button) findViewById(R.id.simulate_week_button);
         mStartPlayoffs = (Button) findViewById(R.id.start_playoffs_button);
+        mResetButton = (Button) findViewById(R.id.reset_button);
 
         //TODO inject presenter instead of instantiating it
         SimulatorPresenter presenter = new SimulatorPresenter(this);
@@ -84,13 +86,25 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
             }
         });
 
+        mResetButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setSeasonInitializedPreference(false);
+                mPlayoffsStarted = false;
+                SimulatorPresenter.setCurrentWeek(0);
+                mScoresTextView.setText("");
+                mPresenter.resetSeason();
+            }
+        });
+
 
     }
 
-    private void setSeasonInitializedPreference() {
+    private void setSeasonInitializedPreference(boolean seasonInitialized) {
         //Set season initialized boolean preference to true
+        SimulatorPresenter.setSeasonInitialized(seasonInitialized);
         SharedPreferences.Editor prefs = mSharedPreferences.edit();
-        prefs.putBoolean(getString(R.string.settings_season_initialized_key), true);
+        prefs.putBoolean(getString(R.string.settings_season_initialized_key), seasonInitialized);
         prefs.commit();
     }
 
@@ -121,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
             public void run() {
 
                 setViewsReadyToSimulate();
-                setSeasonInitializedPreference();
+                setSeasonInitializedPreference(true);
             }
         });
     }
@@ -142,6 +156,12 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         } else {
             setViewsReadyToSimulate();
         }
+    }
+
+    @Override
+    public void onDataDeleted() {
+        setViewsNotReadyToSimulate();
+        mPresenter.initializeSeason();
     }
 
     @Override
@@ -217,8 +237,11 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
         //App is ready for simulation, set buttons to enabled and textview to "ready to simulate"
 
+        mSimulateWeek.setVisibility(View.VISIBLE);
+        mSimulateSeason.setVisibility(View.VISIBLE);
         mSimulateSeason.setEnabled(true);
         mSimulateWeek.setEnabled(true);
+        mResetButton.setVisibility(View.GONE);
         mStandingsTextView.setText(getString(R.string.ready_to_simulate));
     }
 
@@ -228,6 +251,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
         mSimulateSeason.setEnabled(false);
         mSimulateWeek.setEnabled(false);
+        mResetButton.setVisibility(View.GONE);
         if (!regularSeasonIsComplete()) {
             mStandingsTextView.setText(getString(R.string.loading));
         }
@@ -242,6 +266,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         //Hide the start playoffs button, and enable the simulate week button
         mStartPlayoffs.setVisibility(View.GONE);
         mSimulateSeason.setVisibility(View.INVISIBLE);
+        mResetButton.setVisibility(View.GONE);
         mSimulateWeek.setEnabled(true);
     }
 
@@ -251,6 +276,8 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mSimulateSeason.setVisibility(View.INVISIBLE);
         mSimulateWeek.setVisibility(View.INVISIBLE);
         mStartPlayoffs.setVisibility(View.GONE);
+        mResetButton.setVisibility(View.VISIBLE);
+
 
     }
 

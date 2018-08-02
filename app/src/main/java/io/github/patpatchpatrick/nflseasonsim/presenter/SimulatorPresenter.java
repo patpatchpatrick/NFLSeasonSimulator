@@ -308,6 +308,16 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
     }
 
+    @Override
+    public void resetSeason() {
+        mModel.deleteAllData();
+    }
+
+    @Override
+    public void dataDeleted() {
+        this.view.onDataDeleted();
+    }
+
     private void createTeamsFromDb(Cursor standingsCursor) {
 
         //Create team objects from database

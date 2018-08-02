@@ -614,6 +614,48 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     }
 
     @Override
+    public void deleteAllData() {
+
+        //Insert a match into the database
+
+        Observable<Integer> deleteDataObservable = Observable.fromCallable(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                int teamsDeleted = contentResolver.delete(TeamEntry.CONTENT_URI, null, null);
+                int matchesDeleted = contentResolver.delete(MatchEntry.CONTENT_URI, null, null);
+                return teamsDeleted + matchesDeleted;
+            }
+        });
+
+        deleteDataObservable.subscribeOn(mScheduler).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<Integer>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                mCompositeDisposable.add(d);
+            }
+
+            @Override
+            public void onNext(Integer rowsDeleted) {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+                mPresenter.dataDeleted();
+
+
+            }
+        });
+
+
+
+    }
+
+    @Override
     public void destroyModel() {
 
         //This method is called when the main activity is destroyed.  It will dispose of all disposables
