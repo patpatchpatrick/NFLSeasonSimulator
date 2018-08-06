@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -21,7 +22,6 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     Button mResetButton;
     TextView mStandingsTextView;
     TextView mScoresTextView;
-    Boolean mPlayoffsStarted = false;
     private SimulatorPresenter mPresenter;
     private SharedPreferences mSharedPreferences;
 
@@ -67,12 +67,12 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
             public void onClick(View view) {
                 //Disable the buttons until week is finished simulating
                 setViewsNotReadyToSimulate();
-
+                Log.d("PlayStart", " " + mPresenter.getPlayoffsStarted());
                 //Simulate either a regular week or playoff week depending on whether or not playoffs have started
-                if (!mPlayoffsStarted) {
+                if (!mPresenter.getPlayoffsStarted()) {
                     mPresenter.simulateWeek();
                 }
-                if (mPlayoffsStarted) {
+                if (mPresenter.getPlayoffsStarted()) {
                     mPresenter.simulatePlayoffWeek();
                 }
             }
@@ -81,7 +81,8 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mStartPlayoffs.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mPlayoffsStarted = true;
+                mPresenter.setPlayoffsStarted(true);
+                setPlayoffsStartedPreference(true);
                 mPresenter.initiatePlayoffs();
             }
         });
@@ -90,7 +91,8 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
             @Override
             public void onClick(View view) {
                 setSeasonInitializedPreference(false);
-                mPlayoffsStarted = false;
+                mPresenter.setPlayoffsStarted(false);
+                setPlayoffsStartedPreference(mPresenter.getPlayoffsStarted());
                 SimulatorPresenter.setCurrentWeek(0);
                 mScoresTextView.setText("");
                 mPresenter.resetSeason();
@@ -101,11 +103,30 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     }
 
     private void setSeasonInitializedPreference(boolean seasonInitialized) {
-        //Set season initialized boolean preference to true
+        //Set season initialized boolean preference
         SimulatorPresenter.setSeasonInitialized(seasonInitialized);
         SharedPreferences.Editor prefs = mSharedPreferences.edit();
         prefs.putBoolean(getString(R.string.settings_season_initialized_key), seasonInitialized);
         prefs.commit();
+    }
+
+    private void setPlayoffsStartedPreference(boolean playoffsStarted) {
+        //Set playoffs started boolean preference
+        SharedPreferences.Editor prefs = mSharedPreferences.edit();
+        prefs.putBoolean(getString(R.string.settings_playoffs_started_key), playoffsStarted);
+        prefs.commit();
+
+    }
+
+    private void setScoreStringPreference(String scoreString) {
+        //Set score string preference that holds playoff scores
+        SharedPreferences.Editor prefs = mSharedPreferences.edit();
+        prefs.putString(getString(R.string.settings_score_string_key), scoreString).apply();
+        prefs.commit();
+    }
+
+    private String getScoreStringPreference() {
+        return mSharedPreferences.getString(getString(R.string.settings_score_string_key), "no data");
     }
 
     private void setUpSharedPreferences() {
@@ -115,6 +136,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         Boolean seasonInitialized = false;
         seasonInitialized = mSharedPreferences.getBoolean(getString(R.string.settings_season_initialized_key), getResources().getBoolean(R.bool.pref_season_initialized_default));
+        mPresenter.setPlayoffsStarted(mSharedPreferences.getBoolean(getString(R.string.settings_playoffs_started_key), getResources().getBoolean(R.bool.pref_playoffs_started_default)));
         SimulatorPresenter.setSeasonInitialized(seasonInitialized);
         int currentWeek = 1;
         currentWeek = mSharedPreferences.getInt(getString(R.string.settings_week_num_key), 1);
@@ -142,9 +164,9 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
     @Override
     public void onSeasonLoadedFromDb() {
-        if (SimulatorPresenter.getCurrentWeek() > 1) {
+        if (SimulatorPresenter.getCurrentWeek() > 1 && !mPresenter.getPlayoffsStarted()) {
             mPresenter.loadAlreadySimulatedData();
-        } else {
+        } else if (!mPresenter.getPlayoffsStarted()) {
             setViewsReadyToSimulate();
         }
     }
@@ -172,10 +194,10 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mStandingsTextView.setText(standings);
         setWeekNumberPreference(SimulatorPresenter.getCurrentWeek());
         if (regularSeasonIsComplete()) {
-            if (!mPlayoffsStarted) {
+            if (!mPresenter.getPlayoffsStarted()) {
                 setViewsNotReadyToSimulate();
             }
-            if (mPlayoffsStarted) {
+            if (mPresenter.getPlayoffsStarted()) {
                 if (playoffsComplete()) {
                     setViewsPlayoffsComplete();
                 } else {
@@ -195,13 +217,14 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mSimulateWeek.setEnabled(true);
         if (weekNumber == MatchEntry.MATCH_WEEK_WILDCARD) {
             mScoresTextView.setText(scores);
-            mScoresTextView.setTag(scores);
+            setScoreStringPreference(scores);
             setViewsPlayoffs();
         } else if (weekNumber > MatchEntry.MATCH_WEEK_WILDCARD) {
-            if (matchesPlayed){
-                mScoresTextView.setTag(scores + mScoresTextView.getTag());
+            if (matchesPlayed) {
+                setScoreStringPreference(scores + getScoreStringPreference());
             }
-            mScoresTextView.setText(scores + mScoresTextView.getTag());
+            mScoresTextView.setText(scores + getScoreStringPreference());
+
             setViewsPlayoffs();
         } else {
             mScoresTextView.setText(scores + mScoresTextView.getText());
@@ -212,6 +235,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         if (playoffsComplete()) {
             //If playoffs are complete, set playoff complete views (ready views to restart simulation)
             setViewsPlayoffsComplete();
+            setScoreStringPreference("");
         }
 
         setWeekNumberPreference(SimulatorPresenter.getCurrentWeek());
@@ -255,7 +279,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         if (!regularSeasonIsComplete()) {
             mStandingsTextView.setText(getString(R.string.loading));
         }
-        if (regularSeasonIsComplete() && !mPlayoffsStarted) {
+        if (regularSeasonIsComplete() && !mPresenter.getPlayoffsStarted()) {
             mStartPlayoffs.setVisibility(View.VISIBLE);
         }
     }

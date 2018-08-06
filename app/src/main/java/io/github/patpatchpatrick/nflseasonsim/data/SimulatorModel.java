@@ -43,6 +43,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     public static final int QUERY_STANDINGS_REGULAR = 2;
     public static final int QUERY_STANDINGS_LOAD_SEASON = 3;
     public static final int QUERY_STANDINGS_POSTSEASON = 4;
+    public static final int QUERY_STANDINGS_LOAD_POSTSEASON = 5;
     public static final int QUERY_MATCHES_ALL = 0;
 
     public static final int INSERT_MATCHES_SCHEDULE = 0;
@@ -480,7 +481,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
                 //Query the team data depending on queryType requested
 
-                if (queryType == QUERY_STANDINGS_POSTSEASON) {
+                if (queryType == QUERY_STANDINGS_POSTSEASON || queryType == QUERY_STANDINGS_LOAD_POSTSEASON) {
 
                     //For postseason query,  don't query teams that aren't playoff eligible
                     //Sort by playoff seed and conference

@@ -72,7 +72,7 @@ public class Team {
 
     }
 
-    public Team(String name, double elo, double offRating, double defRating, int division, Data data, int wins, int losses, int divWins, int divLosses, double winLossPct, double divWinLossPct,  Uri uri) {
+    public Team(String name, double elo, double offRating, double defRating, int division, Data data, int wins, int losses, int divWins, int divLosses, double winLossPct, double divWinLossPct, int playoffEligible,  Uri uri) {
 
         mData = data;
         mName = name;
@@ -90,7 +90,7 @@ public class Team {
         mDivision = division;
         mPointsFor = 0;
         mPointsAllowed = 0;
-        mPlayoffEligible = TeamEntry.PLAYOFF_NOT_ELIGIBLE;
+        mPlayoffEligible = playoffEligible;
         mUri = uri;
 
         //Set conference value based on division value (all AFC divisions are ints less than 4)

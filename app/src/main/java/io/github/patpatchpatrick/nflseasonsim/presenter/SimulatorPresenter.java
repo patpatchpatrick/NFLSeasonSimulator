@@ -31,6 +31,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     private SimulatorModel mModel;
     private static int mCurrentWeek;
     private static Boolean mSeasonInitialized = false;
+    private static Boolean mPlayoffsStarted = false;
 
     public SimulatorPresenter(SimulatorMvpContract.SimulatorView view) {
         super(view);
@@ -52,6 +53,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     @Override
     public void simulatePlayoffWeek() {
         //Simulate a single week
+        Log.d("Sched", "mat " + mCurrentWeek);
         mSchedule.getWeek(mCurrentWeek).simulate();
         //After the week is complete, query the standings (and display them)
         mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_POSTSEASON);
@@ -72,6 +74,16 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         mCurrentWeek = 18;
         mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_POSTSEASON);
 
+    }
+
+    @Override
+    public boolean getPlayoffsStarted() {
+        return mPlayoffsStarted;
+    }
+
+    @Override
+    public void setPlayoffsStarted(boolean playoffsStarted) {
+        mPlayoffsStarted = playoffsStarted;
     }
 
     @Override
@@ -112,14 +124,14 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             mModel.queryMatches(MatchEntry.MATCH_WEEK_WILDCARD, true, false);
         }
 
-        if (insertType ==  SimulatorModel.INSERT_MATCHES_PLAYOFFS_DIVISIONAL){
-            mModel.queryMatches(MatchEntry.MATCH_WEEK_DIVISIONAL,  true, false);
+        if (insertType == SimulatorModel.INSERT_MATCHES_PLAYOFFS_DIVISIONAL) {
+            mModel.queryMatches(MatchEntry.MATCH_WEEK_DIVISIONAL, true, false);
         }
-        if (insertType ==  SimulatorModel.INSERT_MATCHES_PLAYOFFS_CHAMPIONSHIP){
-            mModel.queryMatches(MatchEntry.MATCH_WEEK_CHAMPIONSHIP,  true, false);
+        if (insertType == SimulatorModel.INSERT_MATCHES_PLAYOFFS_CHAMPIONSHIP) {
+            mModel.queryMatches(MatchEntry.MATCH_WEEK_CHAMPIONSHIP, true, false);
         }
-        if (insertType ==  SimulatorModel.INSERT_MATCHES_PLAYOFFS_SUPERBOWL){
-            mModel.queryMatches(MatchEntry.MATCH_WEEK_SUPERBOWL,  true, false);
+        if (insertType == SimulatorModel.INSERT_MATCHES_PLAYOFFS_SUPERBOWL) {
+            mModel.queryMatches(MatchEntry.MATCH_WEEK_SUPERBOWL, true, false);
         }
     }
 
@@ -184,6 +196,11 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             Week weekFifteen = new Week(15);
             Week weekSixteen = new Week(16);
             Week weekSeventeen = new Week(17);
+            Week wildCard = new Week(MatchEntry.MATCH_WEEK_WILDCARD);
+            Week divisional = new Week(MatchEntry.MATCH_WEEK_DIVISIONAL);
+            Week championship = new Week(MatchEntry.MATCH_WEEK_CHAMPIONSHIP);
+            Week superbowl = new Week(MatchEntry.MATCH_WEEK_SUPERBOWL);
+
 
             //Get matches from database cursor and add them to the schedule
             matchesCursor.moveToPosition(-1);
@@ -248,9 +265,20 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
                     case 17:
                         weekSeventeen.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 17, this, matchUri));
                         break;
+                    case 18:
+                        wildCard.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 18, this, matchUri));
+                        break;
+                    case 19:
+                        divisional.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 19, this, matchUri));
+                        break;
+                    case 20:
+                        championship.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 20, this, matchUri));
+                        break;
+                    case 21:
+                        superbowl.addMatch(new Match(mTeamList.get(teamOne), mTeamList.get(teamTwo), 21, this, matchUri));
+                        break;
 
                 }
-
 
             }
 
@@ -274,7 +302,25 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             seasonSchedule.addWeek(weekSixteen);
             seasonSchedule.addWeek(weekSeventeen);
 
+            if (mCurrentWeek >= 18 && mPlayoffsStarted){
+                seasonSchedule.addWeek(wildCard);
+            }
+            if (mCurrentWeek >= 19 && mPlayoffsStarted){
+                seasonSchedule.addWeek(divisional);
+            }
+            if (mCurrentWeek >= 20 && mPlayoffsStarted){
+                seasonSchedule.addWeek(championship);
+            }
+            if (mCurrentWeek >= 21 && mPlayoffsStarted){
+                seasonSchedule.addWeek(superbowl);
+            }
+
+
             mSchedule = seasonSchedule;
+
+            if (mPlayoffsStarted) {
+                mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_LOAD_POSTSEASON);
+            }
         }
 
     }
@@ -303,7 +349,10 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         if (queryType == SimulatorModel.QUERY_STANDINGS_POSTSEASON) {
             createPlayoffMatchups(standingsCursor);
             displayPlayoffStandings(standingsCursor);
-
+        }
+        if (queryType == SimulatorModel.QUERY_STANDINGS_LOAD_POSTSEASON) {
+            displayPlayoffStandings(standingsCursor);
+            mModel.queryMatches(mCurrentWeek, true, false);
         }
 
     }
@@ -342,12 +391,13 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             Double offRating = standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_OFF_RATING));
             Double defRating = standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DEF_RATING));
             int division = standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DIVISION));
+            int playoffEligible = standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE));
             Uri teamUri = ContentUris.withAppendedId(TeamEntry.CONTENT_URI, ID);
 
 
             mTeamList.put(teamName,
                     new Team(teamName, teamElo,
-                            offRating, defRating, division, this, teamWins, teamLosses, divisionWins, divisionLosses, winLossPct, divWinLossPct, teamUri));
+                            offRating, defRating, division, this, teamWins, teamLosses, divisionWins, divisionLosses, winLossPct, divWinLossPct, playoffEligible, teamUri));
 
         }
 
@@ -821,7 +871,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
                 } else if (i == 7) {
                     standings += "\n** NFC Playoff Standings **\n\n";
                 }
-            } else if (remainingPlayoffTeams == 8){
+            } else if (remainingPlayoffTeams == 8) {
                 if (i == 1) {
                     standings += "\n** AFC Playoff Standings **\n\n";
                 } else if (i == 5) {
@@ -876,6 +926,8 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         //If standings cursor count is 12, the playoffs are just starting because there are still 12 teams
         //Therefore, initialize the playoffs schedule and set the wildcard matchups
         int remainingPlayoffTeams = standingsCursor.getCount();
+
+        Log.d("RemainingTeams", "# " + remainingPlayoffTeams);
 
         ArrayList<Team> afcTeams = new ArrayList<>();
         ArrayList<Team> nfcTeams = new ArrayList<>();

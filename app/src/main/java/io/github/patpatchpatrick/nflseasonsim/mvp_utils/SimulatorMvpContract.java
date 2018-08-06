@@ -31,6 +31,8 @@ public interface SimulatorMvpContract {
         void simulateSeason();
         void initializeSeason();
         void initiatePlayoffs();
+        boolean getPlayoffsStarted();
+        void setPlayoffsStarted(boolean playoffsStarted);
         void loadSeasonFromDatabase();
         void loadAlreadySimulatedData();
         void teamsInserted();

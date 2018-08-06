@@ -2,5 +2,6 @@
 <resources>
 
     <bool name="pref_season_initialized_default">false</bool>
+    <bool name="pref_playoffs_started_default">false</bool>
 
 </resources>
