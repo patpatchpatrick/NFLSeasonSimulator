@@ -25,9 +25,10 @@ import io.github.patpatchpatrick.nflseasonsim.season_resources.Week;
 public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.SimulatorView>
         implements SimulatorMvpContract.SimulatorPresenter, Data {
 
+    //Simulator presenter class is used to communicate between the MainActivity (view) and the Model (MVP Architecture)
+
     private HashMap<String, Team> mTeamList;
     private Schedule mSchedule;
-    private Schedule mPlayoffs;
     private SimulatorModel mModel;
     private static int mCurrentWeek;
     private static Boolean mSeasonInitialized = false;
@@ -47,6 +48,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_REGULAR);
         //Query the week scores and display them
         mModel.queryMatches(mCurrentWeek, true, true);
+        //Week is complete so increment the current week value
         mCurrentWeek++;
     }
 
@@ -57,6 +59,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         mSchedule.getWeek(mCurrentWeek).simulate();
         //After the week is complete, query the standings (and display them)
         mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_POSTSEASON);
+        //Week is complete so increment the current week value
         mCurrentWeek++;
     }
 
@@ -72,22 +75,17 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     @Override
     public void initiatePlayoffs() {
         mCurrentWeek = 18;
+        //Initiate the playoffs
+        //Query the standings from the playoffs standings and the rest of the playoffs is initiated via the
+        // standingsQueried method
         mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_POSTSEASON);
 
     }
 
     @Override
-    public boolean getPlayoffsStarted() {
-        return mPlayoffsStarted;
-    }
-
-    @Override
-    public void setPlayoffsStarted(boolean playoffsStarted) {
-        mPlayoffsStarted = playoffsStarted;
-    }
-
-    @Override
     public void loadSeasonFromDatabase() {
+        //Load season from database
+        //The rest of season is loaded in the standingsQueried method received once the data is loaded
         mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_LOAD_SEASON);
         this.view.onSeasonLoadedFromDb();
     }
@@ -114,6 +112,9 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     @Override
     public void matchesInserted(int insertType, Schedule schedule) {
 
+        //Callback received after matches are inserted into the database in the model
+        //An action is performed below depending on the insertType
+
         if (insertType == SimulatorModel.INSERT_MATCHES_SCHEDULE) {
             //Notify main activity view that season is initialized
             mSeasonInitialized = true;
@@ -138,10 +139,14 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     @Override
     public void matchesQueried(int queryType, Cursor matchesCursor, boolean matchesPlayed) {
 
-        //If you are not querying all matches, put the score info in a string and display it in the main activity
-        //Otherwise, add the match info to the schedule under the ELSE statement
+        //If you are not querying all matches, put the match score data in a string and display it in the main activity
+        //If all matches are being queried, the ELSE statement below will be hit and the entire schedule will loaded and created
+        //from the data queried in the database
 
         if (queryType != SimulatorModel.QUERY_MATCHES_ALL) {
+
+            //Load match data into a string to be displayed in the main activity
+            //Set the string header depending on the week number that was queried
 
             int weekNumber = queryType;
 
@@ -177,7 +182,9 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
         } else {
 
+            //This else statement is hit if ALL matches are queried
             //Initialize all schedule, weeks, and matches.  Add weeks to schedule.
+
             Schedule seasonSchedule = new Schedule();
             Week weekOne = new Week(1);
             Week weekTwo = new Week(2);
@@ -319,6 +326,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             mSchedule = seasonSchedule;
 
             if (mPlayoffsStarted) {
+                //If the playoffs have already started, re-query the playoff standings  after all matches are created
                 mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_LOAD_POSTSEASON);
             }
         }
@@ -327,6 +335,9 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
     @Override
     public void teamsOrStandingsQueried(int queryType, Cursor standingsCursor) {
+
+        //This callback will be received from the model whenever teams/standings are queried
+        //Depending on the queryType, a specific action is performed
 
         if (queryType == SimulatorModel.QUERY_STANDINGS_REGULAR) {
             //A regular standings was queried
@@ -343,14 +354,21 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             displayStandings(standingsCursor);
         }
         if (queryType == SimulatorModel.QUERY_STANDINGS_LOAD_SEASON) {
+            //The entire season was loaded from the db
+            //Create teams from the db data and then query all matches from the db
             createTeamsFromDb(standingsCursor);
             mModel.queryMatches(SimulatorModel.QUERY_MATCHES_ALL, false, true);
         }
         if (queryType == SimulatorModel.QUERY_STANDINGS_POSTSEASON) {
+            //The postseason standings were queried
+            //Create playoff matchups based on the playoff standings/round and then display the
+            //standings in the Main Activity UI
             createPlayoffMatchups(standingsCursor);
             displayPlayoffStandings(standingsCursor);
         }
         if (queryType == SimulatorModel.QUERY_STANDINGS_LOAD_POSTSEASON) {
+            //The app was restarted and the postseason standings need to be re-loaded from the database
+            //Display the standings in the MainActivity UI and query the playoff matches
             displayPlayoffStandings(standingsCursor);
             mModel.queryMatches(mCurrentWeek, true, false);
         }
@@ -359,17 +377,19 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
     @Override
     public void resetSeason() {
+        //When season is reset, delete all data in the database
         mModel.deleteAllData();
     }
 
     @Override
     public void dataDeleted() {
+        //Callback after data has been deleted
         this.view.onDataDeleted();
     }
 
     private void createTeamsFromDb(Cursor standingsCursor) {
 
-        //Create team objects from database
+        //Create team objects from team database data
 
         mTeamList = new HashMap<String, Team>();
 
@@ -413,6 +433,9 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
 
     private HashMap<String, Team> createTeams() {
+
+        //Create teams for the first time
+
         mTeamList = new HashMap<String, Team>();
         mTeamList.put(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING,
                 new Team(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING, NFLConstants.TEAM_ARIZONA_CARDINALS_ELO,
@@ -833,7 +856,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
 
         //Display the team standings
-        //For ever 4 teams, print the division name
+        //For every 4 teams, print the division name
         //Print  teamName, wins, losses and playoff seeding if the team is playoff eligible
 
         String standings = "";
@@ -875,6 +898,12 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
                 if (i == 1) {
                     standings += "\n** AFC Playoff Standings **\n\n";
                 } else if (i == 5) {
+                    standings += "\n** NFC Playoff Standings **\n\n";
+                }
+            } else if (remainingPlayoffTeams == 4){
+                if (i == 1) {
+                    standings += "\n** AFC Playoff Standings **\n\n";
+                } else if (i == 3) {
                     standings += "\n** NFC Playoff Standings **\n\n";
                 }
             }
@@ -925,6 +954,11 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
         //If standings cursor count is 12, the playoffs are just starting because there are still 12 teams
         //Therefore, initialize the playoffs schedule and set the wildcard matchups
+
+        //If the standings cursor count is 8, initialize divisional playoffs.
+        //If the standings cursor count is 4, initialize conference playoffs.
+        //If the standings cursor count is 2, initialize superbowl.
+
         int remainingPlayoffTeams = standingsCursor.getCount();
 
         Log.d("RemainingTeams", "# " + remainingPlayoffTeams);
@@ -938,7 +972,6 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             int teamConference = standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CONFERENCE));
             int teamPlayoffSeed = standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE));
             String teamName = standingsCursor.getString(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_NAME));
-            Log.d("PLAYOFF TEMS: ", teamName);
             Team team = mTeamList.get(teamName);
             if (team.getConference() == TeamEntry.CONFERENCE_AFC) {
                 afcTeams.add(team);
@@ -1026,6 +1059,16 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         }
 
 
+    }
+
+    @Override
+    public boolean getPlayoffsStarted() {
+        return mPlayoffsStarted;
+    }
+
+    @Override
+    public void setPlayoffsStarted(boolean playoffsStarted) {
+        mPlayoffsStarted = playoffsStarted;
     }
 
 

@@ -84,7 +84,7 @@ public class Standings {
         });
 
         //If the top team has a better win loss percentage than the second team, set it as a wildcard team
-        //If the second team has a better win loss percentage than the third t eam, set it as a wildcard team as well
+        //If the second team has a better win loss percentage than the third team, set it as a wildcard team as well
         //Otherwise, run a random draw to randomly select teams that have the same win loss percentage to determine the wildcards
 
         if (potentialWildCardTeams.get(0).getWinLossPct() > potentialWildCardTeams.get(1).getWinLossPct()) {

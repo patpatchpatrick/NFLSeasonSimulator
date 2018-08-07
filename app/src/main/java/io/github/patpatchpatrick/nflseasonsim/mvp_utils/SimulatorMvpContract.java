@@ -14,9 +14,10 @@ import io.github.patpatchpatrick.nflseasonsim.season_resources.Week;
 
 public interface SimulatorMvpContract {
 
+    //Contract for interaction between MainActivity view, Presenter and Model
+
     interface SimulatorView {
 
-        // button events
         void onDisplayStandings(String standings);
         void onDisplayScores(int weekNumber, String scores, boolean matchesPlayed);
         void onSeasonInitialized();

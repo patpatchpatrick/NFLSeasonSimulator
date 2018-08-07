@@ -56,6 +56,8 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mSimulateSeason.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Simulate season
+                //Set views to not ready to simulate while the season simulates
                 setViewsNotReadyToSimulate();
                 mPresenter.simulateSeason();
 
@@ -65,9 +67,10 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mSimulateWeek.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Simulate the week
                 //Disable the buttons until week is finished simulating
                 setViewsNotReadyToSimulate();
-                Log.d("PlayStart", " " + mPresenter.getPlayoffsStarted());
+
                 //Simulate either a regular week or playoff week depending on whether or not playoffs have started
                 if (!mPresenter.getPlayoffsStarted()) {
                     mPresenter.simulateWeek();
@@ -81,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mStartPlayoffs.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Start the playoffs
                 mPresenter.setPlayoffsStarted(true);
                 setPlayoffsStartedPreference(true);
                 mPresenter.initiatePlayoffs();
@@ -90,10 +94,14 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mResetButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Reset the season
+                //Reset all shared preference values
+
                 setSeasonInitializedPreference(false);
                 mPresenter.setPlayoffsStarted(false);
                 setPlayoffsStartedPreference(mPresenter.getPlayoffsStarted());
                 SimulatorPresenter.setCurrentWeek(0);
+                setScoreStringPreference("");
                 mScoresTextView.setText("");
                 mPresenter.resetSeason();
             }
@@ -148,8 +156,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
         //After season is initialized, enable simulate buttons and let user know they can now simulate
         //Set season initialized boolean preference to true
-        //Run this code on the UI thread, since original call to update the button/textview is made on the
-        //schedulers.IO thread
+        //Run this code on the UI thread, since original call to update the button/textview is made on a separate thread
 
         runOnUiThread(new Runnable() {
 
@@ -164,7 +171,14 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
     @Override
     public void onSeasonLoadedFromDb() {
-        if (SimulatorPresenter.getCurrentWeek() > 1 && !mPresenter.getPlayoffsStarted()) {
+
+        //After the season is loaded from the database
+        //If the current week is greater than one and playoffs haven't started, the season has been partially
+        //simulated, so load the already simulated data
+
+        //Otherwise, if the playoffs hasn't started, set the views as ready to simulate
+
+        if (SimulatorPresenter.getCurrentWeek() >= 1 && !mPresenter.getPlayoffsStarted()) {
             mPresenter.loadAlreadySimulatedData();
         } else if (!mPresenter.getPlayoffsStarted()) {
             setViewsReadyToSimulate();
@@ -182,6 +196,8 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
     @Override
     public void onDataDeleted() {
+        //After data is deleted from database when season is reset, re-initialize the next season
+
         setViewsNotReadyToSimulate();
         mPresenter.initializeSeason();
     }
@@ -189,11 +205,22 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     @Override
     public void onDisplayStandings(String standings) {
         //Callback received from presenter to display standings after they are loaded
+
+        //Set simulate buttons to active
         mSimulateSeason.setEnabled(true);
         mSimulateWeek.setEnabled(true);
+
+        //Set standings text
         mStandingsTextView.setText(standings);
+
+        //Set current week preference value since the week is now complete.  This display standings call
+        //is received after the week  is simulated and the week number was incremented during simulation.
         setWeekNumberPreference(SimulatorPresenter.getCurrentWeek());
+
+
         if (regularSeasonIsComplete()) {
+            //If the regular season is complete, set up the views for playoffs depending on if playoffs
+            //have started or playoffs have completed
             if (!mPresenter.getPlayoffsStarted()) {
                 setViewsNotReadyToSimulate();
             }
@@ -213,8 +240,16 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         //Callback received from presenter to display scores after they are loaded
         //Also receive the weekNumber that was simulated so we can store it in sharedPrefs
         //When app is reloaded, we can automatically show scores/weeks that have already been simulated
+
+        //Set simulate buttons to active
         mSimulateSeason.setEnabled(true);
         mSimulateWeek.setEnabled(true);
+
+        //Display scores
+        //If displaying playoff scores, the prior round's scores are stored in  a shared preference value,
+        //and the next round's scores are prepended to the textview when they are loaded
+
+        //If displaying regular season scores, each week's scores is prepended to the prior week's scores
         if (weekNumber == MatchEntry.MATCH_WEEK_WILDCARD) {
             mScoresTextView.setText(scores);
             setScoreStringPreference(scores);
@@ -273,6 +308,8 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
         //App is not ready for simulation, set buttons to disabled and textView to "Loading..."
 
+        //If the regular season is complete, enable the "Start Playoffs" button
+
         mSimulateSeason.setEnabled(false);
         mSimulateWeek.setEnabled(false);
         mResetButton.setVisibility(View.GONE);
@@ -296,7 +333,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
     private void setViewsPlayoffsComplete() {
 
-        //Playoffs are complete
+        //Playoffs are complete, hide all buttons except for the reset button
         mSimulateSeason.setVisibility(View.INVISIBLE);
         mSimulateWeek.setVisibility(View.INVISIBLE);
         mStartPlayoffs.setVisibility(View.GONE);

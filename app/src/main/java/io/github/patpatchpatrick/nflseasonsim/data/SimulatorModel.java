@@ -39,6 +39,10 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
     private CompositeDisposable mCompositeDisposable;
 
+    //FINAL integers used to determine insert types and query types for when data  is inserted or
+    //queried from the database.
+    //These insertTypes and queryTypes are used to determine what happens to the data
+
     public static final int QUERY_STANDINGS_PLAYOFF = 1;
     public static final int QUERY_STANDINGS_REGULAR = 2;
     public static final int QUERY_STANDINGS_LOAD_SEASON = 3;
@@ -420,7 +424,6 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
                 int rowsUpdated = contentResolver.update(uri, values, null, null);
 
-                Log.d("Thread: ", "" + Thread.currentThread().getName());
 
                 return rowsUpdated;
             }
@@ -617,7 +620,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     @Override
     public void deleteAllData() {
 
-        //Insert a match into the database
+        //Delete all data from the database
 
         Observable<Integer> deleteDataObservable = Observable.fromCallable(new Callable<Integer>() {
             @Override
