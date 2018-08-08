@@ -1,6 +1,7 @@
 package io.github.patpatchpatrick.nflseasonsim.presenter;
 
 import android.content.ContentUris;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
@@ -10,6 +11,7 @@ import java.util.HashMap;
 
 import javax.inject.Inject;
 
+import io.github.patpatchpatrick.nflseasonsim.R;
 import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.SimulatorMvpContract;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.TeamEntry;
@@ -556,6 +558,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
                 new Team("Washington Redskins", NFLConstants.TEAM_WASHINGTON_REDSKINS_ELO, NFLConstants.TEAM_WASHINGTON_REDSKINS_FUTURE_RANKING,
                         NFLConstants.TEAM_WASHINGTON_REDSKINS_OFFRAT, NFLConstants.TEAM_WASHINGTON_REDSKINS_DEFRAT, TeamEntry.DIVISION_NFC_EAST, this));
         mModel.setTeamList(teamList);
+
     }
 
 

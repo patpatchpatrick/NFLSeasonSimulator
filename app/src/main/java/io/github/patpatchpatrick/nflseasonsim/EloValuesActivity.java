@@ -1,5 +1,6 @@
 package io.github.patpatchpatrick.nflseasonsim;
 
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,6 +17,9 @@ public class EloValuesActivity extends AppCompatActivity {
 
     @Inject
     SimulatorPresenter mSimulatorPresenter;
+
+    @Inject
+    SharedPreferences mSharedPreferences;
 
     private RecyclerView mRecyclerView;
     private Button mLastSeasonEloButton;
@@ -43,6 +47,7 @@ public class EloValuesActivity extends AppCompatActivity {
             public void onClick(View view) {
                 mSimulatorPresenter.resetTeamElos();
                 eloRecyclerAdapter.notifyDataSetChanged();
+                setUseFutureElosPref(false);
             }
         });
 
@@ -52,9 +57,17 @@ public class EloValuesActivity extends AppCompatActivity {
             public void onClick(View view) {
                 mSimulatorPresenter.resetTeamFutureElos();
                 eloRecyclerAdapter.notifyDataSetChanged();
+                setUseFutureElosPref(true);
+
             }
         });
 
 
+    }
+
+    private void setUseFutureElosPref(Boolean useFutureElos){
+        SharedPreferences.Editor prefs = mSharedPreferences.edit();
+        prefs.putBoolean(getString(R.string.settings_use_future_elos_key), useFutureElos);
+        prefs.commit();
     }
 }

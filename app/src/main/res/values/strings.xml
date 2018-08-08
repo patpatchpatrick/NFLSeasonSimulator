@@ -15,6 +15,7 @@
     <string name="settings_week_num_key">week number</string>
     <string name="settings_week_number_title">Week Number</string>
     <string name="settings_score_string_key">score string</string>
+    <string name="settings_use_future_elos_key">use future elos</string>
     <string name="settings_label_week_one">Week One</string>
     <string name="settings_label_week_two">Week Two</string>
     <string name="settings_label_week_three">Week Three</string>

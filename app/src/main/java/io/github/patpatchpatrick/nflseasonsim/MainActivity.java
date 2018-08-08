@@ -30,13 +30,15 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     @Inject
     SimulatorModel mModel;
 
+    @Inject
+    SharedPreferences mSharedPreferences;
+
     Button mSimulateSeason;
     Button mSimulateWeek;
     Button mStartPlayoffs;
     Button mResetButton;
     TextView mStandingsTextView;
     TextView mScoresTextView;
-    private SharedPreferences mSharedPreferences;
     private static ActivityComponent mActivityComponent;
 
     @Override
@@ -158,7 +160,6 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
         //Get default shared pref values and set other variables accordingly
 
-        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         Boolean seasonInitialized = false;
         seasonInitialized = mSharedPreferences.getBoolean(getString(R.string.settings_season_initialized_key), getResources().getBoolean(R.bool.pref_season_initialized_default));
         mPresenter.setPlayoffsStarted(mSharedPreferences.getBoolean(getString(R.string.settings_playoffs_started_key), getResources().getBoolean(R.bool.pref_playoffs_started_default)));
@@ -182,6 +183,12 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
                 setViewsReadyToSimulate();
                 setSeasonInitializedPreference(true);
+
+                //Check if user is using future elo values instead of default, if so, set teams to have future elo values
+                Boolean useFutureElos = mSharedPreferences.getBoolean(getString(R.string.settings_use_future_elos_key), getResources().getBoolean(R.bool.pref_use_future_elos_default));
+                if (useFutureElos){
+                    mPresenter.resetTeamFutureElos();
+                }
             }
         });
     }
