@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import javax.inject.Inject;
@@ -45,7 +46,9 @@ public class EloRecyclerViewAdapter extends RecyclerView.Adapter<EloRecyclerView
 
         String teamName = currentTeam.getName();
         double teamElo = currentTeam.getElo();
-        String teamEloString = Double.toString(teamElo);
+
+        DecimalFormat df = new DecimalFormat("#0.00");
+        String teamEloString = df.format(teamElo);
 
         holder.eloEditTextListener.updateTeam(currentTeam);
         holder.teamNameTextView.setText(teamName);

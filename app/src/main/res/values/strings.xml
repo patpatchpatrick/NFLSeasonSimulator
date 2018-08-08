@@ -37,8 +37,8 @@
     <string name="menu_elo_values">Team Elo Values</string>
 
     <!-- ELO Values Activity Strings -->
-    <string name="use_default_values">Use Default Elo Values</string>
-    <string name="update_elo_values">Update Elo Values</string>
+    <string name="use_default_values">Last Season Elos</string>
+    <string name="use_offseason_prediction_elos">Future Elos</string>
 
 
 

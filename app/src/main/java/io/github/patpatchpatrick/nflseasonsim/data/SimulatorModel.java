@@ -344,6 +344,8 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
                 String name = team.getName();
                 double elo = team.getElo();
+                double defaultElo = team.getDefaultElo();
+                double teamRanking = team.getTeamRanking();
                 double offRating = team.getOffRating();
                 double defRating = team.getDefRating();
                 int currentWins = team.getWins();
@@ -355,6 +357,8 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                 ContentValues values = new ContentValues();
                 values.put(TeamEntry.COLUMN_TEAM_NAME, name);
                 values.put(TeamEntry.COLUMN_TEAM_ELO, elo);
+                values.put(TeamEntry.COLUMN_TEAM_DEFAULT_ELO, defaultElo);
+                values.put(TeamEntry.COLUMN_TEAM_RANKING, teamRanking);
                 values.put(TeamEntry.COLUMN_TEAM_OFF_RATING, offRating);
                 values.put(TeamEntry.COLUMN_TEAM_DEF_RATING, defRating);
                 values.put(TeamEntry.COLUMN_TEAM_CURRENT_WINS, currentWins);
@@ -453,6 +457,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                 values.put(TeamEntry.COLUMN_TEAM_DIV_LOSSES, team.getDivisionLosses());
                 values.put(TeamEntry.COLUMN_TEAM_DIV_WIN_LOSS_PCT, team.getDivisionWinLossPct());
                 values.put(TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE, team.getPlayoffEligible());
+                values.put(TeamEntry.COLUMN_TEAM_ELO, team.getElo());
 
                 int rowsUpdated = contentResolver.update(uri, values, null, null);
 
@@ -508,6 +513,8 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                         TeamEntry.COLUMN_TEAM_DIV_WIN_LOSS_PCT,
                         TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE,
                         TeamEntry.COLUMN_TEAM_ELO,
+                        TeamEntry.COLUMN_TEAM_DEFAULT_ELO,
+                        TeamEntry.COLUMN_TEAM_RANKING,
                         TeamEntry.COLUMN_TEAM_OFF_RATING,
                         TeamEntry.COLUMN_TEAM_DEF_RATING,
                 };

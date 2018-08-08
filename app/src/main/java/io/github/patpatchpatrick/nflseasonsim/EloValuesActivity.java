@@ -1,19 +1,25 @@
 package io.github.patpatchpatrick.nflseasonsim;
 
-import android.content.ContentResolver;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.Button;
 
 import javax.inject.Inject;
 
-import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
+import io.github.patpatchpatrick.nflseasonsim.presenter.SimulatorPresenter;
 
 public class EloValuesActivity extends AppCompatActivity {
     //Activity to edit team ELO values
 
+    @Inject
+    SimulatorPresenter mSimulatorPresenter;
+
     private RecyclerView mRecyclerView;
+    private Button mLastSeasonEloButton;
+    private Button mFutureEloButton;
 
 
     @Override
@@ -21,12 +27,33 @@ public class EloValuesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_elo_values);
 
+        //Inject with Dagger Activity Component to get access to presenter
+        MainActivity.getActivityComponent().inject(this);
+
         // Find recyclerView for list of team names and elos and set linearLayoutManager and recyclerAdapter on recyclerView
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view_elo);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(EloValuesActivity.this));
-        EloRecyclerViewAdapter eloRecyclerAdapter = new EloRecyclerViewAdapter();
+        final EloRecyclerViewAdapter eloRecyclerAdapter = new EloRecyclerViewAdapter();
         mRecyclerView.setAdapter(eloRecyclerAdapter);
+
+        mLastSeasonEloButton = (Button) findViewById(R.id.use_default_button);
+        mLastSeasonEloButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mSimulatorPresenter.resetTeamElos();
+                eloRecyclerAdapter.notifyDataSetChanged();
+            }
+        });
+
+        mFutureEloButton = (Button) findViewById(R.id.future_elos_button);
+        mFutureEloButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mSimulatorPresenter.resetTeamFutureElos();
+                eloRecyclerAdapter.notifyDataSetChanged();
+            }
+        });
 
 
     }

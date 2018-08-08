@@ -24,7 +24,9 @@ public class Team {
     private int mConference;
 
     //Ratings
+    private double mDefaultElo;
     private double mElo;
+    private double mTeamRanking;
     private double mOffRating;
     private double mDefRating;
 
@@ -43,11 +45,16 @@ public class Team {
     private int mPointsFor;
     private int mPointsAllowed;
 
-    public Team(String name, double elo, double offRating, double defRating, int division, Data data) {
+    public Team(String name, double elo, double teamRanking, double offRating, double defRating, int division, Data data) {
+
+        //Constructor used when originally creating team
+
 
         mData = data;
         mName = name;
+        mDefaultElo = elo;
         mElo = elo;
+        mTeamRanking = teamRanking;
         mOffRating = offRating;
         mDefRating = defRating;
         mCurrentWins = 0;
@@ -72,11 +79,13 @@ public class Team {
 
     }
 
-    public Team(String name, double elo, double offRating, double defRating, int division, Data data, int wins, int losses, int divWins, int divLosses, double winLossPct, double divWinLossPct, int playoffEligible,  Uri uri) {
+    public Team(String name, double elo, double defaultElo, double teamRanking, double offRating, double defRating, int division, Data data, int wins, int losses, int divWins, int divLosses, double winLossPct, double divWinLossPct, int playoffEligible,  Uri uri) {
 
+        mTeamRanking =  teamRanking;
         mData = data;
         mName = name;
         mElo = elo;
+        mDefaultElo = defaultElo;
         mOffRating = offRating;
         mDefRating = defRating;
         mCurrentWins = wins;
@@ -205,5 +214,23 @@ public class Team {
 
     public int getConference(){
         return mConference;
+    }
+
+    public double getDefaultElo(){
+        return mDefaultElo;
+    }
+
+    public void resetElo(){
+        //Set team elos based on last seasons elos
+        mElo = mDefaultElo;
+    }
+
+    public void setFutureElos(){
+        //Set team elos based on future ranking
+        mElo = 1700 - (mTeamRanking * 12.5);
+    }
+
+    public Double getTeamRanking(){
+        return mTeamRanking;
     }
 }

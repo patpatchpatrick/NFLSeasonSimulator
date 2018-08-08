@@ -38,6 +38,8 @@ public class SeasonSimContract {
         public static final String _ID = BaseColumns._ID;
         public static final String COLUMN_TEAM_NAME = "teamName";
         public static final String COLUMN_TEAM_ELO = "teamELO";
+        public static final String COLUMN_TEAM_DEFAULT_ELO = "teamDefaultELO";
+        public static final String COLUMN_TEAM_RANKING = "teamRanking";
         public static final String COLUMN_TEAM_OFF_RATING = "teamOffensiveRating";
         public static final String COLUMN_TEAM_DEF_RATING = "teamDefensiveRating";
         public static final String COLUMN_TEAM_CURRENT_WINS = "teamWins";

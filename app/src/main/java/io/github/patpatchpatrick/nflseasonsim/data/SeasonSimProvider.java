@@ -134,6 +134,18 @@ public class SeasonSimProvider extends ContentProvider{
             throw new IllegalArgumentException("Team requires valid elo");
         }
 
+        // Check that the default elo is valid
+        Double defaultElo = values.getAsDouble(TeamEntry.COLUMN_TEAM_DEFAULT_ELO);
+        if (defaultElo == null) {
+            throw new IllegalArgumentException("Team requires valid elo");
+        }
+
+        // Check that the team ranking is valid
+        Double teamRanking = values.getAsDouble(TeamEntry.COLUMN_TEAM_RANKING);
+        if (teamRanking == null) {
+            throw new IllegalArgumentException("Team requires valid ranking");
+        }
+
         // Check that the offensive rating is valid
         Double offRating = values.getAsDouble(TeamEntry.COLUMN_TEAM_OFF_RATING);
         if (offRating == null) {
