@@ -13,7 +13,6 @@ import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
-import io.github.patpatchpatrick.nflseasonsim.DaggerApplication;
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.SimulatorMvpContract;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Match;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Schedule;
@@ -32,10 +31,11 @@ import io.reactivex.schedulers.Schedulers;
 public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     //Simulator model class used to manage communication with database
 
-    private final SimulatorMvpContract.SimulatorPresenter mPresenter;
-
     @Inject
     ContentResolver contentResolver;
+
+    @Inject
+    SimulatorMvpContract.SimulatorPresenter mPresenter;
 
     private CompositeDisposable mCompositeDisposable;
 
@@ -56,13 +56,13 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     public static final int INSERT_MATCHES_PLAYOFFS_CHAMPIONSHIP = 3;
     public static final int INSERT_MATCHES_PLAYOFFS_SUPERBOWL = 4;
 
+    //Data for season resources
+    public Schedule mSchedule;
+    public HashMap<String, Team> mTeamList;
+
     private Scheduler mScheduler;
 
-    public SimulatorModel(SimulatorMvpContract.SimulatorPresenter presenter) {
-        mPresenter = presenter;
-
-        //Inject team with dagger to get contentResolver
-        DaggerApplication.getAppComponent().inject(this);
+    public SimulatorModel() {
 
         //Create new composite disposable to manage disposables from RxJava subscriptions
         CompositeDisposable compositeDisposable = new CompositeDisposable();
@@ -73,6 +73,26 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
     }
 
+
+    @Override
+    public void setSchedule(Schedule schedule) {
+        mSchedule = schedule;
+    }
+
+    @Override
+    public void setTeamList(HashMap<String, Team> teamList) {
+        mTeamList = teamList;
+    }
+
+    @Override
+    public HashMap<String, Team> getTeamList() {
+        return mTeamList;
+    }
+
+    @Override
+    public Schedule getSchedule() {
+        return mSchedule;
+    }
 
     @Override
     public void insertMatch(final Match match) {
@@ -118,7 +138,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     }
 
     @Override
-    public void insertMatches(final int insertType, final Schedule schedule) {
+    public void insertMatches(final int insertType) {
 
         //Insert a regular season schedule's matches into the db
         //First, iterate through the schedule and add all season matches to an ArrayList
@@ -128,7 +148,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
         ArrayList<Match> seasonMatches = new ArrayList<>();
         int weekNumber = 1;
         while (weekNumber <= 17) {
-            ArrayList<Match> weekMatches = schedule.getWeek(weekNumber).getMatches();
+            ArrayList<Match> weekMatches = mSchedule.getWeek(weekNumber).getMatches();
             for (Match match : weekMatches) {
                 seasonMatches.add(match);
             }
@@ -168,7 +188,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
             @Override
             public void onComplete() {
 
-                mPresenter.matchesInserted(insertType, schedule);
+                mPresenter.matchesInserted(insertType);
             }
         });
 
@@ -215,7 +235,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
             @Override
             public void onComplete() {
 
-                mPresenter.matchesInserted(insertType, null);
+                mPresenter.matchesInserted(insertType);
             }
         });
 
@@ -284,7 +304,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     }
 
     @Override
-    public void insertTeams(HashMap<String, Team> teamList) {
+    public void insertTeams() {
 
         //Insert a hashMap's matches into the db
         //First, iterate through the HashMap and add all matches to an ArrayList
@@ -294,8 +314,8 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
         ArrayList<Team> teamArrayList = new ArrayList<>();
 
-        for (String teamName : teamList.keySet()) {
-            teamArrayList.add(teamList.get(teamName));
+        for (String teamName : mTeamList.keySet()) {
+            teamArrayList.add(mTeamList.get(teamName));
         }
 
         Observable<Team> insertTeamsObservable = Observable.fromIterable(teamArrayList);

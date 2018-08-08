@@ -7,7 +7,7 @@
     <string name="regular_season_complete">Regular Season Complete</string>
 
 
-    <!-- Settings Keys, Labels and Values [CHAR LIMIT=TBD] -->
+    <!-- Shared Preferences  Keys, Labels and Values [CHAR LIMIT=TBD] -->
     <string name="settings_season_initialized_key">season initialized</string>
     <string name="settings_season_intialized_title">Season Initialized</string>
     <string name="settings_playoffs_started_key">playoffs started</string>
@@ -32,5 +32,14 @@
     <string name="settings_label_week_fifteen">Week Fifteen</string>
     <string name="settings_label_week_sixteen">Week Sixteen</string>
     <string name="settings_label_week_seventeen">Week Seventeen</string>
+
+    <!-- Primary Menu Strings -->
+    <string name="menu_elo_values">Team Elo Values</string>
+
+    <!-- ELO Values Activity Strings -->
+    <string name="use_default_values">Use Default Elo Values</string>
+
+
+
 
 </resources>

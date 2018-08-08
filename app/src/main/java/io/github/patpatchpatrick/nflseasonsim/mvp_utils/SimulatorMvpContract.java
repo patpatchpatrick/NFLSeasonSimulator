@@ -37,7 +37,7 @@ public interface SimulatorMvpContract {
         void loadSeasonFromDatabase();
         void loadAlreadySimulatedData();
         void teamsInserted();
-        void matchesInserted(int insertType, Schedule schedule);
+        void matchesInserted(int insertType);
         void matchesQueried(int queryType, Cursor matchesCursor,  boolean matchesPlayed);
         void teamsOrStandingsQueried(int queryType, Cursor standingsCursor);
         void resetSeason();
@@ -46,11 +46,15 @@ public interface SimulatorMvpContract {
     }
 
     interface SimulatorModel {
+        void setSchedule(Schedule schedule);
+        void setTeamList(HashMap<String, Team> teamList);
+        HashMap<String, Team> getTeamList();
+        Schedule getSchedule();
         void insertMatch(Match match);
-        void insertMatches(int insertType,  Schedule schedule);
+        void insertMatches(int insertType);
         void insertMatches(int insertType, Week week);
         void insertTeam(Team team);
-        void insertTeams(HashMap<String, Team> teamList);
+        void insertTeams();
         void updateMatch(Match match, Uri uri);
         void updateTeam(Team team, Uri uri);
         void queryStandings(int queryType);

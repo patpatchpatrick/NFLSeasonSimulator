@@ -4,14 +4,10 @@ import android.content.ContentResolver;
 import android.net.Uri;
 import android.util.Log;
 
-import java.util.concurrent.TimeUnit;
-
 import javax.inject.Inject;
 
-import io.github.patpatchpatrick.nflseasonsim.DaggerApplication;
-import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract;
+import io.github.patpatchpatrick.nflseasonsim.MainActivity;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.TeamEntry;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class Match {
 
@@ -37,7 +33,7 @@ public class Match {
     public Match(Team team1, Team team2, int week, Data data) {
 
         //Inject match with dagger to get contentResolver
-        DaggerApplication.getAppComponent().inject(this);
+        MainActivity.getActivityComponent().inject(this);
 
         mData = data;
         mTeam1 = team1;
@@ -63,7 +59,7 @@ public class Match {
     public Match(Team team1, Team team2, int week, Data data, Uri uri) {
 
         //Inject match with dagger to get contentResolver
-        DaggerApplication.getAppComponent().inject(this);
+        MainActivity.getActivityComponent().inject(this);
 
         mData = data;
         mTeam1 = team1;

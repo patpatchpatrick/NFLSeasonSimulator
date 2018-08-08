@@ -1,20 +1,34 @@
 package io.github.patpatchpatrick.nflseasonsim;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract;
+import javax.inject.Inject;
+
+import io.github.patpatchpatrick.nflseasonsim.dagger.ActivityComponent;
+import io.github.patpatchpatrick.nflseasonsim.dagger.ActivityModule;
+import io.github.patpatchpatrick.nflseasonsim.dagger.DaggerActivityComponent;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.MatchEntry;
+import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.SimulatorMvpContract;
 import io.github.patpatchpatrick.nflseasonsim.presenter.SimulatorPresenter;
 
 public class MainActivity extends AppCompatActivity implements SimulatorMvpContract.SimulatorView {
+
+    @Inject
+    SimulatorPresenter mPresenter;
+
+    @Inject
+    SimulatorModel mModel;
 
     Button mSimulateSeason;
     Button mSimulateWeek;
@@ -22,13 +36,20 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     Button mResetButton;
     TextView mStandingsTextView;
     TextView mScoresTextView;
-    private SimulatorPresenter mPresenter;
     private SharedPreferences mSharedPreferences;
+    private static ActivityComponent mActivityComponent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Build out dagger activity component
+        // Inject the mainActivity, presenter and model
+        mActivityComponent = DaggerActivityComponent.builder().activityModule(new ActivityModule(this)).build();
+        mActivityComponent.inject(this);
+        mActivityComponent.inject(mPresenter);
+        mActivityComponent.inject(mModel);
 
         mStandingsTextView = (TextView) findViewById(R.id.standings_text_view);
         mScoresTextView = (TextView) findViewById(R.id.scores_text_view);
@@ -36,10 +57,6 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mSimulateWeek = (Button) findViewById(R.id.simulate_week_button);
         mStartPlayoffs = (Button) findViewById(R.id.start_playoffs_button);
         mResetButton = (Button) findViewById(R.id.reset_button);
-
-        //TODO inject presenter instead of instantiating it
-        SimulatorPresenter presenter = new SimulatorPresenter(this);
-        mPresenter = presenter;
 
         setUpSharedPreferences();
 
@@ -358,4 +375,27 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.primary_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.primary_settings:
+                Intent startEloValuesActivity = new Intent(MainActivity.this, EloValuesActivity.class);
+                startActivity(startEloValuesActivity);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public static ActivityComponent getActivityComponent(){
+        return mActivityComponent;
+    }
 }
