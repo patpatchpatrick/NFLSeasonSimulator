@@ -3,6 +3,7 @@ package io.github.patpatchpatrick.nflseasonsim.dagger;
 import javax.inject.Singleton;
 
 import dagger.Component;
+import io.github.patpatchpatrick.nflseasonsim.EloRecyclerViewAdapter;
 import io.github.patpatchpatrick.nflseasonsim.EloValuesActivity;
 import io.github.patpatchpatrick.nflseasonsim.MainActivity;
 import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
@@ -20,5 +21,6 @@ public interface ActivityComponent {
     void inject(SimulatorPresenter simulatorPresenter);
     void inject(SimulatorModel simulatorModel);
     void inject(Match match);
+    void inject(EloRecyclerViewAdapter eloRecyclerViewAdapter);
 
 }

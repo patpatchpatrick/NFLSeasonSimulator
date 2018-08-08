@@ -8,7 +8,19 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
+import javax.inject.Inject;
+
+import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
+import io.github.patpatchpatrick.nflseasonsim.season_resources.Team;
+
 public class EloRecyclerViewAdapter extends RecyclerView.Adapter<EloRecyclerViewAdapter.ViewHolder> {
+
+    private ArrayList<Team> mTeamArrayList;
+
+    @Inject
+    SimulatorModel mModel;
 
 
     @NonNull
@@ -22,16 +34,30 @@ public class EloRecyclerViewAdapter extends RecyclerView.Adapter<EloRecyclerView
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
+        Team currentTeam = mTeamArrayList.get(position);
+
+        String teamName = currentTeam.getName();
+        double teamElo = currentTeam.getElo();
+        String teamEloString = Double.toString(teamElo);
+
+        holder.teamNameTextView.setText(teamName);
+        holder.teamEloEditText.setText(teamEloString);
+
     }
 
     public EloRecyclerViewAdapter(){
+
+        //Inject with Dagger Activity Component to get access to model data
+        MainActivity.getActivityComponent().inject(this);
+
+        mTeamArrayList = mModel.getTeamArrayList();
 
     }
 
 
     @Override
     public int getItemCount() {
-        return 0;
+        return (mTeamArrayList == null) ? 0 : mTeamArrayList.size();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

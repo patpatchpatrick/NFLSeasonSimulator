@@ -106,11 +106,11 @@ public class Team {
         return mName;
     }
 
-    public double getELO() {
+    public double getElo() {
         return mElo;
     }
 
-    public void setELO(double elo) {
+    public void setElo(double elo) {
         mElo = elo;
     }
 

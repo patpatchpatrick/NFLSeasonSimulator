@@ -1,8 +1,5 @@
 package io.github.patpatchpatrick.nflseasonsim.season_resources;
 
-import android.nfc.Tag;
-import android.util.Log;
-
 public class ELORatingSystem {
 
     // ELO constant used to determine magnitude that ratings change when a team wins
@@ -12,8 +9,8 @@ public class ELORatingSystem {
 
     public static boolean simulateMatch(Match match, Team teamOne, Team teamTwo){
 
-        double eloTeamOne = teamOne.getELO();
-        double eloTeamTwo = teamTwo.getELO();
+        double eloTeamOne = teamOne.getElo();
+        double eloTeamTwo = teamTwo.getElo();
 
         //Simulate a match between two teams with two elo ratings
         //If the first team wins, return true, otherwise return false
@@ -63,8 +60,8 @@ public class ELORatingSystem {
         //Updates the ratings of teamOne and teamTwo, based on the outcome of match
 
         //Get the elos of the teams
-        double eloTeamOne = teamOne.getELO();
-        double eloTeamTwo = teamTwo.getELO();
+        double eloTeamOne = teamOne.getElo();
+        double eloTeamTwo = teamTwo.getElo();
 
         //Get the probability of team two winning from the probability of team one winning
         double probTeamTwoWin = (1.0 - probTeamOneWin);
@@ -79,8 +76,8 @@ public class ELORatingSystem {
         }
 
         //Set the new ELO ratings for the teams
-        teamOne.setELO(eloTeamOne);
-        teamTwo.setELO(eloTeamTwo);
+        teamOne.setElo(eloTeamOne);
+        teamTwo.setElo(eloTeamTwo);
 
     }
 

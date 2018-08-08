@@ -38,6 +38,7 @@
 
     <!-- ELO Values Activity Strings -->
     <string name="use_default_values">Use Default Elo Values</string>
+    <string name="update_elo_values">Update Elo Values</string>
 
 
 

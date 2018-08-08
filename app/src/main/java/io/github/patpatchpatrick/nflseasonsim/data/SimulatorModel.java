@@ -90,6 +90,18 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     }
 
     @Override
+    public ArrayList<Team> getTeamArrayList() {
+
+        ArrayList<Team> teamArrayList = new ArrayList();
+
+        for (String teamName : mTeamList.keySet()){
+            teamArrayList.add(mTeamList.get(teamName));
+        }
+
+        return teamArrayList;
+    }
+
+    @Override
     public Schedule getSchedule() {
         return mSchedule;
     }
@@ -252,7 +264,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
             @Override
             public Uri call() throws Exception {
                 String name = team.getName();
-                double elo = team.getELO();
+                double elo = team.getElo();
                 double offRating = team.getOffRating();
                 double defRating = team.getDefRating();
                 int currentWins = team.getWins();
@@ -331,7 +343,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
             public void onNext(Team team) {
 
                 String name = team.getName();
-                double elo = team.getELO();
+                double elo = team.getElo();
                 double offRating = team.getOffRating();
                 double defRating = team.getDefRating();
                 int currentWins = team.getWins();

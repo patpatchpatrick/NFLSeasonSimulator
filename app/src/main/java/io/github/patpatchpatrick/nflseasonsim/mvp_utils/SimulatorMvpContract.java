@@ -49,6 +49,7 @@ public interface SimulatorMvpContract {
         void setSchedule(Schedule schedule);
         void setTeamList(HashMap<String, Team> teamList);
         HashMap<String, Team> getTeamList();
+        ArrayList<Team> getTeamArrayList();
         Schedule getSchedule();
         void insertMatch(Match match);
         void insertMatches(int insertType);
