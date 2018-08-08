@@ -21,6 +21,7 @@
         android:id="@+id/team_elo_edittext"
         android:layout_height="wrap_content"
         android:layout_marginRight="8dp"
-        tools:text="ELO Rating" />
+        tools:text="ELO Rating"
+        android:inputType="numberDecimal"/>
 
 </LinearLayout>
