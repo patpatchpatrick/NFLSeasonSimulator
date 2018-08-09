@@ -39,7 +39,7 @@
 
     <!-- ELO Values Activity Strings -->
     <string name="use_default_values">Last Season Elos</string>
-    <string name="use_offseason_prediction_elos">Future Elos</string>
+    <string name="use_offseason_prediction_elos">Predicted Future Elos</string>
 
 
 
