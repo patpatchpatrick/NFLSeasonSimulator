@@ -402,6 +402,38 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     }
 
     @Override
+    public void resetTeamUserElos() {
+        //Reset team Elo values to be user defined values
+        HashMap<String, Team> teamMap = mModel.getTeamList();
+        HashMap<String, Double> teamElos = mModel.getTeamEloMap();
+
+        for (String teamName : teamMap.keySet()){
+            teamMap.get(teamName).setElo(teamElos.get(teamName));
+            teamMap.get(teamName).setUserElo();
+        }
+
+
+    }
+
+    @Override
+    public void setTeamUserElos() {
+        //Set team User Elos to be whatever elo values were manually set by the user
+        //Provide the data to the model in the form of a hashmap (this will be used to reset the values
+        // back to default when the season is reset)
+
+        HashMap<String, Double> teamUserElos = new HashMap<>();
+        ArrayList<Team> teamList = mModel.getTeamArrayList();
+
+        for (Team team: teamList){
+            team.setUserElo();
+            teamUserElos.put(team.getName(), team.getUserElo());
+        }
+
+        mModel.setTeamEloMap(teamUserElos);
+
+    }
+
+    @Override
     public void dataDeleted() {
         //Callback after data has been deleted
         this.view.onDataDeleted();
@@ -412,6 +444,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         //Create team objects from team database data
 
         HashMap<String, Team> teamList = new HashMap();
+        HashMap<String, Double> teamUserElos = new HashMap();
 
         standingsCursor.moveToPosition(-1);
 
@@ -429,6 +462,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             double divWinLossPct = standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DIV_WIN_LOSS_PCT));
             Double teamElo = standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_ELO));
             Double teamDefaultElo =  standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DEFAULT_ELO));
+            Double teamUserElo = standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_USER_ELO));
             Double teamRanking =  standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_RANKING));
             Double offRating = standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_OFF_RATING));
             Double defRating = standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DEF_RATING));
@@ -438,12 +472,15 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
 
             teamList.put(teamName,
-                    new Team(teamName, teamElo, teamDefaultElo, teamRanking,
+                    new Team(teamName, teamElo, teamDefaultElo, teamUserElo, teamRanking,
                             offRating, defRating, division, this, teamWins, teamLosses, divisionWins, divisionLosses, winLossPct, divWinLossPct, playoffEligible, teamUri));
+
+            teamUserElos.put(teamName, teamUserElo);
 
         }
 
         mModel.setTeamList(teamList);
+        mModel.setTeamEloMap(teamUserElos);
 
 
         standingsCursor.close();

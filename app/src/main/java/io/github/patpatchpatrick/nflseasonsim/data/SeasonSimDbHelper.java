@@ -30,6 +30,7 @@ public class SeasonSimDbHelper extends SQLiteOpenHelper {
                 + TeamEntry.COLUMN_TEAM_NAME + " TEXT NOT NULL, "
                 + TeamEntry.COLUMN_TEAM_ELO + " REAL NOT NULL, "
                 + TeamEntry.COLUMN_TEAM_DEFAULT_ELO + " REAL NOT NULL, "
+                + TeamEntry.COLUMN_TEAM_USER_ELO + " REAL NOT NULL DEFAULT 0, "
                 + TeamEntry.COLUMN_TEAM_RANKING + " REAL NOT NULL, "
                 + TeamEntry.COLUMN_TEAM_OFF_RATING + " REAL NOT NULL, "
                 + TeamEntry.COLUMN_TEAM_DEF_RATING + " REAL NOT NULL, "

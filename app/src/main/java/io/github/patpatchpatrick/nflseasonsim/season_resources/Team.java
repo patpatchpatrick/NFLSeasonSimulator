@@ -25,6 +25,7 @@ public class Team {
 
     //Ratings
     private double mDefaultElo;
+    private double mUserElo;
     private double mElo;
     private double mTeamRanking;
     private double mOffRating;
@@ -53,6 +54,7 @@ public class Team {
         mData = data;
         mName = name;
         mDefaultElo = elo;
+        mUserElo = 0;
         mElo = elo;
         mTeamRanking = teamRanking;
         mOffRating = offRating;
@@ -79,13 +81,14 @@ public class Team {
 
     }
 
-    public Team(String name, double elo, double defaultElo, double teamRanking, double offRating, double defRating, int division, Data data, int wins, int losses, int divWins, int divLosses, double winLossPct, double divWinLossPct, int playoffEligible,  Uri uri) {
+    public Team(String name, double elo, double defaultElo,double userElo, double teamRanking, double offRating, double defRating, int division, Data data, int wins, int losses, int divWins, int divLosses, double winLossPct, double divWinLossPct, int playoffEligible,  Uri uri) {
 
         mTeamRanking =  teamRanking;
         mData = data;
         mName = name;
         mElo = elo;
         mDefaultElo = defaultElo;
+        mUserElo = userElo;
         mOffRating = offRating;
         mDefRating = defRating;
         mCurrentWins = wins;
@@ -230,7 +233,17 @@ public class Team {
         mElo = 1700 - (mTeamRanking * 12.5);
     }
 
+    public void setUserElo(){
+        //Set the user defined elo value for the team and update the database
+        mUserElo = mElo;
+        mData.updateTeamCallback(this, mUri);
+    }
+
     public Double getTeamRanking(){
         return mTeamRanking;
+    }
+
+    public Double getUserElo() {
+        return mUserElo;
     }
 }

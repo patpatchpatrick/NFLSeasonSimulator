@@ -185,9 +185,12 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
                 setSeasonInitializedPreference(true);
 
                 //Check if user is using future elo values instead of default, if so, set teams to have future elo values
-                Boolean useFutureElos = mSharedPreferences.getBoolean(getString(R.string.settings_use_future_elos_key), getResources().getBoolean(R.bool.pref_use_future_elos_default));
-                if (useFutureElos){
+                Integer eloType = mSharedPreferences.getInt(getString(R.string.settings_elo_type_key), getResources().getInteger(R.integer.settings_elo_type_default));
+                if (eloType == getResources().getInteger(R.integer.settings_elo_type_future)){
                     mPresenter.resetTeamFutureElos();
+                }
+                if (eloType == getResources().getInteger(R.integer.settings_elo_type_user)){
+                    mPresenter.resetTeamUserElos();
                 }
             }
         });

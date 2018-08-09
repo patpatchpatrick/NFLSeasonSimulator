@@ -59,6 +59,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     //Data for season resources
     public Schedule mSchedule;
     public HashMap<String, Team> mTeamList;
+    public HashMap<String, Double> mUserEloList;
 
     private Scheduler mScheduler;
 
@@ -85,6 +86,11 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     }
 
     @Override
+    public void setTeamEloMap(HashMap<String, Double> teamEloMap) {
+        mUserEloList =  teamEloMap;
+    }
+
+    @Override
     public HashMap<String, Team> getTeamList() {
         return mTeamList;
     }
@@ -99,6 +105,11 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
         }
 
         return teamArrayList;
+    }
+
+    @Override
+    public HashMap<String, Double> getTeamEloMap() {
+        return mUserEloList;
     }
 
     @Override
@@ -345,6 +356,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                 String name = team.getName();
                 double elo = team.getElo();
                 double defaultElo = team.getDefaultElo();
+                double userElo = team.getUserElo();
                 double teamRanking = team.getTeamRanking();
                 double offRating = team.getOffRating();
                 double defRating = team.getDefRating();
@@ -358,6 +370,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                 values.put(TeamEntry.COLUMN_TEAM_NAME, name);
                 values.put(TeamEntry.COLUMN_TEAM_ELO, elo);
                 values.put(TeamEntry.COLUMN_TEAM_DEFAULT_ELO, defaultElo);
+                values.put(TeamEntry.COLUMN_TEAM_USER_ELO, userElo);
                 values.put(TeamEntry.COLUMN_TEAM_RANKING, teamRanking);
                 values.put(TeamEntry.COLUMN_TEAM_OFF_RATING, offRating);
                 values.put(TeamEntry.COLUMN_TEAM_DEF_RATING, defRating);
@@ -458,6 +471,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                 values.put(TeamEntry.COLUMN_TEAM_DIV_WIN_LOSS_PCT, team.getDivisionWinLossPct());
                 values.put(TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE, team.getPlayoffEligible());
                 values.put(TeamEntry.COLUMN_TEAM_ELO, team.getElo());
+                values.put(TeamEntry.COLUMN_TEAM_USER_ELO, team.getUserElo());
 
                 int rowsUpdated = contentResolver.update(uri, values, null, null);
 
@@ -514,6 +528,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                         TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE,
                         TeamEntry.COLUMN_TEAM_ELO,
                         TeamEntry.COLUMN_TEAM_DEFAULT_ELO,
+                        TeamEntry.COLUMN_TEAM_USER_ELO,
                         TeamEntry.COLUMN_TEAM_RANKING,
                         TeamEntry.COLUMN_TEAM_OFF_RATING,
                         TeamEntry.COLUMN_TEAM_DEF_RATING,

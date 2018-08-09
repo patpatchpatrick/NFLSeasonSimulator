@@ -140,6 +140,12 @@ public class SeasonSimProvider extends ContentProvider{
             throw new IllegalArgumentException("Team requires valid elo");
         }
 
+        // Check that the user elo is valid
+        Double userElo = values.getAsDouble(TeamEntry.COLUMN_TEAM_USER_ELO);
+        if (userElo == null) {
+            throw new IllegalArgumentException("Team requires valid elo");
+        }
+
         // Check that the team ranking is valid
         Double teamRanking = values.getAsDouble(TeamEntry.COLUMN_TEAM_RANKING);
         if (teamRanking == null) {
@@ -318,7 +324,16 @@ public class SeasonSimProvider extends ContentProvider{
         if (values.containsKey(TeamEntry.COLUMN_TEAM_ELO)) {
             Double elo = values.getAsDouble(TeamEntry.COLUMN_TEAM_ELO);
             if (elo == null) {
-                throw new IllegalArgumentException("Team requires valid elo int");
+                throw new IllegalArgumentException("Team requires valid elo double");
+            }
+        }
+
+        // If the TeamEntry.User ELO key is present,
+        // check that the elo value is valid.
+        if (values.containsKey(TeamEntry.COLUMN_TEAM_USER_ELO)) {
+            Double userElo = values.getAsDouble(TeamEntry.COLUMN_TEAM_USER_ELO);
+            if (userElo == null) {
+                throw new IllegalArgumentException("Team requires valid elo double");
             }
         }
 

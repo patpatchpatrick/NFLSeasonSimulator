@@ -24,6 +24,7 @@ public class EloValuesActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private Button mLastSeasonEloButton;
     private Button mFutureEloButton;
+    private Button mCurrentEloButton;
 
 
     @Override
@@ -47,7 +48,7 @@ public class EloValuesActivity extends AppCompatActivity {
             public void onClick(View view) {
                 mSimulatorPresenter.resetTeamElos();
                 eloRecyclerAdapter.notifyDataSetChanged();
-                setUseFutureElosPref(false);
+                setUseDefaultElosPref();
             }
         });
 
@@ -57,17 +58,41 @@ public class EloValuesActivity extends AppCompatActivity {
             public void onClick(View view) {
                 mSimulatorPresenter.resetTeamFutureElos();
                 eloRecyclerAdapter.notifyDataSetChanged();
-                setUseFutureElosPref(true);
+                setUseFutureElosPref();
 
+            }
+        });
+
+        mCurrentEloButton = (Button) findViewById(R.id.current_elos_button);
+        mCurrentEloButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mSimulatorPresenter.setTeamUserElos();
+                setUseUserElosPref();
             }
         });
 
 
     }
 
-    private void setUseFutureElosPref(Boolean useFutureElos){
+    private void setUseFutureElosPref(){
         SharedPreferences.Editor prefs = mSharedPreferences.edit();
-        prefs.putBoolean(getString(R.string.settings_use_future_elos_key), useFutureElos);
+        prefs.putInt(getString(R.string.settings_elo_type_key), getResources().getInteger(R.integer.settings_elo_type_future));
         prefs.commit();
     }
+
+    private void setUseDefaultElosPref(){
+        SharedPreferences.Editor prefs = mSharedPreferences.edit();
+        prefs.putInt(getString(R.string.settings_elo_type_key), getResources().getInteger(R.integer.settings_elo_type_default));
+        prefs.commit();
+    }
+
+    private void setUseUserElosPref(){
+        SharedPreferences.Editor prefs = mSharedPreferences.edit();
+        prefs.putInt(getString(R.string.settings_elo_type_key), getResources().getInteger(R.integer.settings_elo_type_user));
+        prefs.commit();
+    }
+
+
+
 }

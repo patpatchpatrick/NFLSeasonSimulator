@@ -19,6 +19,10 @@
     <integer name="settings_value_week_sixteen">16</integer>
     <integer name="settings_value_week_seventeen">17</integer>
 
+    <integer name="settings_elo_type_default">1</integer>
+    <integer name="settings_elo_type_future">2</integer>
+    <integer name="settings_elo_type_user">3</integer>
+
 
 
 

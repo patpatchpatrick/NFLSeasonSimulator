@@ -7,15 +7,24 @@
     tools:context=".EloValuesActivity">
 
     <Button
-        android:id="@+id/use_default_button"
+        android:id="@+id/current_elos_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="@string/use_default_values"
+        android:text="Set Current Elos As Default"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/use_default_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/use_default_values"
+        app:layout_constraintStart_toStartOf="@id/current_elos_button"
+        app:layout_constraintTop_toBottomOf="@id/current_elos_button" />
 
     <Button
         android:layout_width="wrap_content"

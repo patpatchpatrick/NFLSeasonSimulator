@@ -43,6 +43,8 @@ public interface SimulatorMvpContract {
         void resetSeason();
         void resetTeamElos();
         void resetTeamFutureElos();
+        void resetTeamUserElos();
+        void setTeamUserElos();
         void dataDeleted();
         void destroyPresenter();
     }
@@ -50,8 +52,10 @@ public interface SimulatorMvpContract {
     interface SimulatorModel {
         void setSchedule(Schedule schedule);
         void setTeamList(HashMap<String, Team> teamList);
+        void setTeamEloMap(HashMap<String, Double> teamEloMap);
         HashMap<String, Team> getTeamList();
         ArrayList<Team> getTeamArrayList();
+        HashMap<String, Double> getTeamEloMap();
         Schedule getSchedule();
         void insertMatch(Match match);
         void insertMatches(int insertType);
