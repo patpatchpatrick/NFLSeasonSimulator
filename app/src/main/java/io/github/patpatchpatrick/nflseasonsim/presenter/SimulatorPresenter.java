@@ -51,6 +51,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         mModel.queryMatches(mCurrentWeek, true, true);
         //Week is complete so increment the current week value
         mCurrentWeek++;
+        this.view.setCurrentWeekPreference(mCurrentWeek);
     }
 
     @Override
@@ -62,11 +63,13 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_POSTSEASON);
         //Week is complete so increment the current week value
         mCurrentWeek++;
+        this.view.setCurrentWeekPreference(mCurrentWeek);
     }
 
     @Override
     public void initializeSeason() {
         mCurrentWeek = 1;
+        this.view.setCurrentWeekPreference(mCurrentWeek);
         createTeams();
         //Insert teams into database.  After teams are inserted, the teamsInserted() callback is
         //received from the model
@@ -76,6 +79,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     @Override
     public void initiatePlayoffs() {
         mCurrentWeek = 18;
+        this.view.setCurrentWeekPreference(mCurrentWeek);
         //Initiate the playoffs
         //Query the standings from the playoffs standings and the rest of the playoffs is initiated via the
         // standingsQueried method

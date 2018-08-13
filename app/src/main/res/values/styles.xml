@@ -6,6 +6,32 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <!-- This is the styling for action bar -->
+        <!--To change the text styling of options menu items</item>-->
+        <item name="android:itemTextAppearance">@style/NormalTextView</item>
+        <!--To change the background of options menu-->
+        <item name="android:itemBackground">@color/colorPrimaryLight</item>
     </style>
+
+    <!-- Base styles for activities and views. -->
+
+    <style name="NormalButton" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:background">@color/colorPrimaryDark</item>
+        <item name="android:textColor">@color/colorWhite</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="NormalActivity" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:background">@color/colorPrimaryLight</item>
+        <item name="android:textColor">@color/colorPrimaryText</item>
+    </style>
+
+    <style name="NormalTextView" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:textColor">@color/colorPrimaryText</item>
+    </style>
+
+
+
 
 </resources>

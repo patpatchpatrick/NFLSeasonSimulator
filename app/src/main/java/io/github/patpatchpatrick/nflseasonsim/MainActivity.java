@@ -114,17 +114,26 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
             @Override
             public void onClick(View view) {
                 //Reset the season
-                //Reset all shared preference values
-
-                setSeasonInitializedPreference(false);
-                mPresenter.setPlayoffsStarted(false);
-                setPlayoffsStartedPreference(mPresenter.getPlayoffsStarted());
-                SimulatorPresenter.setCurrentWeek(0);
-                setScoreStringPreference("");
-                mScoresTextView.setText("");
-                mPresenter.resetSeason();
+                resetSeason();
             }
         });
+
+
+    }
+
+    private void resetSeason() {
+
+        //Reset the season
+        //Reset all shared preference values
+
+        setSeasonInitializedPreference(false);
+        mPresenter.setPlayoffsStarted(false);
+        setPlayoffsStartedPreference(mPresenter.getPlayoffsStarted());
+        SimulatorPresenter.setCurrentWeek(0);
+        setCurrentWeekPreference(0);
+        setScoreStringPreference("");
+        mScoresTextView.setText("");
+        mPresenter.resetSeason();
 
 
     }
@@ -149,6 +158,13 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         //Set score string preference that holds playoff scores
         SharedPreferences.Editor prefs = mSharedPreferences.edit();
         prefs.putString(getString(R.string.settings_score_string_key), scoreString).apply();
+        prefs.commit();
+    }
+
+    public void setCurrentWeekPreference(int currentWeek) {
+        //Set current week preference when week is updated
+        SharedPreferences.Editor prefs = mSharedPreferences.edit();
+        prefs.putInt(getString(R.string.settings_week_num_key), currentWeek).apply();
         prefs.commit();
     }
 
@@ -186,10 +202,10 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
                 //Check if user is using future elo values instead of default, if so, set teams to have future elo values
                 Integer eloType = mSharedPreferences.getInt(getString(R.string.settings_elo_type_key), getResources().getInteger(R.integer.settings_elo_type_default));
-                if (eloType == getResources().getInteger(R.integer.settings_elo_type_future)){
+                if (eloType == getResources().getInteger(R.integer.settings_elo_type_future)) {
                     mPresenter.resetTeamFutureElos();
                 }
-                if (eloType == getResources().getInteger(R.integer.settings_elo_type_user)){
+                if (eloType == getResources().getInteger(R.integer.settings_elo_type_user)) {
                     mPresenter.resetTeamUserElos();
                 }
             }
@@ -236,6 +252,8 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         //Set simulate buttons to active
         mSimulateSeason.setEnabled(true);
         mSimulateWeek.setEnabled(true);
+        mSimulateSeason.setVisibility(View.VISIBLE);
+        mSimulateWeek.setVisibility(View.VISIBLE);
 
         //Set standings text
         mStandingsTextView.setText(standings);
@@ -271,6 +289,8 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         //Set simulate buttons to active
         mSimulateSeason.setEnabled(true);
         mSimulateWeek.setEnabled(true);
+        mSimulateSeason.setVisibility(View.VISIBLE);
+        mSimulateWeek.setVisibility(View.VISIBLE);
 
         //Display scores
         //If displaying playoff scores, the prior round's scores are stored in  a shared preference value,
@@ -339,6 +359,8 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
         mSimulateSeason.setEnabled(false);
         mSimulateWeek.setEnabled(false);
+        mSimulateSeason.setVisibility(View.INVISIBLE);
+        mSimulateWeek.setVisibility(View.INVISIBLE);
         mResetButton.setVisibility(View.GONE);
         if (!regularSeasonIsComplete()) {
             mStandingsTextView.setText(getString(R.string.loading));
@@ -356,13 +378,14 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mSimulateSeason.setVisibility(View.INVISIBLE);
         mResetButton.setVisibility(View.GONE);
         mSimulateWeek.setEnabled(true);
+        mSimulateWeek.setVisibility(View.VISIBLE);
     }
 
     private void setViewsPlayoffsComplete() {
 
         //Playoffs are complete, hide all buttons except for the reset button
-        mSimulateSeason.setVisibility(View.INVISIBLE);
-        mSimulateWeek.setVisibility(View.INVISIBLE);
+        mSimulateSeason.setVisibility(View.GONE);
+        mSimulateWeek.setVisibility(View.GONE);
         mStartPlayoffs.setVisibility(View.GONE);
         mResetButton.setVisibility(View.VISIBLE);
 
@@ -400,12 +423,15 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
                 Intent startEloValuesActivity = new Intent(MainActivity.this, EloValuesActivity.class);
                 startActivity(startEloValuesActivity);
                 return true;
+            case R.id.reset_menu_button:
+                resetSeason();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    public static ActivityComponent getActivityComponent(){
+    public static ActivityComponent getActivityComponent() {
         return mActivityComponent;
     }
 }

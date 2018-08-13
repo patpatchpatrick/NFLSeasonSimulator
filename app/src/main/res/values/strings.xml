@@ -36,6 +36,7 @@
 
     <!-- Primary Menu Strings -->
     <string name="menu_elo_values">Team Elo Values</string>
+    <string name="menu_reset_button">Reset</string>
 
     <!-- ELO Values Activity Strings -->
     <string name="use_default_values">Last Season Elos</string>

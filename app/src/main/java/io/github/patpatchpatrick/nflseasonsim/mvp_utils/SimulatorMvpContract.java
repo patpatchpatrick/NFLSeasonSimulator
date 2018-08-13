@@ -24,6 +24,7 @@ public interface SimulatorMvpContract {
         void onSeasonLoadedFromDb();
         void onPriorSimulatedDataLoaded();
         void onDataDeleted();
+        void setCurrentWeekPreference(int currentWeek);
     }
 
     interface SimulatorPresenter {
