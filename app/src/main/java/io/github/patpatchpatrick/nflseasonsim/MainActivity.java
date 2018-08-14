@@ -2,9 +2,12 @@ package io.github.patpatchpatrick.nflseasonsim;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -38,7 +41,9 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     Button mStartPlayoffs;
     Button mResetButton;
     TextView mStandingsTextView;
-    TextView mScoresTextView;
+    TextView mWeekNumberHeader;
+    RecyclerView mScoresRecyclerView;
+    ScoresRecyclerViewAdapter mScoresRecyclerAdapter;
     private static ActivityComponent mActivityComponent;
 
     @Override
@@ -54,13 +59,20 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mActivityComponent.inject(mModel);
 
         mStandingsTextView = (TextView) findViewById(R.id.standings_text_view);
-        mScoresTextView = (TextView) findViewById(R.id.scores_text_view);
+        mWeekNumberHeader = (TextView) findViewById(R.id.week_number_header);
         mSimulateSeason = (Button) findViewById(R.id.simulate_season_button);
         mSimulateWeek = (Button) findViewById(R.id.simulate_week_button);
         mStartPlayoffs = (Button) findViewById(R.id.start_playoffs_button);
         mResetButton = (Button) findViewById(R.id.reset_button);
 
         setUpSharedPreferences();
+
+        // Set up the scores/matches recyclerview
+        mScoresRecyclerView = (RecyclerView) findViewById(R.id.scores_recycler_view);
+        mScoresRecyclerView.setHasFixedSize(true);
+        mScoresRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+        mScoresRecyclerAdapter = new ScoresRecyclerViewAdapter();
+        mScoresRecyclerView.setAdapter(mScoresRecyclerAdapter);
 
         //Initialize the season if not yet initialized
         //If already initialized, load season from the database
@@ -132,7 +144,8 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         SimulatorPresenter.setCurrentWeek(0);
         setCurrentWeekPreference(0);
         setScoreStringPreference("");
-        mScoresTextView.setText("");
+        mWeekNumberHeader.setText("");
+        mScoresRecyclerAdapter.swapCursor(null);
         mPresenter.resetSeason();
 
 
@@ -281,7 +294,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     }
 
     @Override
-    public void onDisplayScores(int weekNumber, String scores, boolean matchesPlayed) {
+    public void onDisplayScores(int weekNumber, Cursor cursor, String scoresWeekNumberHeader, boolean matchesPlayed) {
         //Callback received from presenter to display scores after they are loaded
         //Also receive the weekNumber that was simulated so we can store it in sharedPrefs
         //When app is reloaded, we can automatically show scores/weeks that have already been simulated
@@ -292,24 +305,16 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mSimulateSeason.setVisibility(View.VISIBLE);
         mSimulateWeek.setVisibility(View.VISIBLE);
 
-        //Display scores
-        //If displaying playoff scores, the prior round's scores are stored in  a shared preference value,
-        //and the next round's scores are prepended to the textview when they are loaded
+        //Swap matches/scores cursor into the recyclerview adapter
+        //Set the week number header text
+        mScoresRecyclerAdapter.swapCursor(cursor);
+        mWeekNumberHeader.setText(scoresWeekNumberHeader);
 
-        //If displaying regular season scores, each week's scores is prepended to the prior week's scores
-        if (weekNumber == MatchEntry.MATCH_WEEK_WILDCARD) {
-            mScoresTextView.setText(scores);
-            setScoreStringPreference(scores);
-            setViewsPlayoffs();
-        } else if (weekNumber > MatchEntry.MATCH_WEEK_WILDCARD) {
-            if (matchesPlayed) {
-                setScoreStringPreference(scores + getScoreStringPreference());
-            }
-            mScoresTextView.setText(scores + getScoreStringPreference());
 
+        //Set views depending on which week it is and playoff status
+        if (weekNumber >= MatchEntry.MATCH_WEEK_WILDCARD) {
             setViewsPlayoffs();
         } else {
-            mScoresTextView.setText(scores + mScoresTextView.getText());
             if (regularSeasonIsComplete()) {
                 setViewsNotReadyToSimulate();
             }
@@ -317,7 +322,6 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         if (playoffsComplete()) {
             //If playoffs are complete, set playoff complete views (ready views to restart simulation)
             setViewsPlayoffsComplete();
-            setScoreStringPreference("");
         }
 
         setWeekNumberPreference(SimulatorPresenter.getCurrentWeek());

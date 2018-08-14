@@ -126,12 +126,17 @@ public class SeasonSimContract {
         public static final String COLUMN_MATCH_TEAM_TWO = "matchTeamTwo";
         public static final String COLUMN_MATCH_TEAM_ONE_SCORE = "matchTeamOneScore";
         public static final String COLUMN_MATCH_TEAM_TWO_SCORE = "matchTeamTwoScore";
+        public static final String COLUMN_MATCH_TEAM_ONE_WON = "matchTeamOneWon";
         public static final String COLUMN_MATCH_WEEK = "matchWeek";
         public static final String COLUMN_MATCH_COMPLETE = "matchComplete";
 
         //Define input variables for match table
         public static final int MATCH_COMPLETE_NO = 0;
         public static final int MATCH_COMPLETE_YES = 1;
+
+        //Define input variables for match table
+        public static final int MATCH_TEAM_ONE_WON_NO = 0;
+        public static final int MATCH_TEAM_ONE_WON_YES = 1;
 
         //Define input variables for match playoff weeks
         public static final int MATCH_WEEK_WILDCARD = 18;

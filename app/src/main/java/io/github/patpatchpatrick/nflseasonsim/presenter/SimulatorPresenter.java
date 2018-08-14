@@ -155,34 +155,25 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
             int weekNumber = queryType;
 
-            String scoreString;
+            String scoreWeekNumberHeader;
 
-            scoreString = "** Week " + weekNumber + " **\n";
+            scoreWeekNumberHeader = "Week " + weekNumber;
             if (queryType == MatchEntry.MATCH_WEEK_WILDCARD) {
-                scoreString = "** Wildcard Playoffs **\n";
+                scoreWeekNumberHeader = "Wildcard Playoffs";
             }
             if (queryType == MatchEntry.MATCH_WEEK_DIVISIONAL) {
-                scoreString = "** Divisional Playoffs **\n";
+                scoreWeekNumberHeader = "Divisional Playoffs";
             }
             if (queryType == MatchEntry.MATCH_WEEK_CHAMPIONSHIP) {
-                scoreString = "** Conference Championships **\n";
+                scoreWeekNumberHeader = "Conference Championships";
             }
             if (queryType == MatchEntry.MATCH_WEEK_SUPERBOWL) {
-                scoreString = "** Superbowl **\n";
+                scoreWeekNumberHeader = "Superbowl";
             }
 
-            matchesCursor.moveToPosition(-1);
-            while (matchesCursor.moveToNext()) {
+            matchesCursor.moveToPosition(0);
 
-                String teamOne = matchesCursor.getString(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_ONE));
-                String teamTwo = matchesCursor.getString(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_TWO));
-                int scoreOne = matchesCursor.getInt(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_ONE_SCORE));
-                int scoreTwo = matchesCursor.getInt(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_TWO_SCORE));
-
-                scoreString += teamOne + " " + scoreOne + "\n" + teamTwo + " " + scoreTwo + "\n" + "**********" + "\n";
-            }
-
-            this.view.onDisplayScores(queryType, scoreString, matchesPlayed);
+            this.view.onDisplayScores(queryType, matchesCursor, scoreWeekNumberHeader, matchesPlayed);
 
 
         } else {
@@ -220,6 +211,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
                 String teamOne = matchesCursor.getString(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_ONE));
                 String teamTwo = matchesCursor.getString(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_TWO));
+                int teamOneWon = matchesCursor.getInt(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_ONE_WON));
                 int matchWeek = matchesCursor.getInt(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_WEEK));
                 int ID = matchesCursor.getInt(matchesCursor.getColumnIndexOrThrow(MatchEntry._ID));
                 Uri matchUri = ContentUris.withAppendedId(MatchEntry.CONTENT_URI, ID);
@@ -227,67 +219,67 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
                 switch (matchWeek) {
 
                     case 1:
-                        weekOne.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), 1, this, matchUri));
+                        weekOne.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 1, this, matchUri));
                         break;
                     case 2:
-                        weekTwo.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), 2, this, matchUri));
+                        weekTwo.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 2, this, matchUri));
                         break;
                     case 3:
-                        weekThree.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), 3, this, matchUri));
+                        weekThree.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 3, this, matchUri));
                         break;
                     case 4:
-                        weekFour.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), 4, this, matchUri));
+                        weekFour.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 4, this, matchUri));
                         break;
                     case 5:
-                        weekFive.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), 5, this, matchUri));
+                        weekFive.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 5, this, matchUri));
                         break;
                     case 6:
-                        weekSix.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), 6, this, matchUri));
+                        weekSix.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 6, this, matchUri));
                         break;
                     case 7:
-                        weekSeven.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), 7, this, matchUri));
+                        weekSeven.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 7, this, matchUri));
                         break;
                     case 8:
-                        weekEight.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), 8, this, matchUri));
+                        weekEight.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 8, this, matchUri));
                         break;
                     case 9:
-                        weekNine.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), 9, this, matchUri));
+                        weekNine.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 9, this, matchUri));
                         break;
                     case 10:
-                        weekTen.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), 10, this, matchUri));
+                        weekTen.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 10, this, matchUri));
                         break;
                     case 11:
-                        weekEleven.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), 11, this, matchUri));
+                        weekEleven.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 11, this, matchUri));
                         break;
                     case 12:
-                        weekTwelve.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), 12, this, matchUri));
+                        weekTwelve.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 12, this, matchUri));
                         break;
                     case 13:
-                        weekThirteen.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), 13, this, matchUri));
+                        weekThirteen.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 13, this, matchUri));
                         break;
                     case 14:
-                        weekFourteen.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), 14, this, matchUri));
+                        weekFourteen.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 14, this, matchUri));
                         break;
                     case 15:
-                        weekFifteen.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), 15, this, matchUri));
+                        weekFifteen.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 15, this, matchUri));
                         break;
                     case 16:
-                        weekSixteen.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), 16, this, matchUri));
+                        weekSixteen.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 16, this, matchUri));
                         break;
                     case 17:
-                        weekSeventeen.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), 17, this, matchUri));
+                        weekSeventeen.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 17, this, matchUri));
                         break;
                     case 18:
-                        wildCard.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), 18, this, matchUri));
+                        wildCard.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 18, this, matchUri));
                         break;
                     case 19:
-                        divisional.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), 19, this, matchUri));
+                        divisional.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 19, this, matchUri));
                         break;
                     case 20:
-                        championship.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), 20, this, matchUri));
+                        championship.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 20, this, matchUri));
                         break;
                     case 21:
-                        superbowl.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), 21, this, matchUri));
+                        superbowl.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 21, this, matchUri));
                         break;
 
                 }

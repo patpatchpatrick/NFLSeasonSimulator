@@ -10,54 +10,54 @@
     <Button
         android:id="@+id/simulate_week_button"
         style="@style/NormalButton"
-        android:padding="8dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
+        android:padding="8dp"
         android:text="Simulate Week"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:id="@+id/start_playoffs_button"
         style="@style/NormalButton"
-        android:visibility="gone"
-        android:padding="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:padding="8dp"
         android:text="Start Playoffs"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/simulate_season_button" />
 
     <Button
         android:id="@+id/reset_button"
+        style="@style/NormalButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        style="@style/NormalButton"
-        android:padding="8dp"
-        android:text="Reset"
-        android:visibility="gone"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
+        android:padding="8dp"
+        android:text="Reset"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/simulate_week_button" />
 
     <Button
         android:id="@+id/simulate_season_button"
         style="@style/NormalButton"
-        android:padding="8dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:enabled="true"
+        android:padding="8dp"
         android:text="Simulate Season"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -75,16 +75,23 @@
         app:layout_constraintTop_toBottomOf="@+id/start_playoffs_button" />
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:id="@+id/scores_header"
         style="@style/NormalTextView"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="Scores"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/scrollView2"
         app:layout_constraintTop_toBottomOf="@+id/reset_button" />
+
+    <TextView
+        android:id="@+id/week_number_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/NormalScoreTextView"
+        app:layout_constraintStart_toStartOf="@+id/scores_header"
+        app:layout_constraintTop_toBottomOf="@+id/scores_header"
+        tools:text="Week 1" />
 
 
     <ScrollView
@@ -94,11 +101,11 @@
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        app:layout_goneMarginBottom="32dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/standings_header"
-        app:layout_constraintVertical_bias="0.050000012">
+        app:layout_constraintVertical_bias="0.050000012"
+        app:layout_goneMarginBottom="32dp">
 
 
         <TextView
@@ -106,10 +113,10 @@
             style="@style/NormalTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
             android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="32dp"
             android:paddingBottom="128dp"
             android:text="@string/ready_to_simulate"
             app:layout_constraintStart_toStartOf="parent"
@@ -119,32 +126,44 @@
 
 
     <ScrollView
+        android:id="@+id/scrollView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        app:layout_goneMarginBottom="32dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/scores_header"
-        app:layout_constraintVertical_bias="0.050000012">
+        app:layout_constraintStart_toEndOf="@+id/middle_divider"
+        app:layout_constraintTop_toBottomOf="@+id/week_number_header"
+        app:layout_constraintVertical_bias="0.050000012"
+        app:layout_goneMarginBottom="32dp">
 
 
-        <TextView
-            android:id="@+id/scores_text_view"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/scores_recycler_view"
             style="@style/NormalTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
             android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="32dp"
             android:paddingBottom="128dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
     </ScrollView>
+
+    <ImageView
+        android:id="@+id/middle_divider"
+        android:layout_width="1dp"
+        android:layout_height="fill_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.44"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.498"></ImageView>
 
 </android.support.constraint.ConstraintLayout>

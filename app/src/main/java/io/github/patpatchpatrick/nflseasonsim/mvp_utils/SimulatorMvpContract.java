@@ -19,7 +19,7 @@ public interface SimulatorMvpContract {
     interface SimulatorView {
 
         void onDisplayStandings(String standings);
-        void onDisplayScores(int weekNumber, String scores, boolean matchesPlayed);
+        void onDisplayScores(int weekNumber, Cursor cursor, String scoresWeekNumberHeader, boolean matchesPlayed);
         void onSeasonInitialized();
         void onSeasonLoadedFromDb();
         void onPriorSimulatedDataLoaded();

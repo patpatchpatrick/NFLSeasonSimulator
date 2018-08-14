@@ -87,7 +87,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
     @Override
     public void setTeamEloMap(HashMap<String, Double> teamEloMap) {
-        mUserEloList =  teamEloMap;
+        mUserEloList = teamEloMap;
     }
 
     @Override
@@ -100,7 +100,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
         ArrayList<Team> teamArrayList = new ArrayList();
 
-        for (String teamName : mTeamList.keySet()){
+        for (String teamName : mTeamList.keySet()) {
             teamArrayList.add(mTeamList.get(teamName));
         }
 
@@ -223,7 +223,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
         //Insert a week's matches into the database
 
-            ArrayList<Match> weekMatches = week.getMatches();
+        ArrayList<Match> weekMatches = week.getMatches();
 
 
         Observable<Match> insertMatchesObservable = Observable.fromIterable(weekMatches);
@@ -263,7 +263,6 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
         });
 
 
-
     }
 
     @Override
@@ -293,7 +292,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                 values.put(TeamEntry.COLUMN_TEAM_CURRENT_LOSSES, currentLosses);
                 values.put(TeamEntry.COLUMN_TEAM_CURRENT_DRAWS, currentDraws);
                 values.put(TeamEntry.COLUMN_TEAM_DIVISION, division);
-                values.put(TeamEntry.COLUMN_TEAM_CONFERENCE,  conference);
+                values.put(TeamEntry.COLUMN_TEAM_CONFERENCE, conference);
 
                 //Insert values into database
                 Uri uri = contentResolver.insert(TeamEntry.CONTENT_URI, values);
@@ -414,10 +413,19 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
             @Override
             public Integer call() throws Exception {
 
+                //Get integers for if team one won or not.  Convert the match boolean to an int.
+                int teamOneWon = 0;
+                if (match.getTeamOneWon()) {
+                    teamOneWon = MatchEntry.MATCH_TEAM_ONE_WON_YES;
+                } else {
+                    teamOneWon = MatchEntry.MATCH_TEAM_ONE_WON_NO;
+                }
+
                 //Update match database scores and match complete values
                 ContentValues values = new ContentValues();
                 values.put(MatchEntry.COLUMN_MATCH_TEAM_ONE_SCORE, match.getTeam1Score());
                 values.put(MatchEntry.COLUMN_MATCH_TEAM_TWO_SCORE, match.getTeam2Score());
+                values.put(MatchEntry.COLUMN_MATCH_TEAM_ONE_WON, teamOneWon);
                 values.put(MatchEntry.COLUMN_MATCH_COMPLETE, MatchEntry.MATCH_COMPLETE_YES);
 
                 int rowsUpdated = contentResolver.update(uri, values, null, null);
@@ -603,6 +611,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                         MatchEntry.COLUMN_MATCH_TEAM_TWO_SCORE,
                         MatchEntry.COLUMN_MATCH_WEEK,
                         MatchEntry.COLUMN_MATCH_COMPLETE,
+                        MatchEntry.COLUMN_MATCH_TEAM_ONE_WON,
                 };
 
                 Cursor matchesCursor;
@@ -617,6 +626,37 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                     matchesCursor = contentResolver.query(MatchEntry.CONTENT_URI, matchesProjection,
                             null, null,
                             null);
+                } else if (weekNumber == MatchEntry.MATCH_WEEK_DIVISIONAL) {
+
+                    //Query divisional playoff matches (include both division games and completed wildcard games)
+
+                    String selection = MatchEntry.COLUMN_MATCH_WEEK + "=? OR " + MatchEntry.COLUMN_MATCH_WEEK + "=?";
+                    String[] selectionArgs = new String[]{String.valueOf(weekNumber), String.valueOf(MatchEntry.MATCH_WEEK_WILDCARD)};
+
+                    matchesCursor = contentResolver.query(MatchEntry.CONTENT_URI, matchesProjection,
+                            selection, selectionArgs,
+                            MatchEntry.COLUMN_MATCH_WEEK + " DESC");
+                } else if (weekNumber == MatchEntry.MATCH_WEEK_CHAMPIONSHIP) {
+
+                    //Query conference playoff matches (include conferences matches and completed division and wilcard matches)
+
+                    String selection = MatchEntry.COLUMN_MATCH_WEEK + "=? OR " + MatchEntry.COLUMN_MATCH_WEEK + "=? OR " + MatchEntry.COLUMN_MATCH_WEEK + "=?";
+                    String[] selectionArgs = new String[]{String.valueOf(weekNumber), String.valueOf(MatchEntry.MATCH_WEEK_DIVISIONAL), String.valueOf(MatchEntry.MATCH_WEEK_WILDCARD)};
+
+                    matchesCursor = contentResolver.query(MatchEntry.CONTENT_URI, matchesProjection,
+                            selection, selectionArgs,
+                            MatchEntry.COLUMN_MATCH_WEEK + " DESC");
+                } else if (weekNumber == MatchEntry.MATCH_WEEK_SUPERBOWL) {
+
+                    //Query superbowl playoff matches (include superbowl matches and completed conference, division and wilcard matches)
+
+                    String selection = MatchEntry.COLUMN_MATCH_WEEK + "=? OR " + MatchEntry.COLUMN_MATCH_WEEK + "=? OR " + MatchEntry.COLUMN_MATCH_WEEK + "=? OR " + MatchEntry.COLUMN_MATCH_WEEK + "=?";
+                    String[] selectionArgs = new String[]{String.valueOf(weekNumber), String.valueOf(MatchEntry.MATCH_WEEK_CHAMPIONSHIP), String.valueOf(MatchEntry.MATCH_WEEK_DIVISIONAL), String.valueOf(MatchEntry.MATCH_WEEK_WILDCARD)};
+
+                    matchesCursor = contentResolver.query(MatchEntry.CONTENT_URI, matchesProjection,
+                            selection, selectionArgs,
+                            MatchEntry.COLUMN_MATCH_WEEK + " DESC");
+
                 } else if (singleMatch == true) {
 
                     //Query a single week's matches
@@ -708,7 +748,6 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
             }
         });
-
 
 
     }

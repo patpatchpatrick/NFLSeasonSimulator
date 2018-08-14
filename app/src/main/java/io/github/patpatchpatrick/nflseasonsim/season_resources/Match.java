@@ -7,6 +7,7 @@ import android.util.Log;
 import javax.inject.Inject;
 
 import io.github.patpatchpatrick.nflseasonsim.MainActivity;
+import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.TeamEntry;
 
 public class Match {
@@ -25,6 +26,7 @@ public class Match {
     private Team loser;
     private int mTeam1Score;
     private int mTeam2Score;
+    private Boolean mTeamOneWon;
     private Boolean matchComplete;
     private Boolean divisionalMatchup;
     private Boolean playoffMatchup;
@@ -40,6 +42,7 @@ public class Match {
         mTeam2 = team2;
         mWeek = week;
         matchComplete = false;
+        mTeamOneWon = false;
 
         //Determine if match is a divisional matchup
         if (mTeam1.getDivision() == mTeam2.getDivision()){
@@ -56,7 +59,7 @@ public class Match {
 
     }
 
-    public Match(Team team1, Team team2, int week, Data data, Uri uri) {
+    public Match(Team team1, Team team2, int teamOneWon, int week, Data data, Uri uri) {
 
         //Inject match with dagger to get contentResolver
         MainActivity.getActivityComponent().inject(this);
@@ -80,16 +83,22 @@ public class Match {
             playoffMatchup = false;
         }
 
+        //Set the teamOneWon boolean based on DB values
+        if (teamOneWon == SeasonSimContract.MatchEntry.MATCH_TEAM_ONE_WON_YES){
+            mTeamOneWon = true;
+        } else {
+            mTeamOneWon = false;
+        }
+
     }
 
     protected void simulate() {
 
         //Simulate match to determine if team one won
-        boolean teamOneWon = ELORatingSystem.simulateMatch(this, mTeam1, mTeam2);
-        Log.d("MatchSimulated", ": " + teamOneWon + playoffMatchup);
+        mTeamOneWon = ELORatingSystem.simulateMatch(this, mTeam1, mTeam2);
 
         //Update team records based on outcome and mark match as complete
-        if (teamOneWon){
+        if (mTeamOneWon){
             if (divisionalMatchup){
                 mTeam1.divisionalWin();
                 mTeam2.divisionalLoss();
@@ -117,6 +126,10 @@ public class Match {
         //Callback to presenter to update match in database with match result
         mData.updateMatchCallback(this, matchUri);
 
+    }
+
+    public Boolean getTeamOneWon(){
+        return mTeamOneWon;
     }
 
     protected void setTeam1Score(int score){
