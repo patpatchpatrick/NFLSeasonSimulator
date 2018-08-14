@@ -64,7 +64,7 @@
 
     <TextView
         android:id="@+id/standings_header"
-        style="@style/NormalTextView"
+        style="@style/NormalHeaderTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
@@ -75,8 +75,16 @@
         app:layout_constraintTop_toBottomOf="@+id/start_playoffs_button" />
 
     <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/simulation_status_textview"
+        app:layout_constraintStart_toStartOf="@+id/standings_header"
+        app:layout_constraintTop_toBottomOf="@+id/standings_header"
+        tools:text="Ready to Simulate" />
+
+    <TextView
         android:id="@+id/scores_header"
-        style="@style/NormalTextView"
+        style="@style/NormalHeaderTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -103,13 +111,13 @@
         android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/standings_header"
+        app:layout_constraintTop_toBottomOf="@+id/simulation_status_textview"
         app:layout_constraintVertical_bias="0.050000012"
         app:layout_goneMarginBottom="32dp">
 
 
-        <TextView
-            android:id="@+id/standings_text_view"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/standings_recycler_view"
             style="@style/NormalTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -118,7 +126,6 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:paddingBottom="128dp"
-            android:text="@string/ready_to_simulate"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 

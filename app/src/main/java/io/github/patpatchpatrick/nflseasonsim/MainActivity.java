@@ -15,6 +15,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import javax.inject.Inject;
 
 import io.github.patpatchpatrick.nflseasonsim.dagger.ActivityComponent;
@@ -40,11 +42,16 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     Button mSimulateWeek;
     Button mStartPlayoffs;
     Button mResetButton;
-    TextView mStandingsTextView;
     TextView mWeekNumberHeader;
+    TextView mSimulationStatus;
     RecyclerView mScoresRecyclerView;
     ScoresRecyclerViewAdapter mScoresRecyclerAdapter;
+    RecyclerView mStandingsRecyclerView;
+    StandingsRecyclerViewAdapter mStandingsRecyclerAdapter;
     private static ActivityComponent mActivityComponent;
+
+    public final static int STANDINGS_TYPE_REGULAR_SEASON = 1;
+    public final static int STANDINGS_TYPE_PLAYOFFS = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,8 +65,8 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mActivityComponent.inject(mPresenter);
         mActivityComponent.inject(mModel);
 
-        mStandingsTextView = (TextView) findViewById(R.id.standings_text_view);
         mWeekNumberHeader = (TextView) findViewById(R.id.week_number_header);
+        mSimulationStatus = (TextView) findViewById(R.id.simulation_status_textview);
         mSimulateSeason = (Button) findViewById(R.id.simulate_season_button);
         mSimulateWeek = (Button) findViewById(R.id.simulate_week_button);
         mStartPlayoffs = (Button) findViewById(R.id.start_playoffs_button);
@@ -73,6 +80,14 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mScoresRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
         mScoresRecyclerAdapter = new ScoresRecyclerViewAdapter();
         mScoresRecyclerView.setAdapter(mScoresRecyclerAdapter);
+
+        // Set up the standings recyclerview
+        mStandingsRecyclerView = (RecyclerView) findViewById(R.id.standings_recycler_view);
+        mStandingsRecyclerView.setHasFixedSize(true);
+        mStandingsRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+        mStandingsRecyclerAdapter = new StandingsRecyclerViewAdapter();
+        mStandingsRecyclerView.setAdapter(mStandingsRecyclerAdapter);
+
 
         //Initialize the season if not yet initialized
         //If already initialized, load season from the database
@@ -146,6 +161,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         setScoreStringPreference("");
         mWeekNumberHeader.setText("");
         mScoresRecyclerAdapter.swapCursor(null);
+        mStandingsRecyclerAdapter.swapCursor(MainActivity.STANDINGS_TYPE_REGULAR_SEASON,null);
         mPresenter.resetSeason();
 
 
@@ -259,17 +275,13 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     }
 
     @Override
-    public void onDisplayStandings(String standings) {
+    public void onDisplayStandings(int standingsType, Cursor cursor) {
         //Callback received from presenter to display standings after they are loaded
 
         //Set simulate buttons to active
-        mSimulateSeason.setEnabled(true);
-        mSimulateWeek.setEnabled(true);
-        mSimulateSeason.setVisibility(View.VISIBLE);
-        mSimulateWeek.setVisibility(View.VISIBLE);
+        setViewsReadyToSimulate();
 
-        //Set standings text
-        mStandingsTextView.setText(standings);
+        mStandingsRecyclerAdapter.swapCursor(standingsType, cursor);
 
         //Set current week preference value since the week is now complete.  This display standings call
         //is received after the week  is simulated and the week number was incremented during simulation.
@@ -300,10 +312,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         //When app is reloaded, we can automatically show scores/weeks that have already been simulated
 
         //Set simulate buttons to active
-        mSimulateSeason.setEnabled(true);
-        mSimulateWeek.setEnabled(true);
-        mSimulateSeason.setVisibility(View.VISIBLE);
-        mSimulateWeek.setVisibility(View.VISIBLE);
+        setViewsReadyToSimulate();
 
         //Swap matches/scores cursor into the recyclerview adapter
         //Set the week number header text
@@ -352,7 +361,8 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mSimulateSeason.setEnabled(true);
         mSimulateWeek.setEnabled(true);
         mResetButton.setVisibility(View.GONE);
-        mStandingsTextView.setText(getString(R.string.ready_to_simulate));
+        mSimulationStatus.setVisibility(View.VISIBLE);
+        mSimulationStatus.setText(getString(R.string.ready_to_simulate));
     }
 
     private void setViewsNotReadyToSimulate() {
@@ -367,10 +377,13 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mSimulateWeek.setVisibility(View.INVISIBLE);
         mResetButton.setVisibility(View.GONE);
         if (!regularSeasonIsComplete()) {
-            mStandingsTextView.setText(getString(R.string.loading));
+            mSimulationStatus.setVisibility(View.VISIBLE);
+            mSimulationStatus.setText(getString(R.string.loading));
         }
         if (regularSeasonIsComplete() && !mPresenter.getPlayoffsStarted()) {
+            mSimulateSeason.setVisibility(View.GONE);
             mStartPlayoffs.setVisibility(View.VISIBLE);
+            mSimulationStatus.setVisibility(View.GONE);
         }
     }
 
@@ -388,7 +401,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     private void setViewsPlayoffsComplete() {
 
         //Playoffs are complete, hide all buttons except for the reset button
-        mSimulateSeason.setVisibility(View.GONE);
+        mSimulateSeason.setVisibility(View.INVISIBLE);
         mSimulateWeek.setVisibility(View.GONE);
         mStartPlayoffs.setVisibility(View.GONE);
         mResetButton.setVisibility(View.VISIBLE);

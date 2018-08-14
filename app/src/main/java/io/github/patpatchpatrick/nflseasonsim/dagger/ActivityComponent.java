@@ -6,6 +6,8 @@ import dagger.Component;
 import io.github.patpatchpatrick.nflseasonsim.EloRecyclerViewAdapter;
 import io.github.patpatchpatrick.nflseasonsim.EloValuesActivity;
 import io.github.patpatchpatrick.nflseasonsim.MainActivity;
+import io.github.patpatchpatrick.nflseasonsim.ScoresRecyclerViewAdapter;
+import io.github.patpatchpatrick.nflseasonsim.StandingsRecyclerViewAdapter;
 import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
 import io.github.patpatchpatrick.nflseasonsim.presenter.SimulatorPresenter;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Match;
@@ -22,5 +24,7 @@ public interface ActivityComponent {
     void inject(SimulatorModel simulatorModel);
     void inject(Match match);
     void inject(EloRecyclerViewAdapter eloRecyclerViewAdapter);
+    void inject(ScoresRecyclerViewAdapter scoresRecyclerViewAdapter);
+    void inject(StandingsRecyclerViewAdapter standingsRecyclerViewAdapter);
 
 }

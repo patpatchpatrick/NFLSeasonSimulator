@@ -28,6 +28,7 @@ public class SeasonSimDbHelper extends SQLiteOpenHelper {
         String SQL_CREATE_TEAM_TABLE = "CREATE TABLE " + TeamEntry.TABLE_NAME + " ("
                 + TeamEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + TeamEntry.COLUMN_TEAM_NAME + " TEXT NOT NULL, "
+                + TeamEntry.COLUMN_TEAM_SHORT_NAME + " TEXT NOT NULL, "
                 + TeamEntry.COLUMN_TEAM_ELO + " REAL NOT NULL, "
                 + TeamEntry.COLUMN_TEAM_DEFAULT_ELO + " REAL NOT NULL, "
                 + TeamEntry.COLUMN_TEAM_USER_ELO + " REAL NOT NULL DEFAULT 0, "

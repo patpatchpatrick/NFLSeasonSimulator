@@ -18,7 +18,7 @@ public interface SimulatorMvpContract {
 
     interface SimulatorView {
 
-        void onDisplayStandings(String standings);
+        void onDisplayStandings(int standingsType, Cursor cursor);
         void onDisplayScores(int weekNumber, Cursor cursor, String scoresWeekNumberHeader, boolean matchesPlayed);
         void onSeasonInitialized();
         void onSeasonLoadedFromDb();
@@ -53,7 +53,10 @@ public interface SimulatorMvpContract {
     interface SimulatorModel {
         void setSchedule(Schedule schedule);
         void setTeamList(HashMap<String, Team> teamList);
+        void createTeamLogoMap();
+        int getLogo(String teamName);
         void setTeamEloMap(HashMap<String, Double> teamEloMap);
+        Team getTeam(String teamName);
         HashMap<String, Team> getTeamList();
         ArrayList<Team> getTeamArrayList();
         HashMap<String, Double> getTeamEloMap();

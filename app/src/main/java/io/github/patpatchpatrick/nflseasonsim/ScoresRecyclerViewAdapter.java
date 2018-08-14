@@ -1,9 +1,11 @@
 package io.github.patpatchpatrick.nflseasonsim;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.database.MergeCursor;
 import android.graphics.Typeface;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,16 +14,28 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import javax.inject.Inject;
+
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.MatchEntry;
+import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
 
 public class ScoresRecyclerViewAdapter extends RecyclerView.Adapter<ScoresRecyclerViewAdapter.ViewHolder> {
 
     //Recycylerview adapter for matches/scores
 
+    @Inject
+    SimulatorModel mModel;
+
+    @Inject
+    Context mContext;
+
     Cursor dataCursor;
 
     public ScoresRecyclerViewAdapter() {
+
+        //Inject with Dagger Activity Component to get access to model data
+        MainActivity.getActivityComponent().inject(this);
 
     }
 
@@ -62,11 +76,13 @@ public class ScoresRecyclerViewAdapter extends RecyclerView.Adapter<ScoresRecycl
         String scoreOneString = Integer.toString(scoreOne);
         String scoreTwoString = Integer.toString(scoreTwo);
 
-        //Set up textviews for score listview
+        //Set up textviews and imageviews for score listview
         holder.teamOneName.setText(teamOne);
         holder.teamOneScore.setText(scoreOneString);
         holder.teamTwoName.setText(teamTwo);
         holder.teamTwoScore.setText(scoreTwoString);
+        holder.teamOneLogo.setImageResource(mModel.getLogo(teamOne));
+        holder.teamTwoLogo.setImageResource(mModel.getLogo(teamTwo));
 
         //Bold the textviews for the the team that won the match
         if (teamOneWon) {
@@ -79,6 +95,11 @@ public class ScoresRecyclerViewAdapter extends RecyclerView.Adapter<ScoresRecycl
             holder.teamOneScore.setTypeface(Typeface.DEFAULT);
             holder.teamTwoName.setTypeface(Typeface.DEFAULT_BOLD);
             holder.teamTwoScore.setTypeface(Typeface.DEFAULT_BOLD);
+            if (scoreOne == 0 && scoreTwo == 0) {
+                //If neither game has been played, make all textviews not bold
+                holder.teamTwoName.setTypeface(Typeface.DEFAULT);
+                holder.teamTwoScore.setTypeface(Typeface.DEFAULT);
+            }
         }
 
 
@@ -99,7 +120,11 @@ public class ScoresRecyclerViewAdapter extends RecyclerView.Adapter<ScoresRecycl
             return;
         }
 
+        Cursor oldCursor = this.dataCursor;
         this.dataCursor = cursor;
+        if (oldCursor != null) {
+            oldCursor.close();
+        }
 
         this.notifyDataSetChanged();
 

@@ -128,6 +128,12 @@ public class SeasonSimProvider extends ContentProvider{
             throw new IllegalArgumentException("Team requires a name");
         }
 
+        // Check to ensure short name is not null
+        String teamShortName = values.getAsString(TeamEntry.COLUMN_TEAM_SHORT_NAME);
+        if (teamShortName == null) {
+            throw new IllegalArgumentException("Team requires a short name");
+        }
+
         // Check that the elo is valid
         Double elo = values.getAsDouble(TeamEntry.COLUMN_TEAM_ELO);
         if (elo == null) {

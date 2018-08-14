@@ -36,5 +36,11 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="NormalHeaderTextView" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:textColor">@color/colorPrimaryText</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">18dp</item>
+    </style>
+
 
 </resources>

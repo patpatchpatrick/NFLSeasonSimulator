@@ -13,8 +13,10 @@ import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
+import io.github.patpatchpatrick.nflseasonsim.R;
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.SimulatorMvpContract;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Match;
+import io.github.patpatchpatrick.nflseasonsim.season_resources.NFLConstants;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Schedule;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Team;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.TeamEntry;
@@ -60,6 +62,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     public Schedule mSchedule;
     public HashMap<String, Team> mTeamList;
     public HashMap<String, Double> mUserEloList;
+    public HashMap<String, Integer> mTeamLogoMap;
 
     private Scheduler mScheduler;
 
@@ -86,8 +89,60 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     }
 
     @Override
+    public void createTeamLogoMap() {
+
+        //Create list that maps team logos to names
+        HashMap<String, Integer> teamLogos = new HashMap();
+        teamLogos.put(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING, R.drawable.arizonacardinals);
+        teamLogos.put(NFLConstants.TEAM_ATLANTA_FALCONS_STRING, R.drawable.atlantafalcons);
+        teamLogos.put(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING, R.drawable.baltimoreravens);
+        teamLogos.put(NFLConstants.TEAM_BUFFALO_BILLS_STRING, R.drawable.buffalobills);
+        teamLogos.put(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING, R.drawable.carolinapanthers);
+        teamLogos.put(NFLConstants.TEAM_CHICAGO_BEARS_STRING, R.drawable.chicagobears);
+        teamLogos.put(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING, R.drawable.cincinnatibengals);
+        teamLogos.put(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING, R.drawable.clevelandbrowns);
+        teamLogos.put(NFLConstants.TEAM_DALLAS_COWBOYS_STRING, R.drawable.dallascowboys);
+        teamLogos.put(NFLConstants.TEAM_DENVER_BRONCOS_STRING, R.drawable.denverbroncos);
+        teamLogos.put(NFLConstants.TEAM_DETROIT_LIONS_STRING, R.drawable.detroitlions);
+        teamLogos.put(NFLConstants.TEAM_GREENBAY_PACKERS_STRING, R.drawable.greenbaypackers);
+        teamLogos.put(NFLConstants.TEAM_HOUSTON_TEXANS_STRING, R.drawable.houstontexans);
+        teamLogos.put(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING, R.drawable.indianapoliscolts);
+        teamLogos.put(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING, R.drawable.jacksonvillejaguars);
+        teamLogos.put(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING, R.drawable.kansascitychiefs);
+        teamLogos.put(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING, R.drawable.losangeleschargers);
+        teamLogos.put(NFLConstants.TEAM_LOSANGELES_RAMS_STRING, R.drawable.losangelesrams);
+        teamLogos.put(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING, R.drawable.miamidolphins);
+        teamLogos.put(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING, R.drawable.minnesotavikings);
+        teamLogos.put(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING, R.drawable.newenglandpatriots);
+        teamLogos.put(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING, R.drawable.neworleanssaints);
+        teamLogos.put(NFLConstants.TEAM_NEWYORK_GIANTS_STRING, R.drawable.newyorkgiants);
+        teamLogos.put(NFLConstants.TEAM_NEWYORK_JETS_STRING, R.drawable.newyorkjets);
+        teamLogos.put(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING, R.drawable.oaklandraiders);
+        teamLogos.put(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING, R.drawable.philadelphiaeagles);
+        teamLogos.put(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING, R.drawable.pittsburghsteelers);
+        teamLogos.put(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING, R.drawable.sanfrancisco49ers);
+        teamLogos.put(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING, R.drawable.seattleseahawks);
+        teamLogos.put(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING, R.drawable.tampabaybuccaneers);
+        teamLogos.put(NFLConstants.TEAM_TENNESSEE_TITANS_STRING, R.drawable.tennesseetitans);
+        teamLogos.put(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING, R.drawable.washingtonredskins);
+
+        mTeamLogoMap = teamLogos;
+    }
+
+    @Override
+    public int getLogo(String teamName) {
+        int teamDrawable = mTeamLogoMap.get(teamName);
+        return teamDrawable;
+    }
+
+    @Override
     public void setTeamEloMap(HashMap<String, Double> teamEloMap) {
         mUserEloList = teamEloMap;
+    }
+
+    @Override
+    public Team getTeam(String teamName) {
+        return mTeamList.get(teamName);
     }
 
     @Override
@@ -274,6 +329,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
             @Override
             public Uri call() throws Exception {
                 String name = team.getName();
+                String shortName = team.getShortName();
                 double elo = team.getElo();
                 double offRating = team.getOffRating();
                 double defRating = team.getDefRating();
@@ -285,6 +341,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
                 ContentValues values = new ContentValues();
                 values.put(TeamEntry.COLUMN_TEAM_NAME, name);
+                values.put(TeamEntry.COLUMN_TEAM_SHORT_NAME, name);
                 values.put(TeamEntry.COLUMN_TEAM_ELO, elo);
                 values.put(TeamEntry.COLUMN_TEAM_OFF_RATING, offRating);
                 values.put(TeamEntry.COLUMN_TEAM_DEF_RATING, defRating);
@@ -353,6 +410,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
             public void onNext(Team team) {
 
                 String name = team.getName();
+                String shortName = team.getShortName();
                 double elo = team.getElo();
                 double defaultElo = team.getDefaultElo();
                 double userElo = team.getUserElo();
@@ -367,6 +425,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
                 ContentValues values = new ContentValues();
                 values.put(TeamEntry.COLUMN_TEAM_NAME, name);
+                values.put(TeamEntry.COLUMN_TEAM_SHORT_NAME, shortName);
                 values.put(TeamEntry.COLUMN_TEAM_ELO, elo);
                 values.put(TeamEntry.COLUMN_TEAM_DEFAULT_ELO, defaultElo);
                 values.put(TeamEntry.COLUMN_TEAM_USER_ELO, userElo);
@@ -524,6 +583,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                 String[] standingsProjection = {
                         TeamEntry._ID,
                         TeamEntry.COLUMN_TEAM_NAME,
+                        TeamEntry.COLUMN_TEAM_SHORT_NAME,
                         TeamEntry.COLUMN_TEAM_DIVISION,
                         TeamEntry.COLUMN_TEAM_CONFERENCE,
                         TeamEntry.COLUMN_TEAM_CURRENT_WINS,

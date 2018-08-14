@@ -18,6 +18,7 @@ public class Team {
 
     //Name
     private String mName;
+    private String mShortName;
 
     //Division and Conference
     private int mDivision;
@@ -46,13 +47,14 @@ public class Team {
     private int mPointsFor;
     private int mPointsAllowed;
 
-    public Team(String name, double elo, double teamRanking, double offRating, double defRating, int division, Data data) {
+    public Team(String name, String shortName, double elo, double teamRanking, double offRating, double defRating, int division, Data data) {
 
         //Constructor used when originally creating team
 
 
         mData = data;
         mName = name;
+        mShortName = shortName;
         mDefaultElo = elo;
         mUserElo = 0;
         mElo = elo;
@@ -81,11 +83,12 @@ public class Team {
 
     }
 
-    public Team(String name, double elo, double defaultElo,double userElo, double teamRanking, double offRating, double defRating, int division, Data data, int wins, int losses, int divWins, int divLosses, double winLossPct, double divWinLossPct, int playoffEligible,  Uri uri) {
+    public Team(String name, String shortName, double elo, double defaultElo,double userElo, double teamRanking, double offRating, double defRating, int division, Data data, int wins, int losses, int divWins, int divLosses, double winLossPct, double divWinLossPct, int playoffEligible,  Uri uri) {
 
         mTeamRanking =  teamRanking;
         mData = data;
         mName = name;
+        mShortName = name;
         mElo = elo;
         mDefaultElo = defaultElo;
         mUserElo = userElo;
@@ -245,5 +248,9 @@ public class Team {
 
     public Double getUserElo() {
         return mUserElo;
+    }
+
+    public String getShortName(){
+        return mShortName;
     }
 }

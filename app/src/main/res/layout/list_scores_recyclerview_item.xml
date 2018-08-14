@@ -10,7 +10,6 @@
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:id="@+id/score_recycler_team_one_logo"
-        android:src="@drawable/arizonacardinals"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -41,7 +40,6 @@
         android:id="@+id/score_recycler_team_two_logo"
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:src="@drawable/arizonacardinals"
         app:layout_constraintStart_toStartOf="@+id/score_recycler_team_one_logo"
         app:layout_constraintTop_toBottomOf="@+id/score_recycler_team_one_logo" />
 

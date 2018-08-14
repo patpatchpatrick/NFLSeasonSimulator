@@ -1,6 +1,7 @@
 package io.github.patpatchpatrick.nflseasonsim.dagger;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
@@ -23,12 +24,20 @@ public class ActivityModule {
     private final SimulatorModel model;
     private final ContentResolver contentResolver;
     private final SharedPreferences sharedPreferences;
+    private final Context context;
 
     public ActivityModule(MainActivity mainActivity) {
         this.presenter = new SimulatorPresenter(mainActivity);
         this.model = new SimulatorModel();
         this.contentResolver = mainActivity.getContentResolver();
         this.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mainActivity);
+        this.context = mainActivity;
+    }
+
+    @Provides
+    @Singleton
+    Context providesContext() {
+        return context;
     }
 
     @Provides
@@ -60,6 +69,8 @@ public class ActivityModule {
     SharedPreferences providesSharedPreferences() {
         return sharedPreferences;
     }
+
+
 
 
 
