@@ -6,12 +6,12 @@
     android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal"
-    style="@style/NormalActivity">
+    style="?normalActivity">
 
     <TextView
         android:layout_width="wrap_content"
         android:id="@+id/team_name_textview"
-        style="@style/NormalTextView"
+        style="?normalTextView"
         android:layout_height="match_parent"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
@@ -21,7 +21,7 @@
     <EditText
         android:layout_width="wrap_content"
         android:id="@+id/team_elo_edittext"
-        style="@style/NormalTextView"
+        style="?normalTextView"
         android:layout_height="wrap_content"
         android:layout_marginRight="8dp"
         tools:text="ELO Rating"

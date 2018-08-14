@@ -2,14 +2,14 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/NormalActivity"
+    style="?normalActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".EloValuesActivity">
 
     <Button
         android:id="@+id/current_elos_button"
-        style="@style/NormalButton"
+        style="?normalButton"
         android:padding="8dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -22,7 +22,7 @@
 
     <Button
         android:id="@+id/use_default_button"
-        style="@style/NormalButton"
+        style="?normalButton"
         android:padding="8dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -36,7 +36,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/future_elos_button"
         android:padding="8dp"
-        style="@style/NormalButton"
+        style="?normalButton"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:text="@string/use_offseason_prediction_elos"

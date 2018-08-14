@@ -23,6 +23,9 @@
     <integer name="settings_elo_type_future">2</integer>
     <integer name="settings_elo_type_user">3</integer>
 
+    <integer name="settings_value_theme_default">1</integer>
+    <integer name="settings_value_theme_blue">2</integer>
+
 
 
 

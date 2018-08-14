@@ -11,9 +11,39 @@
         <item name="android:itemTextAppearance">@style/NormalTextView</item>
         <!--To change the background of options menu-->
         <item name="android:itemBackground">@color/colorPrimaryLight</item>
+        <!--Styles to override-->
+        <item name="normalButton">@style/NormalButton</item>
+        <item name="normalActivity">@style/NormalActivity</item>
+        <item name="normalTextView">@style/NormalTextView</item>
+        <item name="normalScoreTextView">@style/NormalScoreTextView</item>
+        <item name="normalHeaderTextView">@style/NormalHeaderTextView</item>
+        <item name="normalLineDivider">@style/NormalLineDivider</item>
+
     </style>
 
-    <!-- Base styles for activities and views. -->
+    <!-- Base application theme dark. -->
+    <style name="DarkAppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimaryBlack</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkBlack</item>
+        <item name="colorAccent">@color/colorAccentBlack</item>
+        <!-- This is the styling for action bar -->
+        <!--To change the text styling of options menu items</item>-->
+        <item name="android:itemTextAppearance">@style/NormalTextViewDark</item>
+        <!--To change the background of options menu-->
+        <item name="android:itemBackground">@color/colorPrimaryLightBlack</item>
+        <!--Styles to override-->
+        <item name="normalButton">@style/NormalButtonDark</item>
+        <item name="normalActivity">@style/NormalActivityDark</item>
+        <item name="normalTextView">@style/NormalTextViewDark</item>
+        <item name="normalScoreTextView">@style/NormalScoreTextViewDark</item>
+        <item name="normalHeaderTextView">@style/NormalHeaderTextViewDark</item>
+        <item name="normalLineDivider">@style/NormalLineDividerDark</item>
+    </style>
+
+
+
+    <!-- Button -->
 
     <style name="NormalButton" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:background">@color/colorPrimaryDark</item>
@@ -22,17 +52,43 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+
+    <style name="NormalButtonDark" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:background">@color/colorPrimaryDarkBlack</item>
+        <item name="android:textColor">@color/colorTextAndIconsBlack</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkBlack</item>
+        <item name="colorAccent">@color/colorAccentBlack</item>
+    </style>
+
+    <!-- Activity -->
+
     <style name="NormalActivity" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:background">@color/colorPrimaryLight</item>
         <item name="android:textColor">@color/colorPrimaryText</item>
     </style>
 
+    <style name="NormalActivityDark" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:background">@color/colorPrimaryLightBlack</item>
+        <item name="android:textColor">@color/colorPrimaryTextBlack</item>
+    </style>
+
+    <!-- TextViews -->
+
     <style name="NormalTextView" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:textColor">@color/colorPrimaryText</item>
     </style>
 
+    <style name="NormalTextViewDark" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:textColor">@color/colorPrimaryTextBlack</item>
+    </style>
+
     <style name="NormalScoreTextView" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:textColor">@color/colorPrimaryText</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="NormalScoreTextViewDark" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:textColor">@color/colorPrimaryTextBlack</item>
         <item name="android:textStyle">bold</item>
     </style>
 
@@ -41,6 +97,22 @@
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">18dp</item>
     </style>
+
+    <style name="NormalHeaderTextViewDark" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:textColor">@color/colorPrimaryTextBlack</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">18dp</item>
+    </style>
+
+    <style name="NormalLineDivider" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:background">@color/colorPrimaryDark</item>
+    </style>
+
+    <style name="NormalLineDividerDark" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:background">@color/colorSecondaryTextBlack</item>
+    </style>
+
+
 
 
 </resources>

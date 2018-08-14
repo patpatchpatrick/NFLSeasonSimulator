@@ -33,10 +33,14 @@
     <string name="settings_label_week_fifteen">Week Fifteen</string>
     <string name="settings_label_week_sixteen">Week Sixteen</string>
     <string name="settings_label_week_seventeen">Week Seventeen</string>
+    <string name="settings_theme_key">app theme</string>
 
     <!-- Primary Menu Strings -->
     <string name="menu_elo_values">Team Elo Values</string>
     <string name="menu_reset_button">Reset</string>
+    <string name="menu_theme_button">Theme</string>
+    <string name="menu_theme_default">Default (Dark)</string>
+    <string name="menu_theme_blue">Blue</string>
 
     <!-- ELO Values Activity Strings -->
     <string name="use_default_values">Last Season Elos</string>

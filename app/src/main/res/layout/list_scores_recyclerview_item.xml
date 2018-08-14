@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:layout_width="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    style="@style/NormalActivity">
+    style="?normalActivity">
 
     <ImageView
         android:layout_width="32dp"
@@ -15,7 +15,7 @@
 
     <TextView
         android:layout_width="wrap_content"
-        style="@style/NormalTextView"
+        style="?normalTextView"
         android:id="@+id/score_recycler_team_one_name"
         android:layout_height="15dp"
         android:layout_marginLeft="8dp"
@@ -29,7 +29,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/score_recycler_team_one_score"
-        style="@style/NormalScoreTextView"
+        style="?normalScoreTextView"
         tools:text="42"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
@@ -45,7 +45,7 @@
 
     <TextView
         android:layout_width="wrap_content"
-        style="@style/NormalTextView"
+        style="?normalTextView"
         android:id="@+id/score_recycler_team_two_name"
         android:layout_height="15dp"
         android:layout_marginLeft="8dp"
@@ -59,7 +59,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/score_recycler_team_two_score"
-        style="@style/NormalScoreTextView"
+        style="?normalScoreTextView"
         tools:text="42"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
@@ -69,7 +69,7 @@
     <View
         android:layout_width="180dp"
         android:layout_height="1dp"
-        android:background="@color/colorPrimaryDark"
+        style="?normalLineDivider"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/score_recycler_team_two_score"
         app:layout_constraintStart_toStartOf="@+id/score_recycler_team_two_logo" />

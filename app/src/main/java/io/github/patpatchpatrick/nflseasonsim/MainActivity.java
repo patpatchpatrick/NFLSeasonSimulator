@@ -27,7 +27,7 @@ import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.SimulatorMvpContract;
 import io.github.patpatchpatrick.nflseasonsim.presenter.SimulatorPresenter;
 
-public class MainActivity extends AppCompatActivity implements SimulatorMvpContract.SimulatorView {
+public class MainActivity extends AppCompatActivity implements SimulatorMvpContract.SimulatorView, SharedPreferences.OnSharedPreferenceChangeListener {
 
     @Inject
     SimulatorPresenter mPresenter;
@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        initializeTheme();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -148,6 +149,13 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
     }
 
+    private void initializeTheme() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        int appTheme = sharedPreferences.getInt(getString(R.string.settings_theme_key), getResources().getInteger(R.integer.settings_value_theme_default));
+        setTheme(getTheme(appTheme));
+
+    }
+
     private void resetSeason() {
 
         //Reset the season
@@ -161,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         setScoreStringPreference("");
         mWeekNumberHeader.setText("");
         mScoresRecyclerAdapter.swapCursor(null);
-        mStandingsRecyclerAdapter.swapCursor(MainActivity.STANDINGS_TYPE_REGULAR_SEASON,null);
+        mStandingsRecyclerAdapter.swapCursor(MainActivity.STANDINGS_TYPE_REGULAR_SEASON, null);
         mPresenter.resetSeason();
 
 
@@ -443,12 +451,46 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
             case R.id.reset_menu_button:
                 resetSeason();
                 return true;
+            case R.id.theme_picker_default:
+                setAppTheme(getResources().getInteger(R.integer.settings_value_theme_default));
+                return true;
+            case R.id.theme_picker_blue:
+                setAppTheme(getResources().getInteger(R.integer.settings_value_theme_blue));
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
+    private void setAppTheme(int themeResId) {
+        setTheme(getTheme(themeResId));
+        SharedPreferences.Editor prefs = mSharedPreferences.edit();
+        prefs.putInt(getString(R.string.settings_theme_key), getTheme(themeResId));
+        prefs.commit();
+    }
+
+    private int getTheme(int themeId) {
+        if (themeId == getResources().getInteger(R.integer.settings_value_theme_blue)) {
+            return R.style.AppTheme;
+        } else {
+            return R.style.DarkAppTheme;
+        }
+    }
+
+    @Override
+    public void setTheme(int resid) {
+        super.setTheme(resid);
+    }
+
     public static ActivityComponent getActivityComponent() {
         return mActivityComponent;
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(getString(R.string.settings_theme_key))) {
+            //If the app theme is changed, the app must be recreated for new theme to be applied
+            MainActivity.this.recreate();
+        }
     }
 }

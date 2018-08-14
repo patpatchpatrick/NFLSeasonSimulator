@@ -29,6 +29,7 @@ public class EloValuesActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.DarkAppTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_elo_values);
 
