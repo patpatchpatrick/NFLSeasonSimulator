@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -150,6 +151,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     }
 
     private void initializeTheme() {
+        //Set the initial theme of the app based on shared prefs theme
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         int appTheme = sharedPreferences.getInt(getString(R.string.settings_theme_key), getResources().getInteger(R.integer.settings_value_theme_default));
         setTheme(getTheme(appTheme));
@@ -213,6 +215,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
         //Get default shared pref values and set other variables accordingly
 
+        mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
         Boolean seasonInitialized = false;
         seasonInitialized = mSharedPreferences.getBoolean(getString(R.string.settings_season_initialized_key), getResources().getBoolean(R.bool.pref_season_initialized_default));
         mPresenter.setPlayoffsStarted(mSharedPreferences.getBoolean(getString(R.string.settings_playoffs_started_key), getResources().getBoolean(R.bool.pref_playoffs_started_default)));
@@ -446,16 +449,25 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         switch (item.getItemId()) {
             case R.id.primary_settings:
                 Intent startEloValuesActivity = new Intent(MainActivity.this, EloValuesActivity.class);
+                //Add the theme to the intent so that the eloValues activity has correct theme
+                startEloValuesActivity.putExtra("theme", getTheme(mSharedPreferences.getInt(getString(R.string.settings_theme_key), getResources().getInteger(R.integer.settings_value_theme_default))));
                 startActivity(startEloValuesActivity);
                 return true;
             case R.id.reset_menu_button:
                 resetSeason();
                 return true;
             case R.id.theme_picker_default:
+                //If a theme is selected below,  set the app theme and app theme sharedPref value
                 setAppTheme(getResources().getInteger(R.integer.settings_value_theme_default));
                 return true;
             case R.id.theme_picker_blue:
                 setAppTheme(getResources().getInteger(R.integer.settings_value_theme_blue));
+                return true;
+            case R.id.theme_picker_grey:
+                setAppTheme(getResources().getInteger(R.integer.settings_value_theme_grey));
+                return true;
+            case R.id.theme_picker_purple:
+                setAppTheme(getResources().getInteger(R.integer.settings_value_theme_purple));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -465,13 +477,20 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     private void setAppTheme(int themeResId) {
         setTheme(getTheme(themeResId));
         SharedPreferences.Editor prefs = mSharedPreferences.edit();
-        prefs.putInt(getString(R.string.settings_theme_key), getTheme(themeResId));
+        prefs.putInt(getString(R.string.settings_theme_key), themeResId);
         prefs.commit();
     }
 
     private int getTheme(int themeId) {
+        //Return the actual theme style that corresponds with the theme sharedPrefs integer
         if (themeId == getResources().getInteger(R.integer.settings_value_theme_blue)) {
             return R.style.AppTheme;
+        } else if (themeId == getResources().getInteger(R.integer.settings_value_theme_grey)) {
+            return R.style.GreyAppTheme;
+
+        } else if (themeId == getResources().getInteger(R.integer.settings_value_theme_purple)) {
+            return R.style.PurpleAppTheme;
+
         } else {
             return R.style.DarkAppTheme;
         }

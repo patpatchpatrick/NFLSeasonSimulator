@@ -19,4 +19,28 @@
     <color name="colorSecondaryTextBlack">#e5e5e5</color>
     <color name="colorTextAndIconsBlack">#FFFFFF</color>
 
+    <!-- Grey theme colors -->
+    <color name="colorPrimaryGrey">#607D8B</color>
+    <color name="colorPrimaryDarkGrey">#455A64</color>
+    <color name="colorPrimaryLightGrey">#CFD8DC</color>
+    <color name="colorAccentGrey">#CDDC39</color>
+    <color name="colorDivider">#BDBDBD</color>
+    <color name="colorDate">#757575</color>
+    <color name="colorPrimaryTextGrey">#212121</color>
+    <color name="colorSecondaryText">#757575</color>
+    <color name="colorTextAndIcons">#FFFFFF</color>
+
+    <!-- Purple theme colors -->
+    <color name="colorPrimaryPurple">#673AB7</color>
+    <color name="colorPrimaryDarkPurple">#512DA8</color>
+    <color name="colorPrimaryLightPurple">#D1C4E9</color>
+    <color name="colorAccentPurple">#FF4081</color>
+    <color name="colorDividerPurple">#BDBDBD</color>
+    <color name="colorDatePurple">#757575</color>
+    <color name="colorPrimaryTextPurple">#212121</color>
+    <color name="colorSecondaryTextPurple">#757575</color>
+    <color name="colorTextAndIconsPurple">#FFFFFF</color>
+
+
+
 </resources>

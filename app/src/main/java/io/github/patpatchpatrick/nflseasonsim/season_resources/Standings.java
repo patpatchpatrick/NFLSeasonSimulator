@@ -36,7 +36,6 @@ public class Standings {
             }
             Team team = teams.get(teamName);
 
-            Log.d("Playoff:  ", teamName);
 
             //For every 4 teams, the first team is the division winner and is playoff eligible
             //Mark the team as playoff eligible division winner

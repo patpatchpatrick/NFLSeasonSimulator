@@ -1,5 +1,6 @@
 package io.github.patpatchpatrick.nflseasonsim;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -29,7 +30,10 @@ public class EloValuesActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(R.style.DarkAppTheme);
+        //Set up theme before creating activity
+        Intent intent = getIntent();
+        int themeResId = intent.getIntExtra("theme", 1);
+        setTheme(themeResId);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_elo_values);
 

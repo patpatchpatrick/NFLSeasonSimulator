@@ -105,7 +105,6 @@ public class Match {
             }
             if (playoffMatchup){
                 mTeam2.setPlayoffEligible(TeamEntry.PLAYOFF_NOT_ELIGIBLE);
-                Log.d("NotPlaElig ", ": " + mTeam2.getName());
             }
             mTeam1.win();
             mTeam2.lose();
@@ -116,7 +115,6 @@ public class Match {
             }
             if (playoffMatchup){
                 mTeam1.setPlayoffEligible(TeamEntry.PLAYOFF_NOT_ELIGIBLE);
-                Log.d("NotPlaElig ", ": " + mTeam1.getName());
             }
             mTeam1.lose();
             mTeam2.win();

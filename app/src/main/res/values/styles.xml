@@ -41,6 +41,45 @@
         <item name="normalLineDivider">@style/NormalLineDividerDark</item>
     </style>
 
+    <!-- Base application theme grey. -->
+    <style name="GreyAppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimaryGrey</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkGrey</item>
+        <item name="colorAccent">@color/colorAccentGrey</item>
+        <!-- This is the styling for action bar -->
+        <!--To change the text styling of options menu items</item>-->
+        <item name="android:itemTextAppearance">@style/NormalTextViewGrey</item>
+        <!--To change the background of options menu-->
+        <item name="android:itemBackground">@color/colorPrimaryLightGrey</item>
+        <!--Styles to override-->
+        <item name="normalButton">@style/NormalButtonGrey</item>
+        <item name="normalActivity">@style/NormalActivityGrey</item>
+        <item name="normalTextView">@style/NormalTextViewGrey</item>
+        <item name="normalScoreTextView">@style/NormalScoreTextViewGrey</item>
+        <item name="normalHeaderTextView">@style/NormalHeaderTextViewGrey</item>
+        <item name="normalLineDivider">@style/NormalLineDividerGrey</item>
+    </style>
+
+    <!-- Base application theme purple. -->
+    <style name="PurpleAppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimaryPurple</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkPurple</item>
+        <item name="colorAccent">@color/colorAccentPurple</item>
+        <!-- This is the styling for action bar -->
+        <!--To change the text styling of options menu items</item>-->
+        <item name="android:itemTextAppearance">@style/NormalTextViewPurple</item>
+        <!--To change the background of options menu-->
+        <item name="android:itemBackground">@color/colorPrimaryLightPurple</item>
+        <!--Styles to override-->
+        <item name="normalButton">@style/NormalButtonPurple</item>
+        <item name="normalActivity">@style/NormalActivityPurple</item>
+        <item name="normalTextView">@style/NormalTextViewPurple</item>
+        <item name="normalScoreTextView">@style/NormalScoreTextViewPurple</item>
+        <item name="normalHeaderTextView">@style/NormalHeaderTextViewPurple</item>
+        <item name="normalLineDivider">@style/NormalLineDividerPurple</item>
+    </style>
 
 
     <!-- Button -->
@@ -60,6 +99,20 @@
         <item name="colorAccent">@color/colorAccentBlack</item>
     </style>
 
+    <style name="NormalButtonGrey" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:background">@color/colorPrimaryDarkGrey</item>
+        <item name="android:textColor">@color/colorTextAndIcons</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkGrey</item>
+        <item name="colorAccent">@color/colorAccentGrey</item>
+    </style>
+
+    <style name="NormalButtonPurple" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:background">@color/colorPrimaryDarkPurple</item>
+        <item name="android:textColor">@color/colorTextAndIcons</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkPurple</item>
+        <item name="colorAccent">@color/colorAccentPurple</item>
+    </style>
+
     <!-- Activity -->
 
     <style name="NormalActivity" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -72,6 +125,16 @@
         <item name="android:textColor">@color/colorPrimaryTextBlack</item>
     </style>
 
+    <style name="NormalActivityGrey" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:background">@color/colorPrimaryLightGrey</item>
+        <item name="android:textColor">@color/colorPrimaryTextGrey</item>
+    </style>
+
+    <style name="NormalActivityPurple" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:background">@color/colorPrimaryLightPurple</item>
+        <item name="android:textColor">@color/colorPrimaryTextPurple</item>
+    </style>
+
     <!-- TextViews -->
 
     <style name="NormalTextView" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -82,6 +145,14 @@
         <item name="android:textColor">@color/colorPrimaryTextBlack</item>
     </style>
 
+    <style name="NormalTextViewGrey" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:textColor">@color/colorPrimaryTextGrey</item>
+    </style>
+
+    <style name="NormalTextViewPurple" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:textColor">@color/colorPrimaryTextPurple</item>
+    </style>
+
     <style name="NormalScoreTextView" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:textColor">@color/colorPrimaryText</item>
         <item name="android:textStyle">bold</item>
@@ -89,6 +160,16 @@
 
     <style name="NormalScoreTextViewDark" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:textColor">@color/colorPrimaryTextBlack</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="NormalScoreTextViewGrey" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:textColor">@color/colorPrimaryTextGrey</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="NormalScoreTextViewPurple" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:textColor">@color/colorPrimaryTextPurple</item>
         <item name="android:textStyle">bold</item>
     </style>
 
@@ -104,12 +185,32 @@
         <item name="android:textSize">18dp</item>
     </style>
 
+    <style name="NormalHeaderTextViewGrey" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:textColor">@color/colorPrimaryTextGrey</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">18dp</item>
+    </style>
+
+    <style name="NormalHeaderTextViewPurple" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:textColor">@color/colorPrimaryTextPurple</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">18dp</item>
+    </style>
+
     <style name="NormalLineDivider" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:background">@color/colorPrimaryDark</item>
     </style>
 
     <style name="NormalLineDividerDark" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:background">@color/colorSecondaryTextBlack</item>
+    </style>
+
+    <style name="NormalLineDividerGrey" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:background">@color/colorPrimaryDarkGrey</item>
+    </style>
+
+    <style name="NormalLineDividerPurple" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:background">@color/colorPrimaryDarkPurple</item>
     </style>
 
 

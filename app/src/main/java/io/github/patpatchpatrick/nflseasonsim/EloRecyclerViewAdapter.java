@@ -114,7 +114,6 @@ public class EloRecyclerViewAdapter extends RecyclerView.Adapter<EloRecyclerView
                 try {
                     Double newElo = Double.parseDouble(newEloChar.toString().trim());
                     mTeam.setElo(newElo);
-                    Log.d(mTeam.getName(), "" + newElo);
                 } catch (NumberFormatException e) {
                     Log.d("Double Parse Err: ", "" + e);
                 }

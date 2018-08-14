@@ -60,7 +60,6 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     @Override
     public void simulatePlayoffWeek() {
         //Simulate a single week
-        Log.d("Sched", "mat " + mCurrentWeek);
         mModel.getSchedule().getWeek(mCurrentWeek).simulate();
         //After the week is complete, query the standings (and display them)
         mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_POSTSEASON);
@@ -219,72 +218,77 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
                 int ID = matchesCursor.getInt(matchesCursor.getColumnIndexOrThrow(MatchEntry._ID));
                 Uri matchUri = ContentUris.withAppendedId(MatchEntry.CONTENT_URI, ID);
 
-                switch (matchWeek) {
+                HashMap<String, Team> teamList = mModel.getTeamList();
 
-                    case 1:
-                        weekOne.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 1, this, matchUri));
-                        break;
-                    case 2:
-                        weekTwo.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 2, this, matchUri));
-                        break;
-                    case 3:
-                        weekThree.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 3, this, matchUri));
-                        break;
-                    case 4:
-                        weekFour.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 4, this, matchUri));
-                        break;
-                    case 5:
-                        weekFive.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 5, this, matchUri));
-                        break;
-                    case 6:
-                        weekSix.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 6, this, matchUri));
-                        break;
-                    case 7:
-                        weekSeven.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 7, this, matchUri));
-                        break;
-                    case 8:
-                        weekEight.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 8, this, matchUri));
-                        break;
-                    case 9:
-                        weekNine.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 9, this, matchUri));
-                        break;
-                    case 10:
-                        weekTen.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 10, this, matchUri));
-                        break;
-                    case 11:
-                        weekEleven.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 11, this, matchUri));
-                        break;
-                    case 12:
-                        weekTwelve.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 12, this, matchUri));
-                        break;
-                    case 13:
-                        weekThirteen.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 13, this, matchUri));
-                        break;
-                    case 14:
-                        weekFourteen.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 14, this, matchUri));
-                        break;
-                    case 15:
-                        weekFifteen.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 15, this, matchUri));
-                        break;
-                    case 16:
-                        weekSixteen.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 16, this, matchUri));
-                        break;
-                    case 17:
-                        weekSeventeen.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 17, this, matchUri));
-                        break;
-                    case 18:
-                        wildCard.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 18, this, matchUri));
-                        break;
-                    case 19:
-                        divisional.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 19, this, matchUri));
-                        break;
-                    case 20:
-                        championship.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 20, this, matchUri));
-                        break;
-                    case 21:
-                        superbowl.addMatch(new Match(mModel.getTeamList().get(teamOne), mModel.getTeamList().get(teamTwo), teamOneWon, 21, this, matchUri));
-                        break;
+                if (teamList != null) {
 
+                    switch (matchWeek) {
+
+                        case 1:
+                            weekOne.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 1, this, matchUri));
+                            break;
+                        case 2:
+                            weekTwo.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 2, this, matchUri));
+                            break;
+                        case 3:
+                            weekThree.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 3, this, matchUri));
+                            break;
+                        case 4:
+                            weekFour.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 4, this, matchUri));
+                            break;
+                        case 5:
+                            weekFive.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 5, this, matchUri));
+                            break;
+                        case 6:
+                            weekSix.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 6, this, matchUri));
+                            break;
+                        case 7:
+                            weekSeven.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 7, this, matchUri));
+                            break;
+                        case 8:
+                            weekEight.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 8, this, matchUri));
+                            break;
+                        case 9:
+                            weekNine.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 9, this, matchUri));
+                            break;
+                        case 10:
+                            weekTen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 10, this, matchUri));
+                            break;
+                        case 11:
+                            weekEleven.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 11, this, matchUri));
+                            break;
+                        case 12:
+                            weekTwelve.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 12, this, matchUri));
+                            break;
+                        case 13:
+                            weekThirteen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 13, this, matchUri));
+                            break;
+                        case 14:
+                            weekFourteen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 14, this, matchUri));
+                            break;
+                        case 15:
+                            weekFifteen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 15, this, matchUri));
+                            break;
+                        case 16:
+                            weekSixteen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 16, this, matchUri));
+                            break;
+                        case 17:
+                            weekSeventeen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 17, this, matchUri));
+                            break;
+                        case 18:
+                            wildCard.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 18, this, matchUri));
+                            break;
+                        case 19:
+                            divisional.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 19, this, matchUri));
+                            break;
+                        case 20:
+                            championship.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 20, this, matchUri));
+                            break;
+                        case 21:
+                            superbowl.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 21, this, matchUri));
+                            break;
+
+                    }
                 }
 
             }
@@ -309,16 +313,16 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             seasonSchedule.addWeek(weekSixteen);
             seasonSchedule.addWeek(weekSeventeen);
 
-            if (mCurrentWeek >= 18 && mPlayoffsStarted){
+            if (mCurrentWeek >= 18 && mPlayoffsStarted) {
                 seasonSchedule.addWeek(wildCard);
             }
-            if (mCurrentWeek >= 19 && mPlayoffsStarted){
+            if (mCurrentWeek >= 19 && mPlayoffsStarted) {
                 seasonSchedule.addWeek(divisional);
             }
-            if (mCurrentWeek >= 20 && mPlayoffsStarted){
+            if (mCurrentWeek >= 20 && mPlayoffsStarted) {
                 seasonSchedule.addWeek(championship);
             }
-            if (mCurrentWeek >= 21 && mPlayoffsStarted){
+            if (mCurrentWeek >= 21 && mPlayoffsStarted) {
                 seasonSchedule.addWeek(superbowl);
             }
 
@@ -385,7 +389,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     public void resetTeamElos() {
         //Reset teams Elos to last seasons Elo Values
         ArrayList<Team> teamList = mModel.getTeamArrayList();
-        for (Team team: teamList){
+        for (Team team : teamList) {
             team.resetElo();
         }
     }
@@ -394,7 +398,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     public void resetTeamFutureElos() {
         //Reset teams Elos to future Elo Values
         ArrayList<Team> teamList = mModel.getTeamArrayList();
-        for (Team team: teamList){
+        for (Team team : teamList) {
             team.setFutureElos();
         }
 
@@ -406,7 +410,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         HashMap<String, Team> teamMap = mModel.getTeamList();
         HashMap<String, Double> teamElos = mModel.getTeamEloMap();
 
-        for (String teamName : teamMap.keySet()){
+        for (String teamName : teamMap.keySet()) {
             teamMap.get(teamName).setElo(teamElos.get(teamName));
             teamMap.get(teamName).setUserElo();
         }
@@ -423,7 +427,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         HashMap<String, Double> teamUserElos = new HashMap<>();
         ArrayList<Team> teamList = mModel.getTeamArrayList();
 
-        for (Team team: teamList){
+        for (Team team : teamList) {
             team.setUserElo();
             teamUserElos.put(team.getName(), team.getUserElo());
         }
@@ -447,7 +451,6 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
         standingsCursor.moveToPosition(-1);
 
-        Log.d("CursorSize: ", "" + standingsCursor.getCount());
 
         while (standingsCursor.moveToNext()) {
 
@@ -461,9 +464,9 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             int divisionLosses = standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DIV_LOSSES));
             double divWinLossPct = standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DIV_WIN_LOSS_PCT));
             Double teamElo = standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_ELO));
-            Double teamDefaultElo =  standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DEFAULT_ELO));
+            Double teamDefaultElo = standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DEFAULT_ELO));
             Double teamUserElo = standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_USER_ELO));
-            Double teamRanking =  standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_RANKING));
+            Double teamRanking = standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_RANKING));
             Double offRating = standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_OFF_RATING));
             Double defRating = standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DEF_RATING));
             int division = standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DIVISION));
@@ -497,7 +500,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     private void createTeams() {
 
         //Create teams for the first time
-        
+
         HashMap<String, Team> teamList = new HashMap();
         teamList.put(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING,
                 new Team(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING, NFLConstants.TEAM_ARIZONA_CARDINALS_SHORT_STRING, NFLConstants.TEAM_ARIZONA_CARDINALS_ELO, NFLConstants.TEAM_ARIZONA_CARDINALS_FUTURE_RANKING,
@@ -563,37 +566,37 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
                 new Team(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING, NFLConstants.TEAM_NEWENGLAND_PATRIOTS_SHORT_STRING, NFLConstants.TEAM_NEWENGLAND_PATRIOTS_ELO, NFLConstants.TEAM_NEWENGLAND_PATRIOTS_FUTURE_RANKING,
                         NFLConstants.TEAM_NEWENGLAND_PATRIOTS_OFFRAT, NFLConstants.TEAM_NEWENGLAND_PATRIOTS_DEFRAT, TeamEntry.DIVISION_AFC_EAST, this));
         teamList.put(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING,
-                new Team(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING,NFLConstants.TEAM_NEWORLEANS_SAINTS_SHORT_STRING, NFLConstants.TEAM_NEWORLEANS_SAINTS_ELO, NFLConstants.TEAM_NEWORLEANS_SAINTS_FUTURE_RANKING,
+                new Team(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING, NFLConstants.TEAM_NEWORLEANS_SAINTS_SHORT_STRING, NFLConstants.TEAM_NEWORLEANS_SAINTS_ELO, NFLConstants.TEAM_NEWORLEANS_SAINTS_FUTURE_RANKING,
                         NFLConstants.TEAM_NEWORLEANS_SAINTS_OFFRAT, NFLConstants.TEAM_NEWORLEANS_SAINTS_DEFRAT, TeamEntry.DIVISION_NFC_SOUTH, this));
         teamList.put(NFLConstants.TEAM_NEWYORK_GIANTS_STRING,
-                new Team(NFLConstants.TEAM_NEWYORK_GIANTS_STRING,NFLConstants.TEAM_NEWYORK_GIANTS_SHORT_STRING, NFLConstants.TEAM_NEWYORK_GIANTS_ELO, NFLConstants.TEAM_NEWYORK_GIANTS_FUTURE_RANKING,
+                new Team(NFLConstants.TEAM_NEWYORK_GIANTS_STRING, NFLConstants.TEAM_NEWYORK_GIANTS_SHORT_STRING, NFLConstants.TEAM_NEWYORK_GIANTS_ELO, NFLConstants.TEAM_NEWYORK_GIANTS_FUTURE_RANKING,
                         NFLConstants.TEAM_NEWYORK_GIANTS_OFFRAT, NFLConstants.TEAM_NEWYORK_GIANTS_DEFRAT, TeamEntry.DIVISION_NFC_EAST, this));
         teamList.put(NFLConstants.TEAM_NEWYORK_JETS_STRING,
-                new Team(NFLConstants.TEAM_NEWYORK_JETS_STRING,NFLConstants.TEAM_NEWYORK_JETS_SHORT_STRING, NFLConstants.TEAM_NEWYORK_JETS_ELO, NFLConstants.TEAM_NEWYORK_JETS_FUTURE_RANKING,
+                new Team(NFLConstants.TEAM_NEWYORK_JETS_STRING, NFLConstants.TEAM_NEWYORK_JETS_SHORT_STRING, NFLConstants.TEAM_NEWYORK_JETS_ELO, NFLConstants.TEAM_NEWYORK_JETS_FUTURE_RANKING,
                         NFLConstants.TEAM_NEWYORK_JETS_OFFRAT, NFLConstants.TEAM_NEWYORK_JETS_DEFRAT, TeamEntry.DIVISION_AFC_EAST, this));
         teamList.put(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING,
-                new Team(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING,NFLConstants.TEAM_OAKLAND_RAIDERS_SHORT_STRING, NFLConstants.TEAM_OAKLAND_RAIDERS_ELO, NFLConstants.TEAM_OAKLAND_RAIDERS_FUTURE_RANKING,
+                new Team(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING, NFLConstants.TEAM_OAKLAND_RAIDERS_SHORT_STRING, NFLConstants.TEAM_OAKLAND_RAIDERS_ELO, NFLConstants.TEAM_OAKLAND_RAIDERS_FUTURE_RANKING,
                         NFLConstants.TEAM_OAKLAND_RAIDERS_OFFRAT, NFLConstants.TEAM_OAKLAND_RAIDERS_DEFRAT, TeamEntry.DIVISION_AFC_WEST, this));
         teamList.put(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING,
-                new Team(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING,NFLConstants.TEAM_PHILADELPHIA_EAGLES_SHORT_STRING, NFLConstants.TEAM_PHILADELPHIA_EAGLES_ELO, NFLConstants.TEAM_PHILADELPHIA_EAGLES_FUTURE_RANKING,
+                new Team(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING, NFLConstants.TEAM_PHILADELPHIA_EAGLES_SHORT_STRING, NFLConstants.TEAM_PHILADELPHIA_EAGLES_ELO, NFLConstants.TEAM_PHILADELPHIA_EAGLES_FUTURE_RANKING,
                         NFLConstants.TEAM_PHILADELPHIA_EAGLES_OFFRAT, NFLConstants.TEAM_PHILADELPHIA_EAGLES_DEFRAT, TeamEntry.DIVISION_NFC_EAST, this));
         teamList.put(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING,
-                new Team(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING,NFLConstants.TEAM_PITTSBURGH_STEELERS_SHORT_STRING, NFLConstants.TEAM_PITTSBURGH_STEELERS_ELO, NFLConstants.TEAM_PITTSBURGH_STEELERS_FUTURE_RANKING,
+                new Team(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING, NFLConstants.TEAM_PITTSBURGH_STEELERS_SHORT_STRING, NFLConstants.TEAM_PITTSBURGH_STEELERS_ELO, NFLConstants.TEAM_PITTSBURGH_STEELERS_FUTURE_RANKING,
                         NFLConstants.TEAM_PITTSBURGH_STEELERS_OFFRAT, NFLConstants.TEAM_PITTSBURGH_STEELERS_DEFRAT, TeamEntry.DIVISION_AFC_NORTH, this));
         teamList.put(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING,
-                new Team(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING, NFLConstants.TEAM_SANFRANCISCO_49ERS_SHORT_STRING,NFLConstants.TEAM_SANFRANCISCO_49ERS_ELO, NFLConstants.TEAM_SANFRANCISCO_49ERS_FUTURE_RANKING,
+                new Team(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING, NFLConstants.TEAM_SANFRANCISCO_49ERS_SHORT_STRING, NFLConstants.TEAM_SANFRANCISCO_49ERS_ELO, NFLConstants.TEAM_SANFRANCISCO_49ERS_FUTURE_RANKING,
                         NFLConstants.TEAM_SANFRANCISCO_49ERS_OFFRAT, NFLConstants.TEAM_SANFRANCISCO_49ERS_DEFRAT, TeamEntry.DIVISION_NFC_WEST, this));
         teamList.put(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING,
-                new Team(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING, NFLConstants.TEAM_SEATTLE_SEAHAWKS_SHORT_STRING,NFLConstants.TEAM_SEATTLE_SEAHAWKS_ELO, NFLConstants.TEAM_SEATTLE_SEAHAWKS_FUTURE_RANKING,
+                new Team(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING, NFLConstants.TEAM_SEATTLE_SEAHAWKS_SHORT_STRING, NFLConstants.TEAM_SEATTLE_SEAHAWKS_ELO, NFLConstants.TEAM_SEATTLE_SEAHAWKS_FUTURE_RANKING,
                         NFLConstants.TEAM_SEATTLE_SEAHAWKS_OFFRAT, NFLConstants.TEAM_SEATTLE_SEAHAWKS_DEFRAT, TeamEntry.DIVISION_NFC_WEST, this));
         teamList.put(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING,
-                new Team(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING,NFLConstants.TEAM_TAMPABAY_BUCCANEERS_SHORT_STRING, NFLConstants.TEAM_TAMPABAY_BUCCANEERS_ELO, NFLConstants.TEAM_TAMPABAY_BUCCANEERS_FUTURE_RANKING,
+                new Team(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING, NFLConstants.TEAM_TAMPABAY_BUCCANEERS_SHORT_STRING, NFLConstants.TEAM_TAMPABAY_BUCCANEERS_ELO, NFLConstants.TEAM_TAMPABAY_BUCCANEERS_FUTURE_RANKING,
                         NFLConstants.TEAM_TAMPABAY_BUCCANEERS_OFFRAT, NFLConstants.TEAM_TAMPABAY_BUCCANEERS_DEFRAT, TeamEntry.DIVISION_NFC_SOUTH, this));
         teamList.put(NFLConstants.TEAM_TENNESSEE_TITANS_STRING,
-                new Team(NFLConstants.TEAM_TENNESSEE_TITANS_STRING,NFLConstants.TEAM_TENNESSEE_TITANS_SHORT_STRING, NFLConstants.TEAM_TENNESSEE_TITANS_ELO, NFLConstants.TEAM_TENNESSEE_TITANS_FUTURE_RANKING,
+                new Team(NFLConstants.TEAM_TENNESSEE_TITANS_STRING, NFLConstants.TEAM_TENNESSEE_TITANS_SHORT_STRING, NFLConstants.TEAM_TENNESSEE_TITANS_ELO, NFLConstants.TEAM_TENNESSEE_TITANS_FUTURE_RANKING,
                         NFLConstants.TEAM_TENNESSEE_TITANS_OFFRAT, NFLConstants.TEAM_TENNESSEE_TITANS_DEFRAT, TeamEntry.DIVISION_AFC_SOUTH, this));
         teamList.put(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING,
-                new Team(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING,NFLConstants.TEAM_WASHINGTON_REDSKINS_SHORT_STRING, NFLConstants.TEAM_WASHINGTON_REDSKINS_ELO, NFLConstants.TEAM_WASHINGTON_REDSKINS_FUTURE_RANKING,
+                new Team(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING, NFLConstants.TEAM_WASHINGTON_REDSKINS_SHORT_STRING, NFLConstants.TEAM_WASHINGTON_REDSKINS_ELO, NFLConstants.TEAM_WASHINGTON_REDSKINS_FUTURE_RANKING,
                         NFLConstants.TEAM_WASHINGTON_REDSKINS_OFFRAT, NFLConstants.TEAM_WASHINGTON_REDSKINS_DEFRAT, TeamEntry.DIVISION_NFC_EAST, this));
         mModel.setTeamList(teamList);
 
@@ -895,9 +898,9 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         seasonSchedule.addWeek(weekFifteen);
         seasonSchedule.addWeek(weekSixteen);
         seasonSchedule.addWeek(weekSeventeen);
-        
+
         mModel.setSchedule(seasonSchedule);
-        
+
 
     }
 
@@ -962,7 +965,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
                 } else if (i == 5) {
                     standings += "\n** NFC Playoff Standings **\n\n";
                 }
-            } else if (remainingPlayoffTeams == 4){
+            } else if (remainingPlayoffTeams == 4) {
                 if (i == 1) {
                     standings += "\n** AFC Playoff Standings **\n\n";
                 } else if (i == 3) {
@@ -1021,8 +1024,6 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         //If the standings cursor count is 2, initialize superbowl.
 
         int remainingPlayoffTeams = standingsCursor.getCount();
-
-        Log.d("RemainingTeams", "# " + remainingPlayoffTeams);
 
         ArrayList<Team> afcTeams = new ArrayList<>();
         ArrayList<Team> nfcTeams = new ArrayList<>();
@@ -1131,8 +1132,6 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     public void setPlayoffsStarted(boolean playoffsStarted) {
         mPlayoffsStarted = playoffsStarted;
     }
-
-
 
 
 }

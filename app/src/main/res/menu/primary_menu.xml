@@ -36,6 +36,18 @@
                 android:title="@string/menu_theme_blue"
                 app:showAsAction="never"></item>
 
+            <item
+                android:id="@+id/theme_picker_grey"
+                android:orderInCategory="100"
+                android:title="@string/menu_theme_grey"
+                app:showAsAction="never"></item>
+
+            <item
+                android:id="@+id/theme_picker_purple"
+                android:orderInCategory="100"
+                android:title="@string/menu_theme_purple"
+                app:showAsAction="never"></item>
+
 
         </menu>
 
