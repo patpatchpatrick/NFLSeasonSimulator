@@ -50,7 +50,7 @@ public class ELORatingSystem {
         return teamOneWon;
     }
 
-    private static double probabilityOfTeamOneWinning(double eloTeamOne, double eloTeamTwo) {
+    public static double probabilityOfTeamOneWinning(double eloTeamOne, double eloTeamTwo) {
         //Returns probably of team one winning based on their ELO
         return 1.0 /(1 + Math.pow(10,
                 (eloTeamTwo - eloTeamOne) / 400.0));
