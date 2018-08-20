@@ -9,6 +9,7 @@
         <attr name="normalScoreTextView" format="reference"> </attr>
         <attr name="normalHeaderTextView" format="reference"> </attr>
         <attr name="normalLineDivider" format="reference"> </attr>
+        <attr name="vectorPrimaryColor" format="reference"></attr>
     </declare-styleable>
 
 

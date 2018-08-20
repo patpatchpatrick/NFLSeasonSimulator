@@ -48,7 +48,10 @@
     <string name="use_default_values">Last Season Elos</string>
     <string name="use_offseason_prediction_elos">Predicted Future Elos</string>
 
-
+    <!-- Main Menu Strings -->
+    <string name="main_menu_sim_season">Simulate Season</string>
+    <string name="main_menu_predict_matchup">Predict Matchup</string>
+    <string name="main_menu_settings">Settings</string>
 
 
 </resources>
