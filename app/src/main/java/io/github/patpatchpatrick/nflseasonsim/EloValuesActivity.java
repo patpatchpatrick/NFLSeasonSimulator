@@ -17,10 +17,10 @@ public class EloValuesActivity extends AppCompatActivity {
     //Activity to edit team ELO values
 
     @Inject
-    SimulatorPresenter mSimulatorPresenter;
+    SharedPreferences mSharedPreferences;
 
     @Inject
-    SharedPreferences mSharedPreferences;
+    SimulatorPresenter mSimulatorPresenter;
 
     private RecyclerView mRecyclerView;
     private Button mLastSeasonEloButton;
@@ -38,7 +38,7 @@ public class EloValuesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_elo_values);
 
         //Inject with Dagger Activity Component to get access to presenter
-        MainActivity.getActivityComponent().inject(this);
+        HomeScreen.getActivityComponent().inject(this);
 
         // Find recyclerView for list of team names and elos and set linearLayoutManager and recyclerAdapter on recyclerView
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view_elo);

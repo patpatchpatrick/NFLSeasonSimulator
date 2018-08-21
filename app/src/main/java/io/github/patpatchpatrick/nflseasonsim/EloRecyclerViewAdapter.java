@@ -62,7 +62,7 @@ public class EloRecyclerViewAdapter extends RecyclerView.Adapter<EloRecyclerView
     public EloRecyclerViewAdapter() {
 
         //Inject with Dagger Activity Component to get access to model data
-        MainActivity.getActivityComponent().inject(this);
+        HomeScreen.getActivityComponent().inject(this);
 
         mTeamArrayList = mModel.getTeamArrayList();
 

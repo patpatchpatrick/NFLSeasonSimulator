@@ -5,6 +5,7 @@ import javax.inject.Singleton;
 import dagger.Component;
 import io.github.patpatchpatrick.nflseasonsim.EloRecyclerViewAdapter;
 import io.github.patpatchpatrick.nflseasonsim.EloValuesActivity;
+import io.github.patpatchpatrick.nflseasonsim.HomeScreen;
 import io.github.patpatchpatrick.nflseasonsim.MainActivity;
 import io.github.patpatchpatrick.nflseasonsim.ScoresRecyclerViewAdapter;
 import io.github.patpatchpatrick.nflseasonsim.StandingsRecyclerViewAdapter;
@@ -18,6 +19,7 @@ public interface ActivityComponent {
     //Dagger ActivityComponent (used for MainActivity objects)
     //The inject methods below indicate which objects we will inject the module data into
 
+    void inject(HomeScreen homeScreen);
     void inject(EloValuesActivity eloValuesActivity);
     void inject(MainActivity mainActivity);
     void inject(SimulatorPresenter simulatorPresenter);

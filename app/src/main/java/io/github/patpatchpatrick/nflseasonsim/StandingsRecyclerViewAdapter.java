@@ -31,7 +31,7 @@ public class StandingsRecyclerViewAdapter extends RecyclerView.Adapter<Standings
     public StandingsRecyclerViewAdapter() {
 
         //Inject with Dagger Activity Component to get access to model data
-        MainActivity.getActivityComponent().inject(this);
+        HomeScreen.getActivityComponent().inject(this);
 
     }
 
@@ -121,6 +121,8 @@ public class StandingsRecyclerViewAdapter extends RecyclerView.Adapter<Standings
                 } else {
                     holder.standingsHeader.setVisibility(View.GONE);
                 }
+            } else {
+                holder.standingsHeader.setVisibility(View.GONE);
             }
 
             //Show the team details (name and playoff seed)

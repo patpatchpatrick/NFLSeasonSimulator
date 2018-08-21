@@ -16,19 +16,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 import javax.inject.Inject;
 
 import io.github.patpatchpatrick.nflseasonsim.dagger.ActivityComponent;
-import io.github.patpatchpatrick.nflseasonsim.dagger.ActivityModule;
 import io.github.patpatchpatrick.nflseasonsim.dagger.DaggerActivityComponent;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.MatchEntry;
 import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.SimulatorMvpContract;
 import io.github.patpatchpatrick.nflseasonsim.presenter.SimulatorPresenter;
 
-public class MainActivity extends AppCompatActivity implements SimulatorMvpContract.SimulatorView, SharedPreferences.OnSharedPreferenceChangeListener {
+public class MainActivity extends AppCompatActivity implements SimulatorMvpContract.SimulatorView {
 
     @Inject
     SimulatorPresenter mPresenter;
@@ -39,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     @Inject
     SharedPreferences mSharedPreferences;
 
+
     Button mSimulateSeason;
     Button mSimulateWeek;
     Button mStartPlayoffs;
@@ -46,9 +44,9 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     TextView mWeekNumberHeader;
     TextView mSimulationStatus;
     RecyclerView mScoresRecyclerView;
-    ScoresRecyclerViewAdapter mScoresRecyclerAdapter;
     RecyclerView mStandingsRecyclerView;
-    StandingsRecyclerViewAdapter mStandingsRecyclerAdapter;
+    StandingsRecyclerViewAdapter mStandingsRecyclerViewAdapter;
+    ScoresRecyclerViewAdapter mScoresRecyclerViewAdapter;
     private static ActivityComponent mActivityComponent;
 
     public final static int STANDINGS_TYPE_REGULAR_SEASON = 1;
@@ -62,10 +60,11 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
         // Build out dagger activity component
         // Inject the mainActivity, presenter and model
-        mActivityComponent = DaggerActivityComponent.builder().activityModule(new ActivityModule(this)).build();
+        mActivityComponent = HomeScreen.getActivityComponent();
         mActivityComponent.inject(this);
-        mActivityComponent.inject(mPresenter);
-        mActivityComponent.inject(mModel);
+
+        //Set the view on the presenter
+        mPresenter.setView(this);
 
         mWeekNumberHeader = (TextView) findViewById(R.id.week_number_header);
         mSimulationStatus = (TextView) findViewById(R.id.simulation_status_textview);
@@ -80,26 +79,30 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mScoresRecyclerView = (RecyclerView) findViewById(R.id.scores_recycler_view);
         mScoresRecyclerView.setHasFixedSize(true);
         mScoresRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-        mScoresRecyclerAdapter = new ScoresRecyclerViewAdapter();
-        mScoresRecyclerView.setAdapter(mScoresRecyclerAdapter);
+        mScoresRecyclerViewAdapter = new ScoresRecyclerViewAdapter();
+        mScoresRecyclerView.setAdapter(mScoresRecyclerViewAdapter);
 
         // Set up the standings recyclerview
         mStandingsRecyclerView = (RecyclerView) findViewById(R.id.standings_recycler_view);
         mStandingsRecyclerView.setHasFixedSize(true);
         mStandingsRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-        mStandingsRecyclerAdapter = new StandingsRecyclerViewAdapter();
-        mStandingsRecyclerView.setAdapter(mStandingsRecyclerAdapter);
+        mStandingsRecyclerViewAdapter = new StandingsRecyclerViewAdapter();
+        mStandingsRecyclerView.setAdapter(mStandingsRecyclerViewAdapter);
 
 
-        //Initialize the season if not yet initialized
-        //If already initialized, load season from the database
-        if (!SimulatorPresenter.seasonIsInitialized()) {
-            setViewsNotReadyToSimulate();
-            mPresenter.initializeSeason();
-        } else {
-            setViewsNotReadyToSimulate();
-            mPresenter.loadSeasonFromDatabase();
+        //Load the season from the database
+        if (mPresenter.getCurrentWeek() >= 1 && !mPresenter.getPlayoffsStarted()) {
+            //If the current week is greater than one and playoffs haven't started, the season has been partially
+            //simulated, so load the already simulated data
+            mPresenter.loadAlreadySimulatedData();
+        } else if (mPresenter.getPlayoffsStarted() && !playoffsComplete()){
+            mPresenter.loadAlreadySimulatedPlayoffData();
         }
+
+        else {
+            setUpViews();
+        }
+
 
         mSimulateSeason.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -153,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     private void initializeTheme() {
         //Set the initial theme of the app based on shared prefs theme
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        int appTheme = sharedPreferences.getInt(getString(R.string.settings_theme_key), getResources().getInteger(R.integer.settings_value_theme_default));
+        String appTheme = sharedPreferences.getString(getString(R.string.settings_theme_key), getResources().getString(R.string.settings_theme_value_default));
         setTheme(getTheme(appTheme));
 
     }
@@ -170,8 +173,8 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         setCurrentWeekPreference(0);
         setScoreStringPreference("");
         mWeekNumberHeader.setText("");
-        mScoresRecyclerAdapter.swapCursor(null);
-        mStandingsRecyclerAdapter.swapCursor(MainActivity.STANDINGS_TYPE_REGULAR_SEASON, null);
+        mScoresRecyclerViewAdapter.swapCursor(null);
+        mStandingsRecyclerViewAdapter.swapCursor(MainActivity.STANDINGS_TYPE_REGULAR_SEASON, null);
         mPresenter.resetSeason();
 
 
@@ -214,58 +217,11 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     private void setUpSharedPreferences() {
 
         //Get default shared pref values and set other variables accordingly
-
-        mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
-        Boolean seasonInitialized = false;
-        seasonInitialized = mSharedPreferences.getBoolean(getString(R.string.settings_season_initialized_key), getResources().getBoolean(R.bool.pref_season_initialized_default));
+        Boolean seasonInitialized = mSharedPreferences.getBoolean(getString(R.string.settings_season_initialized_key), getResources().getBoolean(R.bool.pref_season_initialized_default));
         mPresenter.setPlayoffsStarted(mSharedPreferences.getBoolean(getString(R.string.settings_playoffs_started_key), getResources().getBoolean(R.bool.pref_playoffs_started_default)));
         SimulatorPresenter.setSeasonInitialized(seasonInitialized);
-        int currentWeek = 1;
-        currentWeek = mSharedPreferences.getInt(getString(R.string.settings_week_num_key), 1);
+        int currentWeek = mSharedPreferences.getInt(getString(R.string.settings_week_num_key), 1);
         SimulatorPresenter.setCurrentWeek(currentWeek);
-    }
-
-    @Override
-    public void onSeasonInitialized() {
-
-        //After season is initialized, enable simulate buttons and let user know they can now simulate
-        //Set season initialized boolean preference to true
-        //Run this code on the UI thread, since original call to update the button/textview is made on a separate thread
-
-        runOnUiThread(new Runnable() {
-
-            @Override
-            public void run() {
-
-                setViewsReadyToSimulate();
-                setSeasonInitializedPreference(true);
-
-                //Check if user is using future elo values instead of default, if so, set teams to have future elo values
-                Integer eloType = mSharedPreferences.getInt(getString(R.string.settings_elo_type_key), getResources().getInteger(R.integer.settings_elo_type_default));
-                if (eloType == getResources().getInteger(R.integer.settings_elo_type_future)) {
-                    mPresenter.resetTeamFutureElos();
-                }
-                if (eloType == getResources().getInteger(R.integer.settings_elo_type_user)) {
-                    mPresenter.resetTeamUserElos();
-                }
-            }
-        });
-    }
-
-    @Override
-    public void onSeasonLoadedFromDb() {
-
-        //After the season is loaded from the database
-        //If the current week is greater than one and playoffs haven't started, the season has been partially
-        //simulated, so load the already simulated data
-
-        //Otherwise, if the playoffs hasn't started, set the views as ready to simulate
-
-        if (SimulatorPresenter.getCurrentWeek() >= 1 && !mPresenter.getPlayoffsStarted()) {
-            mPresenter.loadAlreadySimulatedData();
-        } else if (!mPresenter.getPlayoffsStarted()) {
-            setViewsReadyToSimulate();
-        }
     }
 
     @Override
@@ -289,78 +245,31 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     public void onDisplayStandings(int standingsType, Cursor cursor) {
         //Callback received from presenter to display standings after they are loaded
 
-        //Set simulate buttons to active
-        setViewsReadyToSimulate();
+        //Swap standings cursor into standings recyclerView to display standings
+        mStandingsRecyclerViewAdapter.swapCursor(standingsType, cursor);
 
-        mStandingsRecyclerAdapter.swapCursor(standingsType, cursor);
-
-        //Set current week preference value since the week is now complete.  This display standings call
-        //is received after the week  is simulated and the week number was incremented during simulation.
-        setWeekNumberPreference(SimulatorPresenter.getCurrentWeek());
-
-
-        if (regularSeasonIsComplete()) {
-            //If the regular season is complete, set up the views for playoffs depending on if playoffs
-            //have started or playoffs have completed
-            if (!mPresenter.getPlayoffsStarted()) {
-                setViewsNotReadyToSimulate();
-            }
-            if (mPresenter.getPlayoffsStarted()) {
-                if (playoffsComplete()) {
-                    setViewsPlayoffsComplete();
-                } else {
-                    setViewsPlayoffs();
-                }
-            }
-        }
+        //Set up the views now that the week was simulated
+        setUpViews();
 
     }
 
     @Override
     public void onDisplayScores(int weekNumber, Cursor cursor, String scoresWeekNumberHeader, boolean matchesPlayed) {
+        Log.d("SCORES", "onDisplayScores");
+
         //Callback received from presenter to display scores after they are loaded
-        //Also receive the weekNumber that was simulated so we can store it in sharedPrefs
-        //When app is reloaded, we can automatically show scores/weeks that have already been simulated
-
-        //Set simulate buttons to active
-        setViewsReadyToSimulate();
-
-        //Swap matches/scores cursor into the recyclerview adapter
-        //Set the week number header text
-        mScoresRecyclerAdapter.swapCursor(cursor);
+        //Swap in the scores cursor to display scores
+        //Set week number header
+        //Set up views now that week was simulated
+        mScoresRecyclerViewAdapter.swapCursor(cursor);
         mWeekNumberHeader.setText(scoresWeekNumberHeader);
-
-
-        //Set views depending on which week it is and playoff status
-        if (weekNumber >= MatchEntry.MATCH_WEEK_WILDCARD) {
-            setViewsPlayoffs();
-        } else {
-            if (regularSeasonIsComplete()) {
-                setViewsNotReadyToSimulate();
-            }
-        }
-        if (playoffsComplete()) {
-            //If playoffs are complete, set playoff complete views (ready views to restart simulation)
-            setViewsPlayoffsComplete();
-        }
-
-        setWeekNumberPreference(SimulatorPresenter.getCurrentWeek());
+        setUpViews();
 
     }
-
-    private void setWeekNumberPreference(int weekNumber) {
-        //Set season weekNumber preference to the current week
-        //The current week is one more than the week that was simulated
-        SharedPreferences.Editor prefs = mSharedPreferences.edit();
-        prefs.putInt(getString(R.string.settings_week_num_key), weekNumber);
-        prefs.commit();
-    }
-
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mPresenter.destroyPresenter();
     }
 
     private void setViewsReadyToSimulate() {
@@ -450,47 +359,29 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
             case R.id.primary_settings:
                 Intent startEloValuesActivity = new Intent(MainActivity.this, EloValuesActivity.class);
                 //Add the theme to the intent so that the eloValues activity has correct theme
-                startEloValuesActivity.putExtra("theme", getTheme(mSharedPreferences.getInt(getString(R.string.settings_theme_key), getResources().getInteger(R.integer.settings_value_theme_default))));
+                startEloValuesActivity.putExtra("theme", getTheme(mSharedPreferences.getString(getString(R.string.settings_theme_key), getString(R.string.settings_theme_value_default))));
                 startActivity(startEloValuesActivity);
                 return true;
             case R.id.reset_menu_button:
                 resetSeason();
-                return true;
-            case R.id.theme_picker_default:
-                //If a theme is selected below,  set the app theme and app theme sharedPref value
-                setAppTheme(getResources().getInteger(R.integer.settings_value_theme_default));
-                return true;
-            case R.id.theme_picker_blue:
-                setAppTheme(getResources().getInteger(R.integer.settings_value_theme_blue));
-                return true;
-            case R.id.theme_picker_grey:
-                setAppTheme(getResources().getInteger(R.integer.settings_value_theme_grey));
-                return true;
-            case R.id.theme_picker_purple:
-                setAppTheme(getResources().getInteger(R.integer.settings_value_theme_purple));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    private void setAppTheme(int themeResId) {
-        setTheme(getTheme(themeResId));
-        SharedPreferences.Editor prefs = mSharedPreferences.edit();
-        prefs.putInt(getString(R.string.settings_theme_key), themeResId);
-        prefs.commit();
-    }
-
-    private int getTheme(int themeId) {
-        //Return the actual theme style that corresponds with the theme sharedPrefs integer
-        if (themeId == getResources().getInteger(R.integer.settings_value_theme_blue)) {
-            return R.style.AppTheme;
-        } else if (themeId == getResources().getInteger(R.integer.settings_value_theme_grey)) {
+    private int getTheme(String themeValue) {
+        //Return the actual theme style that corresponds with the theme sharedPrefs String value
+        if (themeValue == getString(R.string.settings_theme_value_default)) {
+            return R.style.DarkAppTheme;
+        } else if (themeValue == getString(R.string.settings_theme_value_grey)) {
             return R.style.GreyAppTheme;
 
-        } else if (themeId == getResources().getInteger(R.integer.settings_value_theme_purple)) {
+        } else if (themeValue == getString(R.string.settings_theme_value_purple)) {
             return R.style.PurpleAppTheme;
 
+        } else if (themeValue == getString(R.string.settings_theme_value_blue)) {
+            return R.style.AppTheme;
         } else {
             return R.style.DarkAppTheme;
         }
@@ -506,10 +397,37 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     }
 
     @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(getString(R.string.settings_theme_key))) {
-            //If the app theme is changed, the app must be recreated for new theme to be applied
-            MainActivity.this.recreate();
-        }
+    public void onSeasonInitialized() {
     }
+
+    @Override
+    public void onSeasonLoadedFromDb() {
+    }
+
+    private void setUpViews() {
+
+
+        if (regularSeasonIsComplete()) {
+            //If the regular season is complete, set up the views for playoffs depending on if playoffs
+            //have started or playoffs have completed
+            if (!mPresenter.getPlayoffsStarted()) {
+                setViewsNotReadyToSimulate();
+                Log.d("SETVIEW", "NOTREADYSIM");
+            }
+            if (mPresenter.getPlayoffsStarted()) {
+                if (playoffsComplete()) {
+                    setViewsPlayoffsComplete();
+                    Log.d("SETVIEW", "PLAYOFFSCOMPLETE");
+                } else {
+                    setViewsPlayoffs();
+                    Log.d("SETVIEW", "PLAYOFFS");
+                }
+            }
+        } else {
+            setViewsReadyToSimulate();
+            Log.d("SETVIEW", "READYTOSIM");
+        }
+
+    }
+
 }

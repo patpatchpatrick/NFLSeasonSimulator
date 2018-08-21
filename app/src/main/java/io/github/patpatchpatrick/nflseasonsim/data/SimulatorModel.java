@@ -14,6 +14,7 @@ import java.util.concurrent.Executors;
 import javax.inject.Inject;
 
 import io.github.patpatchpatrick.nflseasonsim.R;
+import io.github.patpatchpatrick.nflseasonsim.mvp_utils.BaseView;
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.SimulatorMvpContract;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Match;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.NFLConstants;
@@ -573,6 +574,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
     @Override
     public void queryStandings(final int queryType) {
+        Log.d("MODEL", "STANDINGSQUERIED");
 
         //Query the standings from the database
 
@@ -637,6 +639,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
             @Override
             public void onNext(Cursor standingsCursor) {
+                Log.d("MODEL", "STANDQUERESPONSE");
                 mPresenter.teamsOrStandingsQueried(queryType, standingsCursor);
             }
 
@@ -656,6 +659,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
     @Override
     public void queryMatches(final int weekNumber, final boolean singleMatch, final boolean matchesPlayed) {
+        Log.d("MODEL", "MATCHESQUERIED");
 
         //Query the matches/schedule from the database
 
@@ -754,6 +758,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
             @Override
             public void onNext(Cursor matchesCursor) {
+                Log.d("MODEL", "MATCHESQUERESPONSE");
                 mPresenter.matchesQueried(weekNumber, matchesCursor, matchesPlayed);
             }
 

@@ -9,8 +9,12 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import io.github.patpatchpatrick.nflseasonsim.HomeScreen;
 import io.github.patpatchpatrick.nflseasonsim.MainActivity;
+import io.github.patpatchpatrick.nflseasonsim.ScoresRecyclerViewAdapter;
+import io.github.patpatchpatrick.nflseasonsim.StandingsRecyclerViewAdapter;
 import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
+import io.github.patpatchpatrick.nflseasonsim.mvp_utils.BaseView;
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.SimulatorMvpContract;
 import io.github.patpatchpatrick.nflseasonsim.presenter.SimulatorPresenter;
 
@@ -25,13 +29,15 @@ public class ActivityModule {
     private final ContentResolver contentResolver;
     private final SharedPreferences sharedPreferences;
     private final Context context;
+    private final BaseView baseView;
 
-    public ActivityModule(MainActivity mainActivity) {
-        this.presenter = new SimulatorPresenter(mainActivity);
+    public ActivityModule(HomeScreen homeScreen) {
+        this.presenter = new SimulatorPresenter();
         this.model = new SimulatorModel();
-        this.contentResolver = mainActivity.getContentResolver();
-        this.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mainActivity);
-        this.context = mainActivity;
+        this.contentResolver = homeScreen.getContentResolver();
+        this.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(homeScreen);
+        this.context = homeScreen;
+        this.baseView =  homeScreen;
     }
 
     @Provides
@@ -69,6 +75,14 @@ public class ActivityModule {
     SharedPreferences providesSharedPreferences() {
         return sharedPreferences;
     }
+
+    @Provides
+    @Singleton
+    BaseView providesBaseView() {
+        return baseView;
+    }
+
+
 
 
 

@@ -35,7 +35,7 @@ public class ScoresRecyclerViewAdapter extends RecyclerView.Adapter<ScoresRecycl
     public ScoresRecyclerViewAdapter() {
 
         //Inject with Dagger Activity Component to get access to model data
-        MainActivity.getActivityComponent().inject(this);
+        HomeScreen.getActivityComponent().inject(this);
 
     }
 

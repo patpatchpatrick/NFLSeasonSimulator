@@ -6,7 +6,6 @@
     <string name="ready_to_simulate">Ready to Simulate</string>
     <string name="regular_season_complete">Regular Season Complete</string>
 
-
     <!-- Shared Preferences  Keys, Labels and Values [CHAR LIMIT=TBD] -->
     <string name="settings_season_initialized_key">season initialized</string>
     <string name="settings_season_intialized_title">Season Initialized</string>
@@ -33,7 +32,17 @@
     <string name="settings_label_week_fifteen">Week Fifteen</string>
     <string name="settings_label_week_sixteen">Week Sixteen</string>
     <string name="settings_label_week_seventeen">Week Seventeen</string>
+    <string name="settings_theme_title">Select Theme</string>
     <string name="settings_theme_key">app theme</string>
+    <string name="settings_theme_value_default">default theme</string>
+    <string name="settings_theme_label_default">Default</string>
+    <string name="settings_theme_value_blue">blue theme</string>
+    <string name="settings_theme_label_blue">Blue</string>
+    <string name="settings_theme_value_grey">grey theme</string>
+    <string name="settings_theme_label_grey">Grey</string>
+    <string name="settings_theme_value_purple">purple theme</string>
+    <string name="settings_theme_label_purple">Purple</string>
+    <string name="settings_season_loaded_key">season loaded</string>
 
     <!-- Primary Menu Strings -->
     <string name="menu_elo_values">Team Elo Values</string>
@@ -52,6 +61,9 @@
     <string name="main_menu_sim_season">Simulate Season</string>
     <string name="main_menu_predict_matchup">Predict Matchup</string>
     <string name="main_menu_settings">Settings</string>
+
+    <!-- Settings Activity Strings -->
+    <string name="settings_activity_elo_values">Set Team Elo Values</string>
 
 
 </resources>

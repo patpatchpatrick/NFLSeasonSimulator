@@ -6,6 +6,7 @@ import android.util.Log;
 
 import javax.inject.Inject;
 
+import io.github.patpatchpatrick.nflseasonsim.HomeScreen;
 import io.github.patpatchpatrick.nflseasonsim.MainActivity;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.TeamEntry;
@@ -35,7 +36,7 @@ public class Match {
     public Match(Team team1, Team team2, int week, Data data) {
 
         //Inject match with dagger to get contentResolver
-        MainActivity.getActivityComponent().inject(this);
+        HomeScreen.getActivityComponent().inject(this);
 
         mData = data;
         mTeam1 = team1;
@@ -62,7 +63,7 @@ public class Match {
     public Match(Team team1, Team team2, int teamOneWon, int week, Data data, Uri uri) {
 
         //Inject match with dagger to get contentResolver
-        MainActivity.getActivityComponent().inject(this);
+        HomeScreen.getActivityComponent().inject(this);
 
         mData = data;
         mTeam1 = team1;

@@ -6,7 +6,9 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.View;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,6 +18,7 @@ import javax.inject.Inject;
 import io.github.patpatchpatrick.nflseasonsim.MainActivity;
 import io.github.patpatchpatrick.nflseasonsim.R;
 import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
+import io.github.patpatchpatrick.nflseasonsim.mvp_utils.BaseView;
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.SimulatorMvpContract;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.TeamEntry;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.MatchEntry;
@@ -35,13 +38,29 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     @Inject
     SimulatorModel mModel;
 
+    @Inject
+    SharedPreferences mSharedPreferences;
+
+    @Inject
+    Context mContext;
+
+    @Inject
+    BaseView mBaseView;
+
     private static int mCurrentWeek;
     private static Boolean mSeasonInitialized = false;
     private static Boolean mPlayoffsStarted = false;
 
     public SimulatorPresenter(SimulatorMvpContract.SimulatorView view) {
         super(view);
+    }
 
+    public SimulatorPresenter() {
+        super();
+    }
+
+    public void setView(SimulatorMvpContract.SimulatorView view) {
+        super.setView(view);
     }
 
     @Override
@@ -71,7 +90,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     @Override
     public void initializeSeason() {
         mCurrentWeek = 1;
-        this.view.setCurrentWeekPreference(mCurrentWeek);
+        setCurrentWeekPreference(mCurrentWeek);
         createTeams();
         //Insert teams into database.  After teams are inserted, the teamsInserted() callback is
         //received from the model
@@ -91,10 +110,13 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
     @Override
     public void loadSeasonFromDatabase() {
-        //Load season from database
-        //The rest of season is loaded in the standingsQueried method received once the data is loaded
+        //Load season from database (create teams and schedule)
         mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_LOAD_SEASON);
-        this.view.onSeasonLoadedFromDb();
+        //Season has been loaded, so set preference to true
+        setSeasonLoadedPreference(true);
+        //Notify baseview that season has been loaded
+        mBaseView.onSeasonLoadedFromDb();
+
     }
 
     @Override
@@ -103,7 +125,12 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_REGULAR);
         //Query all weeks that have already occurred;
         mModel.queryMatches(mCurrentWeek - 1, false, true);
-        this.view.onPriorSimulatedDataLoaded();
+    }
+
+    @Override
+    public void loadAlreadySimulatedPlayoffData() {
+        //Query playoff data
+        mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_LOAD_POSTSEASON);
     }
 
     @Override
@@ -114,6 +141,9 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         //from the model
         createSchedule();
         mModel.insertMatches(SimulatorModel.INSERT_MATCHES_SCHEDULE);
+        //Set the teams elo types based on user selected preference
+        setEloType();
+
     }
 
     @Override
@@ -124,8 +154,9 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
         if (insertType == SimulatorModel.INSERT_MATCHES_SCHEDULE) {
             //Notify main activity view that season is initialized
-            mSeasonInitialized = true;
-            this.view.onSeasonInitialized();
+            setSeasonInitializedPreference(true);
+            setSeasonLoadedPreference(true);
+            mBaseView.onSeasonInitialized();
         }
 
         if (insertType == SimulatorModel.INSERT_MATCHES_PLAYOFFS_WILDCARD) {
@@ -145,6 +176,8 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
     @Override
     public void matchesQueried(int queryType, Cursor matchesCursor, boolean matchesPlayed) {
+
+        Log.d("Matches", "QUERIED");
 
         //If you are not querying all matches, put the match score data in a string and display it in the main activity
         //If all matches are being queried, the ELSE statement below will be hit and the entire schedule will loaded and created
@@ -175,6 +208,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
             matchesCursor.moveToPosition(0);
 
+            Log.d("Scores", "displayScoresCalled");
             this.view.onDisplayScores(queryType, matchesCursor, scoreWeekNumberHeader, matchesPlayed);
 
 
@@ -340,6 +374,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     @Override
     public void teamsOrStandingsQueried(int queryType, Cursor standingsCursor) {
 
+        Log.d("Standings", "QUERIED");
         //This callback will be received from the model whenever teams/standings are queried
         //Depending on the queryType, a specific action is performed
 
@@ -355,6 +390,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         if (queryType == SimulatorModel.QUERY_STANDINGS_PLAYOFF) {
             //A playoff standings was queried
             //Display playoff standings in UI
+            Log.d("Standings", "displayStandingsCalled");
             displayStandings(standingsCursor);
         }
         if (queryType == SimulatorModel.QUERY_STANDINGS_LOAD_SEASON) {
@@ -919,64 +955,13 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     }
 
     private void displayStandings(Cursor standingsCursor) {
-
-
-        //Display the team standings
-        //For every 4 teams, print the division name
-        //Print  teamName, wins, losses and playoff seeding if the team is playoff eligible
-
-        String standings = "";
-        int i = 4;
-        standingsCursor.moveToPosition(-1);
-        while (standingsCursor.moveToNext()) {
-            //For every 4 teams, print the division name of the team
-            if (i % 4 == 0) {
-                int teamDivison = standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DIVISION));
-                standings += "\n** " + TeamEntry.getDivisionString(teamDivison) + " **\n\n";
-            }
-            standings += standingsCursor.getString(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_NAME)) + "\n";
-            standings += standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_WINS)) + " - "
-                    + standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_LOSSES)) + " "
-                    + "Playoff: " + standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE)) + "\n";
-            i++;
-        }
+        Log.d("DISPLAY", "STANDINGS");
         this.view.onDisplayStandings(MainActivity.STANDINGS_TYPE_REGULAR_SEASON, standingsCursor);
     }
 
     private void displayPlayoffStandings(Cursor standingsCursor) {
 
-        int remainingPlayoffTeams = standingsCursor.getCount();
-
         //Display the AFC and NFC playoff teams with their playoff seeds
-
-        String standings = "";
-        int i = 1;
-        standingsCursor.moveToPosition(-1);
-        while (standingsCursor.moveToNext()) {
-            if (remainingPlayoffTeams == 12) {
-                if (i == 1) {
-                    standings += "\n** AFC Playoff Standings **\n\n";
-                } else if (i == 7) {
-                    standings += "\n** NFC Playoff Standings **\n\n";
-                }
-            } else if (remainingPlayoffTeams == 8) {
-                if (i == 1) {
-                    standings += "\n** AFC Playoff Standings **\n\n";
-                } else if (i == 5) {
-                    standings += "\n** NFC Playoff Standings **\n\n";
-                }
-            } else if (remainingPlayoffTeams == 4) {
-                if (i == 1) {
-                    standings += "\n** AFC Playoff Standings **\n\n";
-                } else if (i == 3) {
-                    standings += "\n** NFC Playoff Standings **\n\n";
-                }
-            }
-            standings += standingsCursor.getString(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_NAME)) + "\n";
-            standings += "Seed: " + standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE)) + "\n";
-            i++;
-        }
-
         this.view.onDisplayStandings(MainActivity.STANDINGS_TYPE_PLAYOFFS, standingsCursor);
 
     }
@@ -1131,6 +1116,38 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     @Override
     public void setPlayoffsStarted(boolean playoffsStarted) {
         mPlayoffsStarted = playoffsStarted;
+    }
+
+    public void setCurrentWeekPreference(int currentWeek) {
+        //Set current week preference when week is updated
+        SharedPreferences.Editor prefs = mSharedPreferences.edit();
+        prefs.putInt(mContext.getString(R.string.settings_week_num_key), currentWeek).apply();
+        prefs.commit();
+    }
+
+    private void setSeasonInitializedPreference(boolean seasonInitialized) {
+        //Set season initialized boolean preference
+        SimulatorPresenter.setSeasonInitialized(seasonInitialized);
+        SharedPreferences.Editor prefs = mSharedPreferences.edit();
+        prefs.putBoolean(mContext.getString(R.string.settings_season_initialized_key), seasonInitialized);
+        prefs.commit();
+    }
+
+    private void setSeasonLoadedPreference(Boolean seasonLoaded){
+        //Set the season loaded preference boolean
+        SharedPreferences.Editor prefs = mSharedPreferences.edit();
+        prefs.putBoolean(mContext.getString(R.string.settings_season_loaded_key), seasonLoaded).apply();
+        prefs.commit();
+    }
+
+    private void setEloType() {
+        Integer eloType = mSharedPreferences.getInt(mContext.getString(R.string.settings_elo_type_key), mContext.getResources().getInteger(R.integer.settings_elo_type_default));
+        if (eloType == mContext.getResources().getInteger(R.integer.settings_elo_type_future)) {
+            resetTeamFutureElos();
+        }
+        if (eloType == mContext.getResources().getInteger(R.integer.settings_elo_type_user)) {
+            resetTeamUserElos();
+        }
     }
 
 

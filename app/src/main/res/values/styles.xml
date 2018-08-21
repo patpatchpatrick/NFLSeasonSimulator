@@ -19,6 +19,7 @@
         <item name="normalHeaderTextView">@style/NormalHeaderTextView</item>
         <item name="normalLineDivider">@style/NormalLineDivider</item>
         <item name="vectorPrimaryColor">@color/colorPrimary</item>
+        <item name="preferenceTheme">@style/DefaultPreferenceTheme</item>
 
     </style>
 
@@ -41,6 +42,7 @@
         <item name="normalHeaderTextView">@style/NormalHeaderTextViewDark</item>
         <item name="normalLineDivider">@style/NormalLineDividerDark</item>
         <item name="vectorPrimaryColor">@color/colorPrimaryDark</item>
+        <item name="preferenceTheme">@style/DefaultPreferenceThemeDark</item>
     </style>
 
     <!-- Base application theme grey. -->
@@ -62,6 +64,7 @@
         <item name="normalHeaderTextView">@style/NormalHeaderTextViewGrey</item>
         <item name="normalLineDivider">@style/NormalLineDividerGrey</item>
         <item name="vectorPrimaryColor">@color/colorPrimaryGrey</item>
+        <item name="preferenceTheme">@style/DefaultPreferenceThemeGrey</item>
     </style>
 
     <!-- Base application theme purple. -->
@@ -83,6 +86,7 @@
         <item name="normalHeaderTextView">@style/NormalHeaderTextViewPurple</item>
         <item name="normalLineDivider">@style/NormalLineDividerPurple</item>
         <item name="vectorPrimaryColor">@color/colorPrimaryPurple</item>
+        <item name="preferenceTheme">@style/DefaultPreferenceThemePurple</item>
     </style>
 
 
@@ -215,6 +219,35 @@
 
     <style name="NormalLineDividerPurple" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:background">@color/colorPrimaryDarkPurple</item>
+    </style>
+
+    <!-- Override and set preference themes depending on user selected Theme. -->
+    <style name="DefaultPreferenceTheme" parent ="AppTheme">
+        <item name="android:background">@color/colorPrimaryLight</item>
+        <item name="android:textColor">@color/colorPrimaryText</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColorSecondary">@color/colorSecondaryText</item>
+    </style>
+
+    <style name="DefaultPreferenceThemeDark" parent ="AppTheme">
+        <item name="android:background">@color/colorPrimaryLightBlack</item>
+        <item name="android:textColor">@color/colorPrimaryTextBlack</item>
+        <item name="colorAccent">@color/colorAccentBlack</item>
+        <item name="android:textColorSecondary">@color/colorSecondaryTextBlack</item>
+    </style>
+
+    <style name="DefaultPreferenceThemeGrey" parent ="AppTheme">
+        <item name="android:background">@color/colorPrimaryLightGrey</item>
+        <item name="android:textColor">@color/colorPrimaryTextGrey</item>
+        <item name="colorAccent">@color/colorAccentGrey</item>
+        <item name="android:textColorSecondary">@color/colorSecondaryText</item>
+    </style>
+
+    <style name="DefaultPreferenceThemePurple" parent ="AppTheme">
+        <item name="android:background">@color/colorPrimaryLightPurple</item>
+        <item name="android:textColor">@color/colorPrimaryTextPurple</item>
+        <item name="colorAccent">@color/colorAccentPurple</item>
+        <item name="android:textColorSecondary">@color/colorSecondaryTextPurple</item>
     </style>
 
 

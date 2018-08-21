@@ -40,12 +40,22 @@
         <item>@integer/settings_value_week_fifteen</item>
         <item>@integer/settings_value_week_sixteen</item>
         <item>@integer/settings_value_week_seventeen</item>
-        
-        
-        
-        
-        
-        
+
+    </array>
+
+    <!-- Theme selection settings arrays -->
+    <array name="settings_theme_labels">
+        <item>@string/settings_theme_label_default</item>
+        <item>@string/settings_theme_label_blue</item>
+        <item>@string/settings_theme_label_grey</item>
+        <item>@string/settings_theme_label_purple</item>
+    </array>
+
+    <array name="settings_theme_values">
+        <item>@string/settings_theme_value_default</item>
+        <item>@string/settings_theme_value_blue</item>
+        <item>@string/settings_theme_value_grey</item>
+        <item>@string/settings_theme_value_purple</item>
     </array>
 
 </resources>

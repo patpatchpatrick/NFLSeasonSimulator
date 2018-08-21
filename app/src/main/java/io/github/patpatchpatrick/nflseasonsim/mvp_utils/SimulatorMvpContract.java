@@ -16,12 +16,9 @@ public interface SimulatorMvpContract {
 
     //Contract for interaction between MainActivity view, Presenter and Model
 
-    interface SimulatorView {
-
+    interface SimulatorView extends BaseView{
         void onDisplayStandings(int standingsType, Cursor cursor);
         void onDisplayScores(int weekNumber, Cursor cursor, String scoresWeekNumberHeader, boolean matchesPlayed);
-        void onSeasonInitialized();
-        void onSeasonLoadedFromDb();
         void onPriorSimulatedDataLoaded();
         void onDataDeleted();
         void setCurrentWeekPreference(int currentWeek);
@@ -37,6 +34,7 @@ public interface SimulatorMvpContract {
         void setPlayoffsStarted(boolean playoffsStarted);
         void loadSeasonFromDatabase();
         void loadAlreadySimulatedData();
+        void loadAlreadySimulatedPlayoffData();
         void teamsInserted();
         void matchesInserted(int insertType);
         void matchesQueried(int queryType, Cursor matchesCursor,  boolean matchesPlayed);
@@ -72,8 +70,8 @@ public interface SimulatorMvpContract {
         void queryMatches(int weekNumber, boolean singleMatch, boolean matchesPlayed);
         void deleteAllData();
         void destroyModel();
-
     }
+
 
 
 

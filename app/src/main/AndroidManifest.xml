@@ -9,21 +9,29 @@
         android:roundIcon="@drawable/icon_logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
-        </activity>
+        <activity android:name=".MainActivity"></activity>
 
         <provider
             android:name=".data.SeasonSimProvider"
             android:authorities="io.github.patpatchpatrick.nflseasonsim"
             android:exported="false" />
 
-        <activity android:name=".EloValuesActivity" />
+        <activity android:name=".EloValuesActivity">
+            <intent-filter>
+                <action android:name="eloValues.intent.action" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".HomeScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".SettingsActivity" android:parentActivityName=".HomeScreen"></activity>
     </application>
 
 </manifest>
