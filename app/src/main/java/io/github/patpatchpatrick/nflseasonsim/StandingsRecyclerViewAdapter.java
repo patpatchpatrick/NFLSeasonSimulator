@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.support.annotation.NonNull;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.Layout;
 import android.util.Log;
@@ -23,6 +24,9 @@ public class StandingsRecyclerViewAdapter extends RecyclerView.Adapter<Standings
 
     @Inject
     SimulatorModel mModel;
+
+    @Inject
+    Context mContext;
 
 
     Cursor dataCursor;
@@ -79,6 +83,8 @@ public class StandingsRecyclerViewAdapter extends RecyclerView.Adapter<Standings
             }
 
             holder.standingsDetails.setText(standingsDetails);
+            //Set font by default (currently font won't auto-set in layout so need to programmatically set it)
+            holder.standingsDetails.setTypeface(ResourcesCompat.getFont(mContext, R.font.montserrat));
 
             holder.standingsTeamLogo.setImageResource(mModel.getLogo(teamName));
 

@@ -16,6 +16,7 @@
     <TextView
         android:layout_width="wrap_content"
         style="?normalTextView"
+        android:fontFamily="@font/montserrat"
         android:id="@+id/score_recycler_team_one_name"
         android:layout_height="15dp"
         android:layout_marginLeft="8dp"
@@ -28,6 +29,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/montserrat"
         android:id="@+id/score_recycler_team_one_score"
         style="?normalScoreTextView"
         tools:text="42"
@@ -46,6 +48,7 @@
     <TextView
         android:layout_width="wrap_content"
         style="?normalTextView"
+        android:fontFamily="@font/montserrat"
         android:id="@+id/score_recycler_team_two_name"
         android:layout_height="15dp"
         android:layout_marginLeft="8dp"
@@ -59,6 +62,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/score_recycler_team_two_score"
+        android:fontFamily="@font/montserrat"
         style="?normalScoreTextView"
         tools:text="42"
         android:layout_marginLeft="8dp"

@@ -2,6 +2,8 @@ package io.github.patpatchpatrick.nflseasonsim;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Animatable;
+import android.graphics.drawable.Drawable;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -9,6 +11,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import javax.inject.Inject;
@@ -31,6 +34,8 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
 
     Button mSimulateActivityButton;
     Button mSettingsButton;
+    ImageView mAnimatedFootball;
+    Animatable mAnimatedFootballAnimatable;
     static ActivityComponent mActivityComponent;
     SharedPreferences mSharedPrefs;
 
@@ -39,6 +44,8 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
         initializeTheme();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_screen);
+        getWindow().setBackgroundDrawable(null);
+        getSupportActionBar().hide();
 
         //Initialize Dagger and inject the home activity,  presenter and model
         mActivityComponent = DaggerActivityComponent.builder().activityModule(new ActivityModule(this)).build();
@@ -51,6 +58,12 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
         mSimulateActivityButton = (Button) findViewById(R.id.main_menu_sim_season_button);
         mSettingsButton = (Button) findViewById(R.id.main_menu_settings_button);
 
+        mAnimatedFootball = (ImageView) findViewById(R.id.football_animation);
+        mAnimatedFootballAnimatable = (Animatable) mAnimatedFootball.getDrawable();
+        if (mAnimatedFootballAnimatable.isRunning()){
+            mAnimatedFootballAnimatable.stop();
+        }
+
         mSimulateActivityButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -60,9 +73,14 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
                     //If the season is not initialized, initialize it and start simulate activity after
                     //initialization is complete
                     mPresenter.initializeSeason();
+                    //Start loading animation
+                    mAnimatedFootballAnimatable.start();
+
                 } else if (!getSeasonLoadedPref()) {
                     //If the season is not loaded, load the season from the database
                     mPresenter.loadSeasonFromDatabase(SimulatorModel.LOAD_SEASON_FROM_HOME);
+                    //Start loading animation
+                    mAnimatedFootballAnimatable.start();
                 } else {
                     //If season is loaded/initialized, start simulator activity
                     Intent startSimulateActivity = new Intent(HomeScreen.this, MainActivity.class);
@@ -144,6 +162,8 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                //Stop loading animation
+                mAnimatedFootballAnimatable.stop();
                 Intent startSimulateActivity = new Intent(HomeScreen.this, MainActivity.class);
                 startActivity(startSimulateActivity);
             }
@@ -153,6 +173,8 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
     @Override
     public void onSeasonLoadedFromDb(int requestType) {
         if (requestType == SimulatorModel.LOAD_SEASON_FROM_HOME) {
+            //Stop loading animation
+            mAnimatedFootballAnimatable.stop();
             //If season was loaded from home activity, open simulation activity after season is finished loading
             Intent startSimulateActivity = new Intent(HomeScreen.this, MainActivity.class);
             startActivity(startSimulateActivity);
@@ -171,5 +193,12 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
         prefs.commit();
     }
 
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //If animation is still running, stop it
+        if (mAnimatedFootballAnimatable.isRunning()){
+            mAnimatedFootballAnimatable.stop();
+        }
+    }
 }

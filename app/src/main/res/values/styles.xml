@@ -97,6 +97,7 @@
         <item name="android:textColor">@color/colorWhite</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
 
@@ -105,6 +106,8 @@
         <item name="android:textColor">@color/colorTextAndIconsBlack</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDarkBlack</item>
         <item name="colorAccent">@color/colorAccentBlack</item>
+        <item name="android:fontFamily">@font/montserrat</item>
+
     </style>
 
     <style name="NormalButtonGrey" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -112,6 +115,7 @@
         <item name="android:textColor">@color/colorTextAndIcons</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDarkGrey</item>
         <item name="colorAccent">@color/colorAccentGrey</item>
+        <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="NormalButtonPurple" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -119,6 +123,7 @@
         <item name="android:textColor">@color/colorTextAndIcons</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDarkPurple</item>
         <item name="colorAccent">@color/colorAccentPurple</item>
+        <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <!-- Activity -->
@@ -126,83 +131,99 @@
     <style name="NormalActivity" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:background">@color/colorPrimaryLight</item>
         <item name="android:textColor">@color/colorPrimaryText</item>
+        <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="NormalActivityDark" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:background">@color/colorPrimaryLightBlack</item>
         <item name="android:textColor">@color/colorPrimaryTextBlack</item>
+        <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="NormalActivityGrey" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:background">@color/colorPrimaryLightGrey</item>
         <item name="android:textColor">@color/colorPrimaryTextGrey</item>
+        <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="NormalActivityPurple" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:background">@color/colorPrimaryLightPurple</item>
         <item name="android:textColor">@color/colorPrimaryTextPurple</item>
+        <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <!-- TextViews -->
 
     <style name="NormalTextView" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:textColor">@color/colorPrimaryText</item>
+        <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="NormalTextViewDark" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:textColor">@color/colorPrimaryTextBlack</item>
+        <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="NormalTextViewGrey" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:textColor">@color/colorPrimaryTextGrey</item>
+        <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="NormalTextViewPurple" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:textColor">@color/colorPrimaryTextPurple</item>
+        <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="NormalScoreTextView" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:textColor">@color/colorPrimaryText</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="NormalScoreTextViewDark" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:textColor">@color/colorPrimaryTextBlack</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="NormalScoreTextViewGrey" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:textColor">@color/colorPrimaryTextGrey</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="NormalScoreTextViewPurple" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:textColor">@color/colorPrimaryTextPurple</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="NormalHeaderTextView" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:textColor">@color/colorPrimaryText</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">18dp</item>
+        <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="NormalHeaderTextViewDark" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:textColor">@color/colorPrimaryTextBlack</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">18dp</item>
+        <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="NormalHeaderTextViewGrey" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:textColor">@color/colorPrimaryTextGrey</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">18dp</item>
+        <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="NormalHeaderTextViewPurple" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:textColor">@color/colorPrimaryTextPurple</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">18dp</item>
+        <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="NormalLineDivider" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -227,6 +248,7 @@
         <item name="android:textColor">@color/colorPrimaryText</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:textColorSecondary">@color/colorSecondaryText</item>
+        <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="DefaultPreferenceThemeDark" parent ="AppTheme">
@@ -234,6 +256,7 @@
         <item name="android:textColor">@color/colorPrimaryTextBlack</item>
         <item name="colorAccent">@color/colorAccentBlack</item>
         <item name="android:textColorSecondary">@color/colorSecondaryTextBlack</item>
+        <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="DefaultPreferenceThemeGrey" parent ="AppTheme">
@@ -241,6 +264,7 @@
         <item name="android:textColor">@color/colorPrimaryTextGrey</item>
         <item name="colorAccent">@color/colorAccentGrey</item>
         <item name="android:textColorSecondary">@color/colorSecondaryText</item>
+        <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="DefaultPreferenceThemePurple" parent ="AppTheme">
@@ -248,6 +272,7 @@
         <item name="android:textColor">@color/colorPrimaryTextPurple</item>
         <item name="colorAccent">@color/colorAccentPurple</item>
         <item name="android:textColorSecondary">@color/colorSecondaryTextPurple</item>
+        <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
 

@@ -57,6 +57,8 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         initializeTheme();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        getWindow().setBackgroundDrawable(null);
+        getSupportActionBar().hide();
 
         // Build out dagger activity component
         // Inject the mainActivity, presenter and model

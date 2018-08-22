@@ -6,6 +6,7 @@ import android.database.MergeCursor;
 import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -77,6 +78,8 @@ public class ScoresRecyclerViewAdapter extends RecyclerView.Adapter<ScoresRecycl
         String scoreTwoString = Integer.toString(scoreTwo);
 
         //Set up textviews and imageviews for score listview
+        Typeface tf = ResourcesCompat.getFont(mContext, R.font.montserrat);
+        Typeface tfBold = ResourcesCompat.getFont(mContext, R.font.montserrat_bold);
         holder.teamOneName.setText(teamOne);
         holder.teamOneScore.setText(scoreOneString);
         holder.teamTwoName.setText(teamTwo);
@@ -86,19 +89,19 @@ public class ScoresRecyclerViewAdapter extends RecyclerView.Adapter<ScoresRecycl
 
         //Bold the textviews for the the team that won the match
         if (teamOneWon) {
-            holder.teamOneName.setTypeface(Typeface.DEFAULT_BOLD);
-            holder.teamOneScore.setTypeface(Typeface.DEFAULT_BOLD);
-            holder.teamTwoName.setTypeface(Typeface.DEFAULT);
-            holder.teamTwoScore.setTypeface(Typeface.DEFAULT);
+            holder.teamOneName.setTypeface(tfBold);
+            holder.teamOneScore.setTypeface(tfBold);
+            holder.teamTwoName.setTypeface(tf);
+            holder.teamTwoScore.setTypeface(tf);
         } else {
-            holder.teamOneName.setTypeface(Typeface.DEFAULT);
-            holder.teamOneScore.setTypeface(Typeface.DEFAULT);
-            holder.teamTwoName.setTypeface(Typeface.DEFAULT_BOLD);
-            holder.teamTwoScore.setTypeface(Typeface.DEFAULT_BOLD);
+            holder.teamOneName.setTypeface(tf);
+            holder.teamOneScore.setTypeface(tf);
+            holder.teamTwoName.setTypeface(tfBold);
+            holder.teamTwoScore.setTypeface(tfBold);
             if (scoreOne == 0 && scoreTwo == 0) {
                 //If neither game has been played, make all textviews not bold
-                holder.teamTwoName.setTypeface(Typeface.DEFAULT);
-                holder.teamTwoScore.setTypeface(Typeface.DEFAULT);
+                holder.teamTwoName.setTypeface(tf);
+                holder.teamTwoScore.setTypeface(tf);
             }
         }
 
