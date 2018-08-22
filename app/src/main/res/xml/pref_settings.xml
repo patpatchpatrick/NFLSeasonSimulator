@@ -9,8 +9,8 @@
         android:title="@string/settings_theme_title">
     </ListPreference>
 
-    <Preference android:title="@string/settings_activity_elo_values" >
-        <intent android:action="eloValues.intent.action" />
+    <Preference android:title="@string/settings_activity_elo_values"
+        android:key="@string/settings_activity_elo_values">
     </Preference>
 
 

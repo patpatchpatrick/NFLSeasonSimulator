@@ -2,6 +2,7 @@ package io.github.patpatchpatrick.nflseasonsim;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -55,13 +56,13 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
             public void onClick(View view) {
                 Log.d("SeasonLoad", "" + getSeasonLoadedPref());
                 Log.d("SeasonInit", "" + getSeasonInitializedPref());
-                if (!getSeasonInitializedPref()){
+                if (!getSeasonInitializedPref()) {
                     //If the season is not initialized, initialize it and start simulate activity after
                     //initialization is complete
                     mPresenter.initializeSeason();
-                } else if (!getSeasonLoadedPref()){
+                } else if (!getSeasonLoadedPref()) {
                     //If the season is not loaded, load the season from the database
-                    mPresenter.loadSeasonFromDatabase();
+                    mPresenter.loadSeasonFromDatabase(SimulatorModel.LOAD_SEASON_FROM_HOME);
                 } else {
                     //If season is loaded/initialized, start simulator activity
                     Intent startSimulateActivity = new Intent(HomeScreen.this, MainActivity.class);
@@ -83,6 +84,7 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
         //Set the initial theme of the app based on shared prefs theme
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         String appTheme = mSharedPrefs.getString(getString(R.string.settings_theme_key), getString(R.string.settings_theme_value_default));
+        Log.d("theme", appTheme);
         setTheme(getTheme(appTheme));
         mSharedPrefs.registerOnSharedPreferenceChangeListener(this);
 
@@ -90,15 +92,15 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
 
     private int getTheme(String themeValue) {
         //Return the actual theme style that corresponds with the theme sharedPrefs String value
-        if (themeValue == getString(R.string.settings_theme_value_default)) {
+        if (themeValue.equals(getString(R.string.settings_theme_value_default))) {
             return R.style.DarkAppTheme;
-        } else if (themeValue == getString(R.string.settings_theme_value_grey)) {
+        } else if (themeValue.equals(getString(R.string.settings_theme_value_grey))) {
             return R.style.GreyAppTheme;
 
-        } else if (themeValue == getString(R.string.settings_theme_value_purple)) {
+        } else if (themeValue.equals(getString(R.string.settings_theme_value_purple))) {
             return R.style.PurpleAppTheme;
 
-        } else if (themeValue == getString(R.string.settings_theme_value_blue)) {
+        } else if (themeValue.equals(getString(R.string.settings_theme_value_blue))) {
             return R.style.AppTheme;
         } else {
             return R.style.DarkAppTheme;
@@ -149,23 +151,25 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
     }
 
     @Override
-    public void onSeasonLoadedFromDb() {
-        Intent startSimulateActivity = new Intent(HomeScreen.this, MainActivity.class);
-        startActivity(startSimulateActivity);
+    public void onSeasonLoadedFromDb(int requestType) {
+        if (requestType == SimulatorModel.LOAD_SEASON_FROM_HOME) {
+            //If season was loaded from home activity, open simulation activity after season is finished loading
+            Intent startSimulateActivity = new Intent(HomeScreen.this, MainActivity.class);
+            startActivity(startSimulateActivity);
+        }
     }
 
-    private Boolean getSeasonLoadedPref(){
+    private Boolean getSeasonLoadedPref() {
         //Return the season loaded preference boolean
         return mSharedPrefs.getBoolean(getString(R.string.settings_season_loaded_key), getResources().getBoolean(R.bool.settings_season_loaded_default));
     }
 
-    private void setSeasonLoadedPreference(Boolean seasonLoaded){
+    private void setSeasonLoadedPreference(Boolean seasonLoaded) {
         //Set the season loaded preference boolean
         SharedPreferences.Editor prefs = mSharedPrefs.edit();
         prefs.putBoolean(getString(R.string.settings_season_loaded_key), seasonLoaded).apply();
         prefs.commit();
     }
-
 
 
 }

@@ -59,6 +59,9 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     public static final int INSERT_MATCHES_PLAYOFFS_CHAMPIONSHIP = 3;
     public static final int INSERT_MATCHES_PLAYOFFS_SUPERBOWL = 4;
 
+    public static final int LOAD_SEASON_FROM_HOME = 0;
+    public static final int LOAD_SEASON_FROM_SETTINGS = 1;
+
     //Data for season resources
     public Schedule mSchedule;
     public HashMap<String, Team> mTeamList;

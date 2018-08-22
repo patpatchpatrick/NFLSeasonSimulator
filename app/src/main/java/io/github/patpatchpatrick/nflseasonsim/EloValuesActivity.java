@@ -2,6 +2,7 @@ package io.github.patpatchpatrick.nflseasonsim;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -31,9 +32,7 @@ public class EloValuesActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //Set up theme before creating activity
-        Intent intent = getIntent();
-        int themeResId = intent.getIntExtra("theme", 1);
-        setTheme(themeResId);
+        initializeTheme();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_elo_values);
 
@@ -80,6 +79,13 @@ public class EloValuesActivity extends AppCompatActivity {
 
     }
 
+    private void initializeTheme() {
+        //Set the initial theme of the app based on shared prefs theme
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String appTheme = sharedPreferences.getString(getString(R.string.settings_theme_key), getResources().getString(R.string.settings_theme_value_default));
+        setTheme(getTheme(appTheme));
+    }
+
     private void setUseFutureElosPref(){
         SharedPreferences.Editor prefs = mSharedPreferences.edit();
         prefs.putInt(getString(R.string.settings_elo_type_key), getResources().getInteger(R.integer.settings_elo_type_future));
@@ -96,6 +102,23 @@ public class EloValuesActivity extends AppCompatActivity {
         SharedPreferences.Editor prefs = mSharedPreferences.edit();
         prefs.putInt(getString(R.string.settings_elo_type_key), getResources().getInteger(R.integer.settings_elo_type_user));
         prefs.commit();
+    }
+
+    private int getTheme(String themeValue) {
+        //Return the actual theme style that corresponds with the theme sharedPrefs String value
+        if (themeValue.equals(getString(R.string.settings_theme_value_default))) {
+            return R.style.DarkAppTheme;
+        } else if (themeValue.equals(getString(R.string.settings_theme_value_grey))) {
+            return R.style.GreyAppTheme;
+
+        } else if (themeValue.equals(getString(R.string.settings_theme_value_purple))) {
+            return R.style.PurpleAppTheme;
+
+        } else if (themeValue.equals(getString(R.string.settings_theme_value_blue))) {
+            return R.style.AppTheme;
+        } else {
+            return R.style.DarkAppTheme;
+        }
     }
 
 

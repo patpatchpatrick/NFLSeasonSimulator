@@ -32,10 +32,11 @@ public interface SimulatorMvpContract {
         void initiatePlayoffs();
         boolean getPlayoffsStarted();
         void setPlayoffsStarted(boolean playoffsStarted);
-        void loadSeasonFromDatabase();
+        void loadSeasonFromDatabase(int requestType);
         void loadAlreadySimulatedData();
         void loadAlreadySimulatedPlayoffData();
         void teamsInserted();
+        void addBaseView(BaseView baseView);
         void matchesInserted(int insertType);
         void matchesQueried(int queryType, Cursor matchesCursor,  boolean matchesPlayed);
         void teamsOrStandingsQueried(int queryType, Cursor standingsCursor);

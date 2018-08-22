@@ -17,11 +17,6 @@
             android:exported="false" />
 
         <activity android:name=".EloValuesActivity">
-            <intent-filter>
-                <action android:name="eloValues.intent.action" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
         </activity>
 
         <activity android:name=".HomeScreen">

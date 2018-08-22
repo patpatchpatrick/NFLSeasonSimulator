@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import java.util.ArrayList;
+
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -30,6 +32,7 @@ public class ActivityModule {
     private final SharedPreferences sharedPreferences;
     private final Context context;
     private final BaseView baseView;
+    private final ArrayList<BaseView> baseViews;
 
     public ActivityModule(HomeScreen homeScreen) {
         this.presenter = new SimulatorPresenter();
@@ -38,6 +41,8 @@ public class ActivityModule {
         this.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(homeScreen);
         this.context = homeScreen;
         this.baseView =  homeScreen;
+        this.baseViews = new ArrayList<>();
+        this.baseViews.add(baseView);
     }
 
     @Provides
@@ -80,6 +85,12 @@ public class ActivityModule {
     @Singleton
     BaseView providesBaseView() {
         return baseView;
+    }
+
+    @Provides
+    @Singleton
+    ArrayList<BaseView> providesBaseViews() {
+        return baseViews;
     }
 
 

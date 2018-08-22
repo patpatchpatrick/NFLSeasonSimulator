@@ -1,11 +1,14 @@
 package io.github.patpatchpatrick.nflseasonsim;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 
-public class SettingsActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class SettingsActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener{
 
     private SharedPreferences mSharedPrefs;
 
@@ -16,6 +19,7 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
         setContentView(R.layout.activity_settings);
         getWindow().setBackgroundDrawable(null);
         getSupportActionBar().hide();
+
     }
 
     @Override
@@ -27,15 +31,15 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
 
     private int getTheme(String themeValue) {
         //Return the actual theme style that corresponds with the theme sharedPrefs String value
-        if (themeValue == getString(R.string.settings_theme_value_default)) {
+        if (themeValue.equals(getString(R.string.settings_theme_value_default))) {
             return R.style.DarkAppTheme;
-        } else if (themeValue == getString(R.string.settings_theme_value_grey)) {
+        } else if (themeValue.equals(getString(R.string.settings_theme_value_grey))) {
             return R.style.GreyAppTheme;
 
-        } else if (themeValue == getString(R.string.settings_theme_value_purple)) {
+        } else if (themeValue.equals(getString(R.string.settings_theme_value_purple))) {
             return R.style.PurpleAppTheme;
 
-        } else if (themeValue == getString(R.string.settings_theme_value_blue)) {
+        } else if (themeValue.equals(getString(R.string.settings_theme_value_blue))) {
             return R.style.AppTheme;
         } else {
             return R.style.DarkAppTheme;
@@ -54,4 +58,5 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
         super.onDestroy();
         mSharedPrefs.unregisterOnSharedPreferenceChangeListener(this);
     }
+
 }

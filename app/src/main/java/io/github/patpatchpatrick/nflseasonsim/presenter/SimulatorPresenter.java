@@ -47,6 +47,9 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     @Inject
     BaseView mBaseView;
 
+    @Inject
+    ArrayList<BaseView> mBaseViews;
+
     private static int mCurrentWeek;
     private static Boolean mSeasonInitialized = false;
     private static Boolean mPlayoffsStarted = false;
@@ -109,13 +112,17 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     }
 
     @Override
-    public void loadSeasonFromDatabase() {
+    public void loadSeasonFromDatabase(int requestType) {
         //Load season from database (create teams and schedule)
         mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_LOAD_SEASON);
         //Season has been loaded, so set preference to true
         setSeasonLoadedPreference(true);
-        //Notify baseview that season has been loaded
-        mBaseView.onSeasonLoadedFromDb();
+
+        //Notify all baseViews that the season was loaded
+        for (BaseView baseView : mBaseViews){
+            baseView.onSeasonLoadedFromDb(requestType);
+        }
+
 
     }
 
@@ -144,6 +151,12 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         //Set the teams elo types based on user selected preference
         setEloType();
 
+    }
+
+    @Override
+    public void addBaseView(BaseView baseView) {
+        //Add a new baseView to the list of baseViews to notify when items are changed
+        mBaseViews.add(baseView);
     }
 
     @Override
@@ -1133,7 +1146,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         prefs.commit();
     }
 
-    private void setSeasonLoadedPreference(Boolean seasonLoaded){
+    private void setSeasonLoadedPreference(Boolean seasonLoaded) {
         //Set the season loaded preference boolean
         SharedPreferences.Editor prefs = mSharedPreferences.edit();
         prefs.putBoolean(mContext.getString(R.string.settings_season_loaded_key), seasonLoaded).apply();
