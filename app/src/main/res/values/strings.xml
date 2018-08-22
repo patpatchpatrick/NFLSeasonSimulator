@@ -58,12 +58,16 @@
     <string name="use_offseason_prediction_elos">Predicted Future Elos</string>
 
     <!-- Main Menu Strings -->
-    <string name="main_menu_sim_season">Simulate Season</string>
-    <string name="main_menu_predict_matchup">Predict Matchup</string>
-    <string name="main_menu_settings">Settings</string>
+    <string name="main_menu_sim_season">SIMULATE SEASON</string>
+    <string name="main_menu_predict_matchup">PREDICT MATCHUP</string>
+    <string name="main_menu_settings">SETTINGS</string>
 
     <!-- Settings Activity Strings -->
     <string name="settings_activity_elo_values">Set Team Elo Values</string>
+
+    <!-- Matchup Predictor Activity Strings -->
+    <string name="match_predict_team_one">Select Team One</string>
+    <string name="match_predict_team_two">Select Team Two</string>
 
 
 </resources>

@@ -19,6 +19,8 @@
         <item name="normalHeaderTextView">@style/NormalHeaderTextView</item>
         <item name="normalLineDivider">@style/NormalLineDivider</item>
         <item name="vectorPrimaryColor">@color/colorPrimary</item>
+        <item name="vectorAccentColor">@color/colorAccent</item>
+        <item name="vectorLightColor">@color/colorPrimaryLight</item>
         <item name="preferenceTheme">@style/DefaultPreferenceTheme</item>
 
     </style>
@@ -41,7 +43,9 @@
         <item name="normalScoreTextView">@style/NormalScoreTextViewDark</item>
         <item name="normalHeaderTextView">@style/NormalHeaderTextViewDark</item>
         <item name="normalLineDivider">@style/NormalLineDividerDark</item>
-        <item name="vectorPrimaryColor">@color/colorPrimaryDark</item>
+        <item name="vectorPrimaryColor">@color/colorPrimaryBlack</item>
+        <item name="vectorAccentColor">@color/colorAccentBlack</item>
+        <item name="vectorLightColor">@color/colorPrimaryLightBlack</item>
         <item name="preferenceTheme">@style/DefaultPreferenceThemeDark</item>
     </style>
 
@@ -64,6 +68,8 @@
         <item name="normalHeaderTextView">@style/NormalHeaderTextViewGrey</item>
         <item name="normalLineDivider">@style/NormalLineDividerGrey</item>
         <item name="vectorPrimaryColor">@color/colorPrimaryGrey</item>
+        <item name="vectorAccentColor">@color/colorAccentGrey</item>
+        <item name="vectorLightColor">@color/colorPrimaryLightGrey</item>
         <item name="preferenceTheme">@style/DefaultPreferenceThemeGrey</item>
     </style>
 
@@ -86,6 +92,8 @@
         <item name="normalHeaderTextView">@style/NormalHeaderTextViewPurple</item>
         <item name="normalLineDivider">@style/NormalLineDividerPurple</item>
         <item name="vectorPrimaryColor">@color/colorPrimaryPurple</item>
+        <item name="vectorAccentColor">@color/colorAccentPurple</item>
+        <item name="vectorLightColor">@color/colorPrimaryLightPurple</item>
         <item name="preferenceTheme">@style/DefaultPreferenceThemePurple</item>
     </style>
 
@@ -102,11 +110,12 @@
 
 
     <style name="NormalButtonDark" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:background">@color/colorPrimaryDarkBlack</item>
-        <item name="android:textColor">@color/colorTextAndIconsBlack</item>
+        <item name="android:background">@drawable/normal_button_border</item>
+        <item name="android:textColor">@color/colorPrimaryLightBlack</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDarkBlack</item>
         <item name="colorAccent">@color/colorAccentBlack</item>
         <item name="android:fontFamily">@font/montserrat</item>
+
 
     </style>
 
@@ -135,7 +144,7 @@
     </style>
 
     <style name="NormalActivityDark" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:background">@color/colorPrimaryLightBlack</item>
+        <item name="android:background">@color/colorPrimaryBlack</item>
         <item name="android:textColor">@color/colorPrimaryTextBlack</item>
         <item name="android:fontFamily">@font/montserrat</item>
     </style>
@@ -231,7 +240,7 @@
     </style>
 
     <style name="NormalLineDividerDark" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:background">@color/colorSecondaryTextBlack</item>
+        <item name="android:background">@color/colorPrimaryLightBlack</item>
     </style>
 
     <style name="NormalLineDividerGrey" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -252,7 +261,7 @@
     </style>
 
     <style name="DefaultPreferenceThemeDark" parent ="AppTheme">
-        <item name="android:background">@color/colorPrimaryLightBlack</item>
+        <item name="android:background">@color/colorPrimaryBlack</item>
         <item name="android:textColor">@color/colorPrimaryTextBlack</item>
         <item name="colorAccent">@color/colorAccentBlack</item>
         <item name="android:textColorSecondary">@color/colorSecondaryTextBlack</item>

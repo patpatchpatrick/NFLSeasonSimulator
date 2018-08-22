@@ -10,6 +10,8 @@
         <attr name="normalHeaderTextView" format="reference"> </attr>
         <attr name="normalLineDivider" format="reference"> </attr>
         <attr name="vectorPrimaryColor" format="reference"></attr>
+        <attr name="vectorAccentColor" format="reference"></attr>
+        <attr name="vectorLightColor" format="reference"></attr>
     </declare-styleable>
 
 

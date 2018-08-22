@@ -9,16 +9,14 @@
         android:roundIcon="@drawable/icon_logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity"></activity>
+        <activity android:name=".MainActivity" />
 
         <provider
             android:name=".data.SeasonSimProvider"
             android:authorities="io.github.patpatchpatrick.nflseasonsim"
             android:exported="false" />
 
-        <activity android:name=".EloValuesActivity">
-        </activity>
-
+        <activity android:name=".EloValuesActivity"></activity>
         <activity android:name=".HomeScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,11 +24,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SettingsActivity" android:parentActivityName=".HomeScreen"></activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:parentActivityName=".HomeScreen" />
 
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+
+        <activity android:name=".MatchPredictorActivity"></activity>
     </application>
 
 </manifest>
