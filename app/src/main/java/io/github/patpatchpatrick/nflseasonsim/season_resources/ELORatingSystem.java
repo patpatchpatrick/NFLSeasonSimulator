@@ -1,5 +1,7 @@
 package io.github.patpatchpatrick.nflseasonsim.season_resources;
 
+import java.util.ArrayList;
+
 public class ELORatingSystem {
 
     // ELO constant used to determine magnitude that ratings change when a team wins
@@ -79,6 +81,53 @@ public class ELORatingSystem {
         teamOne.setElo(eloTeamOne);
         teamTwo.setElo(eloTeamTwo);
 
+    }
+
+    public static ArrayList<Integer> simulateMatchNoDbUpdates(Double teamOneElo, Double teamTwoElo){
+
+        //Simulate a match without updating the database
+        //This is used for the match predictor activity
+        //Return an arraylist with the scores of both teams post-simulation
+
+        double eloTeamOne = teamOneElo;
+        double eloTeamTwo = teamTwoElo;
+
+        //Simulate a match between two teams with two elo ratings
+        //If the first team wins, return true, otherwise return false
+
+        //Calculate probability of the first team winning (double between 0-1)
+        double probTeamOneWin = probabilityOfTeamOneWinning(eloTeamOne, eloTeamTwo);
+
+        //Calculate a random double value between 0-1
+        double matchOutcome = (double) Math.random();
+
+        //If the random double is less than the probability of the first team winning, they won and set boolean to true
+        //If not, they lost and set boolean to false
+        boolean teamOneWon;
+        if (matchOutcome <= probTeamOneWin) {
+            teamOneWon = true;
+        } else {
+            teamOneWon = false;
+        }
+
+        //Get the losers score
+        int losingScore = ScoringSystem.getLosingScore();
+
+        //Get the winners score
+        int winningScore = ScoringSystem.getWinningScore(losingScore, matchOutcome, probTeamOneWin);
+
+        //Set the scores in the arraylist for both teams
+        //The first score in the arraylist is the team one score
+        ArrayList<Integer> simulatedMatchScores = new ArrayList<>();
+        if (teamOneWon) {
+            simulatedMatchScores.add(winningScore);
+            simulatedMatchScores.add(losingScore);
+        } else {
+            simulatedMatchScores.add(losingScore);
+            simulatedMatchScores.add(winningScore);
+        }
+
+        return simulatedMatchScores;
     }
 
 }

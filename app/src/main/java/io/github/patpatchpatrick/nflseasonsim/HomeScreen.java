@@ -3,8 +3,6 @@ package io.github.patpatchpatrick.nflseasonsim;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Animatable;
-import android.graphics.drawable.Drawable;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,7 +10,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import javax.inject.Inject;
 
@@ -20,7 +17,6 @@ import io.github.patpatchpatrick.nflseasonsim.dagger.ActivityComponent;
 import io.github.patpatchpatrick.nflseasonsim.dagger.ActivityModule;
 import io.github.patpatchpatrick.nflseasonsim.dagger.DaggerActivityComponent;
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.BaseView;
-import io.github.patpatchpatrick.nflseasonsim.mvp_utils.SimulatorMvpContract;
 import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
 import io.github.patpatchpatrick.nflseasonsim.presenter.SimulatorPresenter;
 
@@ -33,6 +29,7 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
     SimulatorModel mModel;
 
     Button mSimulateActivityButton;
+    Button mMatchPredictButton;
     Button mSettingsButton;
     ImageView mAnimatedFootball;
     Animatable mAnimatedFootballAnimatable;
@@ -56,11 +53,12 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
         setSeasonLoadedPreference(false);
 
         mSimulateActivityButton = (Button) findViewById(R.id.main_menu_sim_season_button);
+        mMatchPredictButton = (Button) findViewById(R.id.main_menu_predict_matchup_button);
         mSettingsButton = (Button) findViewById(R.id.main_menu_settings_button);
 
         mAnimatedFootball = (ImageView) findViewById(R.id.football_animation);
         mAnimatedFootballAnimatable = (Animatable) mAnimatedFootball.getDrawable();
-        if (mAnimatedFootballAnimatable.isRunning()){
+        if (mAnimatedFootballAnimatable.isRunning()) {
             mAnimatedFootballAnimatable.stop();
         }
 
@@ -78,13 +76,27 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
 
                 } else if (!getSeasonLoadedPref()) {
                     //If the season is not loaded, load the season from the database
-                    mPresenter.loadSeasonFromDatabase(SimulatorModel.LOAD_SEASON_FROM_HOME);
+                    mPresenter.loadSeasonFromDatabase(SimulatorModel.LOAD_SEASON_FROM_HOME_SEASON_SIM);
                     //Start loading animation
                     mAnimatedFootballAnimatable.start();
                 } else {
                     //If season is loaded/initialized, start simulator activity
                     Intent startSimulateActivity = new Intent(HomeScreen.this, MainActivity.class);
                     startActivity(startSimulateActivity);
+                }
+            }
+        });
+
+        mMatchPredictButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //If season isn't loaded, load it, otherwise start the match predictor activity
+                if (!getSeasonLoadedPref()) {
+                    mAnimatedFootballAnimatable.start();
+                    mPresenter.loadSeasonFromDatabase(SimulatorModel.LOAD_SEASON_FROM_HOME_MATCH_PREDICT);
+                } else {
+                    Intent startMatchPredictActivity = new Intent(HomeScreen.this, MatchPredictorActivity.class);
+                    startActivity(startMatchPredictActivity);
                 }
             }
         });
@@ -172,12 +184,19 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
 
     @Override
     public void onSeasonLoadedFromDb(int requestType) {
-        if (requestType == SimulatorModel.LOAD_SEASON_FROM_HOME) {
+        if (requestType == SimulatorModel.LOAD_SEASON_FROM_HOME_SEASON_SIM) {
             //Stop loading animation
             mAnimatedFootballAnimatable.stop();
             //If season was loaded from home activity, open simulation activity after season is finished loading
             Intent startSimulateActivity = new Intent(HomeScreen.this, MainActivity.class);
             startActivity(startSimulateActivity);
+        }
+        if (requestType == SimulatorModel.LOAD_SEASON_FROM_HOME_MATCH_PREDICT){
+            //Stop loading animation
+            mAnimatedFootballAnimatable.stop();
+            //If season was loaded from home activity, open match predict activity after season is finished loading
+            Intent startMatchPredictActivity = new Intent(HomeScreen.this, MatchPredictorActivity.class);
+            startActivity(startMatchPredictActivity);
         }
     }
 
@@ -197,7 +216,7 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
     protected void onResume() {
         super.onResume();
         //If animation is still running, stop it
-        if (mAnimatedFootballAnimatable.isRunning()){
+        if (mAnimatedFootballAnimatable.isRunning()) {
             mAnimatedFootballAnimatable.stop();
         }
     }

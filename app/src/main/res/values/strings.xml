@@ -6,6 +6,12 @@
     <string name="ready_to_simulate">Ready to Simulate</string>
     <string name="regular_season_complete">Regular Season Complete</string>
 
+    <!-- Simulate Activity Strings  -->
+    <string name="simulate_activity_simulate_season">SIMULATE SEASON</string>
+    <string name="simulate_activity_simulate_week">SIMULATE WEEK</string>
+    <string name="simulate_activity_reset">RESET</string>
+    <string name="simulate_activity_start_playoffs">START PLAYOFFS</string>
+
     <!-- Shared Preferences  Keys, Labels and Values [CHAR LIMIT=TBD] -->
     <string name="settings_season_initialized_key">season initialized</string>
     <string name="settings_season_intialized_title">Season Initialized</string>
@@ -46,8 +52,8 @@
 
     <!-- Primary Menu Strings -->
     <string name="menu_elo_values">Team Elo Values</string>
-    <string name="menu_reset_button">Reset</string>
-    <string name="menu_theme_button">Theme</string>
+    <string name="menu_reset_button">RESET</string>
+    <string name="menu_theme_button">THEME</string>
     <string name="menu_theme_default">Default (Dark)</string>
     <string name="menu_theme_blue">Blue</string>
     <string name="menu_theme_grey">Grey</string>
@@ -68,6 +74,11 @@
     <!-- Matchup Predictor Activity Strings -->
     <string name="match_predict_team_one">Select Team One</string>
     <string name="match_predict_team_two">Select Team Two</string>
+    <string name="match_predict_elo_header">Elo: </string>
+    <string name="match_predict_odds_to_win_header">Odds To Win: </string>
+    <string name="match_predict_simulate_match">SIMULATE MATCH</string>
+    <string name="match_predict_score_header">Score</string>
+
 
 
 </resources>

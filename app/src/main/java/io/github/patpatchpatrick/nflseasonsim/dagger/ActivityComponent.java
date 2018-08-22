@@ -7,6 +7,7 @@ import io.github.patpatchpatrick.nflseasonsim.EloRecyclerViewAdapter;
 import io.github.patpatchpatrick.nflseasonsim.EloValuesActivity;
 import io.github.patpatchpatrick.nflseasonsim.HomeScreen;
 import io.github.patpatchpatrick.nflseasonsim.MainActivity;
+import io.github.patpatchpatrick.nflseasonsim.MatchPredictorActivity;
 import io.github.patpatchpatrick.nflseasonsim.ScoresRecyclerViewAdapter;
 import io.github.patpatchpatrick.nflseasonsim.SettingsFragment;
 import io.github.patpatchpatrick.nflseasonsim.StandingsRecyclerViewAdapter;
@@ -23,6 +24,7 @@ public interface ActivityComponent {
     void inject(HomeScreen homeScreen);
     void inject(EloValuesActivity eloValuesActivity);
     void inject(MainActivity mainActivity);
+    void inject(MatchPredictorActivity matchPredictorActivity);
     void inject(SimulatorPresenter simulatorPresenter);
     void inject(SimulatorModel simulatorModel);
     void inject(Match match);

@@ -236,6 +236,11 @@ public class Team {
         mElo = 1700 - (mTeamRanking * 12.5);
     }
 
+    public double getFutureElo(){
+        double futureElo =  mElo = 1700 - (mTeamRanking * 12.5);
+        return futureElo;
+    }
+
     public void setUserElo(){
         //Set the user defined elo value for the team and update the database
         mUserElo = mElo;
@@ -247,7 +252,11 @@ public class Team {
     }
 
     public Double getUserElo() {
-        return mUserElo;
+        if (mUserElo == 0){
+            return mElo;
+        } else {
+            return mUserElo;
+        }
     }
 
     public String getShortName(){

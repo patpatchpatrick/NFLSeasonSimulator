@@ -59,8 +59,9 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     public static final int INSERT_MATCHES_PLAYOFFS_CHAMPIONSHIP = 3;
     public static final int INSERT_MATCHES_PLAYOFFS_SUPERBOWL = 4;
 
-    public static final int LOAD_SEASON_FROM_HOME = 0;
-    public static final int LOAD_SEASON_FROM_SETTINGS = 1;
+    public static final int LOAD_SEASON_FROM_HOME_SEASON_SIM = 0;
+    public static final int LOAD_SEASON_FROM_HOME_MATCH_PREDICT = 1;
+    public static final int LOAD_SEASON_FROM_SETTINGS = 2;
 
     //Data for season resources
     public Schedule mSchedule;
@@ -164,6 +165,17 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
         }
 
         return teamArrayList;
+    }
+
+    @Override
+    public ArrayList<String> getTeamNameArrayList() {
+        ArrayList<String> teamNameArrayList = new ArrayList();
+
+        for (String teamName : mTeamList.keySet()) {
+            teamNameArrayList.add(teamName);
+        }
+
+        return teamNameArrayList;
     }
 
     @Override
