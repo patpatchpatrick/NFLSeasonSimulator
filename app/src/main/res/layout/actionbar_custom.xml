@@ -6,11 +6,23 @@
     android:layout_height="wrap_content">
 
     <ImageView
-        android:layout_width="wrap_content"
+        android:id="@+id/nflVector"
+        android:layout_width="48dp"
         android:layout_height="48dp"
         android:padding="4dp"
-        android:src="@drawable/logo_action_bar_small"
+        android:src="@drawable/ic_nflvectortransparent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/ic_seasonsimvectortransparent"
+        app:layout_constraintTop_toTopOf="@+id/nflVector"
+        app:layout_constraintStart_toStartOf="@+id/nflVector"/>
+
+
+
 
 </android.support.constraint.ConstraintLayout>

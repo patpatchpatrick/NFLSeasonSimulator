@@ -51,7 +51,7 @@
     <string name="settings_season_loaded_key">season loaded</string>
 
     <!-- Primary Menu Strings -->
-    <string name="menu_elo_values">Team Elo Values</string>
+    <string name="menu_elo_values">SET\nELOS</string>
     <string name="menu_reset_button">RESET</string>
     <string name="menu_theme_button">THEME</string>
     <string name="menu_theme_default">Default (Dark)</string>

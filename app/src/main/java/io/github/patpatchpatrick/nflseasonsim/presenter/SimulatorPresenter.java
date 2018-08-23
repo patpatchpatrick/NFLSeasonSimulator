@@ -64,8 +64,6 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
     public void setView(SimulatorMvpContract.SimulatorView view) {
         super.setView(view);
-        //Add main activity/view to list of baseviews to notify
-        mBaseViews.add(view);
     }
 
     @Override

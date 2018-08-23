@@ -14,11 +14,11 @@
                         <option name="values">
                           <map>
                             <entry key="assetSourceType" value="FILE" />
-                            <entry key="height" value="96" />
-                            <entry key="outputName" value="ic_football" />
+                            <entry key="height" value="329" />
+                            <entry key="outputName" value="ic_seasonsimvectortransparent" />
                             <entry key="overrideSize" value="true" />
-                            <entry key="sourceFile" value="C:\Users\patri\Code\design\NFL Season Sim\Animations\football.svg" />
-                            <entry key="width" value="96" />
+                            <entry key="sourceFile" value="C:\Users\patri\OneDrive\Code\design\NFL Season Sim\AppLogos\SeasonSimVectorTransparent.svg" />
+                            <entry key="width" value="329" />
                           </map>
                         </option>
                       </PersistentState>

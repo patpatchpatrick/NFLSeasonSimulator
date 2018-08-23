@@ -47,6 +47,7 @@ public class MatchPredictorActivity extends AppCompatActivity {
         initializeTheme();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_match_predictor);
+        getSupportActionBar().hide();
 
         //Inject with dagger
         HomeScreen.getActivityComponent().inject(this);

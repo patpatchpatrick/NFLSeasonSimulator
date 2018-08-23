@@ -5,6 +5,7 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryLight">@color/colorPrimaryLight</item>
         <item name="colorAccent">@color/colorAccent</item>
         <!-- This is the styling for action bar -->
         <!--To change the text styling of options menu items</item>-->
@@ -31,6 +32,7 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimaryBlack</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDarkBlack</item>
+        <item name="colorPrimaryLight">@color/colorPrimaryLightBlack</item>
         <item name="colorAccent">@color/colorAccentBlack</item>
         <!-- This is the styling for action bar -->
         <!--To change the text styling of options menu items</item>-->
@@ -55,6 +57,7 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimaryGrey</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDarkGrey</item>
+        <item name="colorPrimaryLight">@color/colorPrimaryLightGrey</item>
         <item name="colorAccent">@color/colorAccentGrey</item>
         <!-- This is the styling for action bar -->
         <!--To change the text styling of options menu items</item>-->
@@ -79,6 +82,7 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimaryPurple</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDarkPurple</item>
+        <item name="colorPrimaryLight">@color/colorPrimaryLightPurple</item>
         <item name="colorAccent">@color/colorAccentPurple</item>
         <!-- This is the styling for action bar -->
         <!--To change the text styling of options menu items</item>-->
@@ -284,6 +288,8 @@
         <item name="android:textColorSecondary">@color/colorSecondaryTextPurple</item>
         <item name="android:fontFamily">@font/montserrat</item>
     </style>
+
+
 
 
 
