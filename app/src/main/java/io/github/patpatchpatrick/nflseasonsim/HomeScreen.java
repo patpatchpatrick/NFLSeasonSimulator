@@ -174,11 +174,17 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                //Stop loading animation
-                mAnimatedFootballAnimatable.stop();
-                Intent startSimulateActivity = new Intent(HomeScreen.this, MainActivity.class);
-                startActivity(startSimulateActivity);
+                    //Season initialized call received from presenter
+                    //Stop loading animation
+                //Start simulateActivity
+                    if (mAnimatedFootballAnimatable.isRunning()) {
+                        mAnimatedFootballAnimatable.stop();
+                    }
+                    Intent startSimulateActivity = new Intent(HomeScreen.this, MainActivity.class);
+                    startActivity(startSimulateActivity);
+
             }
+
         });
     }
 
@@ -191,7 +197,7 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
             Intent startSimulateActivity = new Intent(HomeScreen.this, MainActivity.class);
             startActivity(startSimulateActivity);
         }
-        if (requestType == SimulatorModel.LOAD_SEASON_FROM_HOME_MATCH_PREDICT){
+        if (requestType == SimulatorModel.LOAD_SEASON_FROM_HOME_MATCH_PREDICT) {
             //Stop loading animation
             mAnimatedFootballAnimatable.stop();
             //If season was loaded from home activity, open match predict activity after season is finished loading
@@ -220,4 +226,5 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
             mAnimatedFootballAnimatable.stop();
         }
     }
+
 }

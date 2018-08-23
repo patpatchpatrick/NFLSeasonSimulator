@@ -3,6 +3,7 @@ package io.github.patpatchpatrick.nflseasonsim;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.drawable.Animatable;
 import android.graphics.drawable.ColorDrawable;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
@@ -17,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import javax.inject.Inject;
@@ -40,12 +42,13 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     SharedPreferences mSharedPreferences;
 
 
+    ImageView mAnimatedFootball;
+    Animatable mAnimatedFootballAnimatable;
     Button mSimulateSeason;
     Button mSimulateWeek;
     Button mStartPlayoffs;
     Button mResetButton;
     TextView mWeekNumberHeader;
-    TextView mSimulationStatus;
     RecyclerView mScoresRecyclerView;
     RecyclerView mStandingsRecyclerView;
     StandingsRecyclerViewAdapter mStandingsRecyclerViewAdapter;
@@ -80,11 +83,17 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mPresenter.setView(this);
 
         mWeekNumberHeader = (TextView) findViewById(R.id.week_number_header);
-        mSimulationStatus = (TextView) findViewById(R.id.simulation_status_textview);
         mSimulateSeason = (Button) findViewById(R.id.simulate_season_button);
         mSimulateWeek = (Button) findViewById(R.id.simulate_week_button);
         mStartPlayoffs = (Button) findViewById(R.id.start_playoffs_button);
         mResetButton = (Button) findViewById(R.id.reset_button);
+
+        //Set up loading animation
+        mAnimatedFootball = (ImageView) findViewById(R.id.simulate_activity_football_animation);
+        mAnimatedFootballAnimatable = (Animatable) mAnimatedFootball.getDrawable();
+        if (mAnimatedFootballAnimatable.isRunning()) {
+            mAnimatedFootballAnimatable.stop();
+        }
 
         setUpSharedPreferences();
 
@@ -287,20 +296,20 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
     private void setViewsReadyToSimulate() {
 
-        //App is ready for simulation, set buttons to enabled and textview to "ready to simulate"
+        //App is ready for simulation, set buttons to enabled and stop loading animator
 
         mSimulateWeek.setVisibility(View.VISIBLE);
         mSimulateSeason.setVisibility(View.VISIBLE);
         mSimulateSeason.setEnabled(true);
         mSimulateWeek.setEnabled(true);
         mResetButton.setVisibility(View.GONE);
-        mSimulationStatus.setVisibility(View.VISIBLE);
-        mSimulationStatus.setText(getString(R.string.ready_to_simulate));
+        if (mAnimatedFootballAnimatable.isRunning()){
+        mAnimatedFootballAnimatable.stop();}
     }
 
     private void setViewsNotReadyToSimulate() {
 
-        //App is not ready for simulation, set buttons to disabled and textView to "Loading..."
+        //App is not ready for simulation, set buttons to disabled and start loading animator
 
         //If the regular season is complete, enable the "Start Playoffs" button
 
@@ -310,13 +319,11 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mSimulateWeek.setVisibility(View.INVISIBLE);
         mResetButton.setVisibility(View.GONE);
         if (!regularSeasonIsComplete()) {
-            mSimulationStatus.setVisibility(View.VISIBLE);
-            mSimulationStatus.setText(getString(R.string.loading));
+            mAnimatedFootballAnimatable.start();
         }
         if (regularSeasonIsComplete() && !mPresenter.getPlayoffsStarted()) {
             mSimulateSeason.setVisibility(View.GONE);
             mStartPlayoffs.setVisibility(View.VISIBLE);
-            mSimulationStatus.setVisibility(View.GONE);
         }
     }
 
@@ -329,6 +336,8 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mResetButton.setVisibility(View.GONE);
         mSimulateWeek.setEnabled(true);
         mSimulateWeek.setVisibility(View.VISIBLE);
+        if (mAnimatedFootballAnimatable.isRunning()){
+            mAnimatedFootballAnimatable.stop();}
     }
 
     private void setViewsPlayoffsComplete() {
@@ -411,6 +420,22 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
     @Override
     public void onSeasonInitialized() {
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                    //If season initialized call is received within simulateActivity, then the season
+                //has been reset so restart the activity
+
+                    MainActivity.this.recreate();
+
+
+            }
+
+        });
+
+
     }
 
     @Override
@@ -441,6 +466,11 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
             Log.d("SETVIEW", "READYTOSIM");
         }
 
+    }
+
+    private Boolean getSeasonInitializedPref() {
+        //Return the preference value for if the season has been initialized
+        return mSharedPreferences.getBoolean(getString(R.string.settings_season_initialized_key), getResources().getBoolean(R.bool.pref_season_initialized_default));
     }
 
 }

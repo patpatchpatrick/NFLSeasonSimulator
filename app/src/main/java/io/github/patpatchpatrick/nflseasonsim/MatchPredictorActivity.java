@@ -72,7 +72,7 @@ public class MatchPredictorActivity extends AppCompatActivity {
 
         //Set up team one spinner with arraylist of team names from model
         mTeamOneSpinner = findViewById(R.id.match_predict_team_one_spinner);
-        ArrayAdapter<String> teamOneNameAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, teamNameArrayList);
+        ArrayAdapter<String> teamOneNameAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, teamNameArrayList);
         mTeamOneSpinner.setAdapter(teamOneNameAdapter);
 
         mTeamOneSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -106,7 +106,7 @@ public class MatchPredictorActivity extends AppCompatActivity {
 
         //Set up team two spinner with arraylist of team names from model
         mTeamTwoSpinner = findViewById(R.id.match_predict_team_two_spinner);
-        ArrayAdapter<String> teamTwoNameAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, teamNameArrayList);
+        ArrayAdapter<String> teamTwoNameAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, teamNameArrayList);
         mTeamTwoSpinner.setAdapter(teamTwoNameAdapter);
 
         mTeamTwoSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {

@@ -58,7 +58,12 @@ public class StandingsRecyclerViewAdapter extends RecyclerView.Adapter<Standings
             if (position % 4 == 0) {
                 int teamDivision = dataCursor.getInt(dataCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DIVISION));
                 holder.standingsHeader.setVisibility(View.VISIBLE);
-                holder.standingsHeader.setText("\n" + TeamEntry.getDivisionString(teamDivision));
+                if (position == 0) {
+                    //For the first division, don't include a line break in header
+                    holder.standingsHeader.setText("" + TeamEntry.getDivisionString(teamDivision));
+                } else {
+                    holder.standingsHeader.setText("\n" + TeamEntry.getDivisionString(teamDivision));
+                }
             } else {
                 holder.standingsHeader.setVisibility(View.GONE);
             }
@@ -100,30 +105,30 @@ public class StandingsRecyclerViewAdapter extends RecyclerView.Adapter<Standings
             if (remainingPlayoffTeams == 12) {
                 if (position == 0) {
                     holder.standingsHeader.setVisibility(View.VISIBLE);
-                    holder.standingsHeader.setText("\nAFC Playoff Standings\n");
+                    holder.standingsHeader.setText("AFC Playoff Standings");
                 } else if (position == 6) {
                     holder.standingsHeader.setVisibility(View.VISIBLE);
-                    holder.standingsHeader.setText("\nNFC Playoff Standings\n");
+                    holder.standingsHeader.setText("NFC Playoff Standings");
                 } else {
                     holder.standingsHeader.setVisibility(View.GONE);
                 }
             } else if (remainingPlayoffTeams == 8) {
                 if (position == 0) {
                     holder.standingsHeader.setVisibility(View.VISIBLE);
-                    holder.standingsHeader.setText("\nAFC Playoff Standings\n");
+                    holder.standingsHeader.setText("AFC Playoff Standings");
                 } else if (position == 4) {
                     holder.standingsHeader.setVisibility(View.VISIBLE);
-                    holder.standingsHeader.setText("\nNFC Playoff Standings\n");
+                    holder.standingsHeader.setText("NFC Playoff Standings");
                 } else {
                     holder.standingsHeader.setVisibility(View.GONE);
                 }
             } else if (remainingPlayoffTeams == 4) {
                 if (position == 0) {
                     holder.standingsHeader.setVisibility(View.VISIBLE);
-                    holder.standingsHeader.setText("\nAFC Playoff Standings\n");
+                    holder.standingsHeader.setText("AFC Playoff Standings");
                 } else if (position == 2) {
                     holder.standingsHeader.setVisibility(View.VISIBLE);
-                    holder.standingsHeader.setText("\nNFC Playoff Standings\n");
+                    holder.standingsHeader.setText("NFC Playoff Standingsr");
                 } else {
                     holder.standingsHeader.setVisibility(View.GONE);
                 }

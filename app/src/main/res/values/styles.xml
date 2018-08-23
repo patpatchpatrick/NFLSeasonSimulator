@@ -23,6 +23,7 @@
         <item name="vectorLightColor">@color/colorPrimaryLight</item>
         <item name="preferenceTheme">@style/DefaultPreferenceTheme</item>
 
+
     </style>
 
     <!-- Base application theme dark. -->
@@ -283,6 +284,8 @@
         <item name="android:textColorSecondary">@color/colorSecondaryTextPurple</item>
         <item name="android:fontFamily">@font/montserrat</item>
     </style>
+
+
 
 
 

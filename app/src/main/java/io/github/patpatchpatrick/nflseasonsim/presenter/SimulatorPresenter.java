@@ -45,7 +45,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     Context mContext;
 
     @Inject
-    BaseView mBaseView;
+    BaseView mHomeScreenBaseView;
 
     @Inject
     ArrayList<BaseView> mBaseViews;
@@ -64,6 +64,8 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
     public void setView(SimulatorMvpContract.SimulatorView view) {
         super.setView(view);
+        //Add main activity/view to list of baseviews to notify
+        mBaseViews.add(view);
     }
 
     @Override
@@ -166,10 +168,18 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         //An action is performed below depending on the insertType
 
         if (insertType == SimulatorModel.INSERT_MATCHES_SCHEDULE) {
-            //Notify main activity view that season is initialized
+            //After season is initialized, set season initialized pref to true
+            //If season has not been loaded (first time loading), set season loaded preference to true
+            //and notify the home screen to start the simulate activity
+            //Otherwise, if season has  already loaded, simulate activity has already been started so notify
+            //the simulate activity to restart
             setSeasonInitializedPreference(true);
-            setSeasonLoadedPreference(true);
-            mBaseView.onSeasonInitialized();
+            if (getSeasonLoadedPref()){
+                this.view.onSeasonInitialized();
+            } else {
+                setSeasonLoadedPreference(true);
+                mHomeScreenBaseView.onSeasonInitialized();
+            }
         }
 
         if (insertType == SimulatorModel.INSERT_MATCHES_PLAYOFFS_WILDCARD) {
@@ -1138,20 +1148,14 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         prefs.commit();
     }
 
-    private void setSeasonInitializedPreference(boolean seasonInitialized) {
-        //Set season initialized boolean preference
-        SimulatorPresenter.setSeasonInitialized(seasonInitialized);
-        SharedPreferences.Editor prefs = mSharedPreferences.edit();
-        prefs.putBoolean(mContext.getString(R.string.settings_season_initialized_key), seasonInitialized);
-        prefs.commit();
-    }
-
     private void setSeasonLoadedPreference(Boolean seasonLoaded) {
         //Set the season loaded preference boolean
         SharedPreferences.Editor prefs = mSharedPreferences.edit();
         prefs.putBoolean(mContext.getString(R.string.settings_season_loaded_key), seasonLoaded).apply();
         prefs.commit();
     }
+
+
 
     private void setEloType() {
         Integer eloType = mSharedPreferences.getInt(mContext.getString(R.string.settings_elo_type_key), mContext.getResources().getInteger(R.integer.settings_elo_type_default));
@@ -1162,6 +1166,20 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             resetTeamUserElos();
         }
     }
+
+    private void setSeasonInitializedPreference(boolean seasonInitialized) {
+        //Set season initialized boolean preference
+        SimulatorPresenter.setSeasonInitialized(seasonInitialized);
+        SharedPreferences.Editor prefs = mSharedPreferences.edit();
+        prefs.putBoolean(mContext.getString(R.string.settings_season_initialized_key), seasonInitialized);
+        prefs.commit();
+    }
+
+    private Boolean getSeasonLoadedPref() {
+        //Return the season loaded preference boolean
+        return mSharedPreferences.getBoolean(mContext.getString(R.string.settings_season_loaded_key), mContext.getResources().getBoolean(R.bool.settings_season_loaded_default));
+    }
+
 
 
 }

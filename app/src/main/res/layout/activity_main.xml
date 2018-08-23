@@ -62,6 +62,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageView
+        android:id="@+id/simulate_activity_football_animation"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toEndOf="@+id/simulate_season_button"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_football_animdrawable" />
+
     <TextView
         android:id="@+id/standings_header"
         style="?normalHeaderTextView"
@@ -75,15 +86,6 @@
         app:layout_constraintTop_toBottomOf="@+id/start_playoffs_button" />
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/simulation_status_textview"
-        style="?normalTextView"
-        app:layout_constraintStart_toStartOf="@+id/standings_header"
-        app:layout_constraintTop_toBottomOf="@+id/standings_header"
-        tools:text="Ready to Simulate" />
-
-    <TextView
         android:id="@+id/scores_header"
         style="?normalHeaderTextView"
         android:layout_width="wrap_content"
@@ -93,14 +95,6 @@
         app:layout_constraintStart_toStartOf="@+id/scrollView2"
         app:layout_constraintTop_toBottomOf="@+id/reset_button" />
 
-    <TextView
-        android:id="@+id/week_number_header"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="?normalScoreTextView"
-        app:layout_constraintStart_toStartOf="@+id/scores_header"
-        app:layout_constraintTop_toBottomOf="@+id/scores_header"
-        tools:text="Week 1" />
 
 
     <ScrollView
@@ -109,11 +103,10 @@
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/simulation_status_textview"
-        app:layout_constraintVertical_bias="0.050000012"
+        app:layout_constraintTop_toBottomOf="@+id/standings_header"
+        app:layout_constraintVertical_bias="0.0"
         app:layout_goneMarginBottom="32dp">
 
 
@@ -125,7 +118,6 @@
             android:layout_marginBottom="32dp"
             android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
             android:paddingBottom="128dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -140,7 +132,6 @@
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/middle_divider"
         app:layout_constraintTop_toBottomOf="@+id/week_number_header"
@@ -156,12 +147,20 @@
             android:layout_marginBottom="32dp"
             android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
             android:paddingBottom="128dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
     </ScrollView>
+
+    <TextView
+        android:id="@+id/week_number_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="?normalScoreTextView"
+        app:layout_constraintStart_toStartOf="@+id/scores_header"
+        app:layout_constraintTop_toBottomOf="@+id/scores_header"
+        tools:text="Week 1" />
 
     <ImageView
         android:id="@+id/middle_divider"

@@ -39,10 +39,8 @@
         android:id="@+id/match_predict_team_one_spinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@+id/matchup_middle_divider"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/match_predict_team_one_header"
-        ></Spinner>
+        app:layout_constraintStart_toStartOf="@id/match_predict_team_one_header"
+        app:layout_constraintTop_toBottomOf="@id/match_predict_team_one_header"></Spinner>
 
     <ImageView
         android:id="@+id/match_predict_team_one_image"
@@ -145,10 +143,8 @@
         android:id="@+id/match_predict_team_two_spinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/matchup_middle_divider"
-        app:layout_constraintTop_toBottomOf="@id/match_predict_team_two_header"
-        ></Spinner>
+        app:layout_constraintStart_toStartOf="@id/match_predict_team_two_header"
+        app:layout_constraintTop_toBottomOf="@id/match_predict_team_two_header"></Spinner>
 
     <ImageView
         android:id="@+id/match_predict_team_two_image"
