@@ -59,4 +59,5 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
         mSharedPrefs.unregisterOnSharedPreferenceChangeListener(this);
     }
 
+
 }

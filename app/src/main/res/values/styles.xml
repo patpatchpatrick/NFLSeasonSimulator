@@ -23,6 +23,8 @@
         <item name="vectorAccentColor">@color/colorAccent</item>
         <item name="vectorLightColor">@color/colorPrimaryLight</item>
         <item name="preferenceTheme">@style/DefaultPreferenceTheme</item>
+        <item name="dialogTheme">@style/DefaultPreferenceTheme</item>
+        <item name="alertDialogTheme">@style/DefaultPreferenceTheme</item>
 
 
     </style>
@@ -50,6 +52,11 @@
         <item name="vectorAccentColor">@color/colorAccentBlack</item>
         <item name="vectorLightColor">@color/colorPrimaryLightBlack</item>
         <item name="preferenceTheme">@style/DefaultPreferenceThemeDark</item>
+        <item name="dialogTheme">@style/DefaultPreferenceThemeDark</item>
+        <item name="alertDialogTheme">@style/DefaultPreferenceThemeDark</item>
+
+
+
     </style>
 
     <!-- Base application theme grey. -->
@@ -75,6 +82,8 @@
         <item name="vectorAccentColor">@color/colorAccentGrey</item>
         <item name="vectorLightColor">@color/colorPrimaryLightGrey</item>
         <item name="preferenceTheme">@style/DefaultPreferenceThemeGrey</item>
+        <item name="dialogTheme">@style/DefaultPreferenceThemeGrey</item>
+        <item name="alertDialogTheme">@style/DefaultPreferenceThemeGrey</item>
     </style>
 
     <!-- Base application theme purple. -->
@@ -100,14 +109,16 @@
         <item name="vectorAccentColor">@color/colorAccentPurple</item>
         <item name="vectorLightColor">@color/colorPrimaryLightPurple</item>
         <item name="preferenceTheme">@style/DefaultPreferenceThemePurple</item>
+        <item name="dialogTheme">@style/DefaultPreferenceThemePurple</item>
+        <item name="alertDialogTheme">@style/DefaultPreferenceThemePurple</item>
     </style>
 
 
     <!-- Button -->
 
     <style name="NormalButton" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:background">@color/colorPrimaryDark</item>
-        <item name="android:textColor">@color/colorWhite</item>
+        <item name="android:background">@drawable/normal_button_border</item>
+        <item name="android:textColor">@color/colorPrimaryLight</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:fontFamily">@font/montserrat</item>
@@ -125,16 +136,16 @@
     </style>
 
     <style name="NormalButtonGrey" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:background">@color/colorPrimaryDarkGrey</item>
-        <item name="android:textColor">@color/colorTextAndIcons</item>
+        <item name="android:background">@drawable/normal_button_border</item>
+        <item name="android:textColor">@color/colorPrimaryLightGrey</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDarkGrey</item>
         <item name="colorAccent">@color/colorAccentGrey</item>
         <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="NormalButtonPurple" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:background">@color/colorPrimaryDarkPurple</item>
-        <item name="android:textColor">@color/colorTextAndIcons</item>
+        <item name="android:background">@drawable/normal_button_border</item>
+        <item name="android:textColor">@color/colorPrimaryLightPurple</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDarkPurple</item>
         <item name="colorAccent">@color/colorAccentPurple</item>
         <item name="android:fontFamily">@font/montserrat</item>
@@ -143,7 +154,7 @@
     <!-- Activity -->
 
     <style name="NormalActivity" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:background">@color/colorPrimaryLight</item>
+        <item name="android:background">@color/colorPrimary</item>
         <item name="android:textColor">@color/colorPrimaryText</item>
         <item name="android:fontFamily">@font/montserrat</item>
     </style>
@@ -155,13 +166,13 @@
     </style>
 
     <style name="NormalActivityGrey" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:background">@color/colorPrimaryLightGrey</item>
+        <item name="android:background">@color/colorPrimaryGrey</item>
         <item name="android:textColor">@color/colorPrimaryTextGrey</item>
         <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="NormalActivityPurple" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:background">@color/colorPrimaryLightPurple</item>
+        <item name="android:background">@color/colorPrimaryPurple</item>
         <item name="android:textColor">@color/colorPrimaryTextPurple</item>
         <item name="android:fontFamily">@font/montserrat</item>
     </style>
@@ -169,7 +180,7 @@
     <!-- TextViews -->
 
     <style name="NormalTextView" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:textColor">@color/colorPrimaryText</item>
+        <item name="android:textColor">@color/colorPrimaryLight</item>
         <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
@@ -179,17 +190,17 @@
     </style>
 
     <style name="NormalTextViewGrey" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:textColor">@color/colorPrimaryTextGrey</item>
+        <item name="android:textColor">@color/colorPrimaryLightGrey</item>
         <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="NormalTextViewPurple" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:textColor">@color/colorPrimaryTextPurple</item>
+        <item name="android:textColor">@color/colorPrimaryLightPurple</item>
         <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="NormalScoreTextView" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:textColor">@color/colorPrimaryText</item>
+        <item name="android:textColor">@color/colorPrimaryLight</item>
         <item name="android:textStyle">bold</item>
         <item name="android:fontFamily">@font/montserrat</item>
     </style>
@@ -201,19 +212,19 @@
     </style>
 
     <style name="NormalScoreTextViewGrey" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:textColor">@color/colorPrimaryTextGrey</item>
+        <item name="android:textColor">@color/colorPrimaryLightGrey</item>
         <item name="android:textStyle">bold</item>
         <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="NormalScoreTextViewPurple" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:textColor">@color/colorPrimaryTextPurple</item>
+        <item name="android:textColor">@color/colorPrimaryLightPurple</item>
         <item name="android:textStyle">bold</item>
         <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="NormalHeaderTextView" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:textColor">@color/colorPrimaryText</item>
+        <item name="android:textColor">@color/colorPrimaryLight</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">18dp</item>
         <item name="android:fontFamily">@font/montserrat</item>
@@ -227,21 +238,21 @@
     </style>
 
     <style name="NormalHeaderTextViewGrey" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:textColor">@color/colorPrimaryTextGrey</item>
+        <item name="android:textColor">@color/colorPrimaryLightGrey</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">18dp</item>
         <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="NormalHeaderTextViewPurple" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:textColor">@color/colorPrimaryTextPurple</item>
+        <item name="android:textColor">@color/colorPrimaryLightPurple</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">18dp</item>
         <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="NormalLineDivider" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:background">@color/colorPrimaryDark</item>
+        <item name="android:background">@color/colorPrimaryLight</item>
     </style>
 
     <style name="NormalLineDividerDark" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -249,46 +260,51 @@
     </style>
 
     <style name="NormalLineDividerGrey" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:background">@color/colorPrimaryDarkGrey</item>
+        <item name="android:background">@color/colorPrimaryLightGrey</item>
     </style>
 
     <style name="NormalLineDividerPurple" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:background">@color/colorPrimaryDarkPurple</item>
+        <item name="android:background">@color/colorPrimaryLightPurple</item>
     </style>
 
     <!-- Override and set preference themes depending on user selected Theme. -->
     <style name="DefaultPreferenceTheme" parent ="AppTheme">
-        <item name="android:background">@color/colorPrimaryLight</item>
-        <item name="android:textColor">@color/colorPrimaryText</item>
+        <item name="android:background">@color/colorPrimary</item>
+        <item name="android:textColor">@color/colorPrimaryLight</item>
+        <!-- Color used for preference dialog text color-->
+        <item name="textColorAlertDialogListItem">@color/colorPrimaryLight</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:textColorSecondary">@color/colorSecondaryText</item>
+        <!-- Color used for preference selected text color and radio button color -->
+        <item name="android:textColorSecondary">@color/colorPrimaryLight</item>
         <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="DefaultPreferenceThemeDark" parent ="AppTheme">
         <item name="android:background">@color/colorPrimaryBlack</item>
         <item name="android:textColor">@color/colorPrimaryTextBlack</item>
+        <item name="textColorAlertDialogListItem">@color/colorPrimaryTextBlack</item>
         <item name="colorAccent">@color/colorAccentBlack</item>
-        <item name="android:textColorSecondary">@color/colorSecondaryTextBlack</item>
+        <item name="android:textColorSecondary">@color/colorPrimaryTextBlack</item>
         <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="DefaultPreferenceThemeGrey" parent ="AppTheme">
-        <item name="android:background">@color/colorPrimaryLightGrey</item>
-        <item name="android:textColor">@color/colorPrimaryTextGrey</item>
+        <item name="android:background">@color/colorPrimaryGrey</item>
+        <item name="android:textColor">@color/colorPrimaryLightGrey</item>
+        <item name="textColorAlertDialogListItem">@color/colorPrimaryLightGrey</item>
         <item name="colorAccent">@color/colorAccentGrey</item>
-        <item name="android:textColorSecondary">@color/colorSecondaryText</item>
+        <item name="android:textColorSecondary">@color/colorPrimaryLightGrey</item>
         <item name="android:fontFamily">@font/montserrat</item>
     </style>
 
     <style name="DefaultPreferenceThemePurple" parent ="AppTheme">
-        <item name="android:background">@color/colorPrimaryLightPurple</item>
-        <item name="android:textColor">@color/colorPrimaryTextPurple</item>
+        <item name="android:background">@color/colorPrimaryPurple</item>
+        <item name="android:textColor">@color/colorPrimaryLightPurple</item>
+        <item name="textColorAlertDialogListItem">@color/colorPrimaryLightPurple</item>
         <item name="colorAccent">@color/colorAccentPurple</item>
-        <item name="android:textColorSecondary">@color/colorSecondaryTextPurple</item>
+        <item name="android:textColorSecondary">@color/colorPrimaryLightPurple</item>
         <item name="android:fontFamily">@font/montserrat</item>
     </style>
-
 
 
 

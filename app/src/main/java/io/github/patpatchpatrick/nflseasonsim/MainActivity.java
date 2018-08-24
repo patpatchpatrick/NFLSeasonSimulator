@@ -325,6 +325,9 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
             mSimulateSeason.setVisibility(View.GONE);
             mStartPlayoffs.setVisibility(View.VISIBLE);
         }
+        if (regularSeasonIsComplete() && !playoffsComplete()){
+            mAnimatedFootballAnimatable.start();
+        }
     }
 
     private void setViewsPlayoffs() {
@@ -454,6 +457,9 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
             }
             if (mPresenter.getPlayoffsStarted()) {
                 if (playoffsComplete()) {
+                    if (mAnimatedFootballAnimatable.isRunning()){
+                        mAnimatedFootballAnimatable.stop();
+                    }
                     setViewsPlayoffsComplete();
                     Log.d("SETVIEW", "PLAYOFFSCOMPLETE");
                 } else {

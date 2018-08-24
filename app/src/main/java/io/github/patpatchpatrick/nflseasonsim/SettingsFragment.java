@@ -2,6 +2,7 @@ package io.github.patpatchpatrick.nflseasonsim;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.support.v7.preference.CheckBoxPreference;
@@ -25,9 +26,11 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     @Inject
     SimulatorPresenter mPresenter;
 
+
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.pref_settings);
+
 
         SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
         PreferenceScreen preferenceScreen = getPreferenceScreen();
@@ -48,6 +51,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     public boolean onPreferenceTreeClick(Preference preference) {
         //If the set elo values preference is clicked, open the elo values activity
         //If the season is not yet loaded, load it
+
         String key = preference.getKey();
         if (key.equals(getString(R.string.settings_activity_elo_values))) {
             if (!getSeasonLoadedPref()) {
@@ -116,9 +120,10 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     @Override
     public void onSeasonLoadedFromDb(int requestType) {
         if (requestType == SimulatorModel.LOAD_SEASON_FROM_SETTINGS) {
-            //If season is loaded from database from settings activity, start elo values activity
+            //If season is loaded from database from settings activity, start elo values activity if the fragment is added to activity
+            if (isAdded()){
             Intent startEloValuesActivity = new Intent(getActivity(), EloValuesActivity.class);
-            startActivity(startEloValuesActivity);
+            startActivity(startEloValuesActivity);}
         }
     }
 }

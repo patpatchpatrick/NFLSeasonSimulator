@@ -27,6 +27,7 @@
         </activity>
         <activity
             android:name=".SettingsActivity"
+            android:theme="?normalActivity"
             android:parentActivityName=".HomeScreen" />
 
         <meta-data
