@@ -1,6 +1,5 @@
 package io.github.patpatchpatrick.nflseasonsim;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -46,7 +45,7 @@ public class EloValuesActivity extends AppCompatActivity {
         final EloRecyclerViewAdapter eloRecyclerAdapter = new EloRecyclerViewAdapter();
         mRecyclerView.setAdapter(eloRecyclerAdapter);
 
-        mLastSeasonEloButton = (Button) findViewById(R.id.use_default_button);
+        mLastSeasonEloButton = (Button) findViewById(R.id.use_last_season_elos_button);
         mLastSeasonEloButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

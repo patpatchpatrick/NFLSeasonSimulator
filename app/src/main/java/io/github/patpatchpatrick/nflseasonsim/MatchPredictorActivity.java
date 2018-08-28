@@ -31,6 +31,7 @@ public class MatchPredictorActivity extends AppCompatActivity {
     SharedPreferences mSharedPrefs;
 
     private Button mSimulateMatchButton;
+    private ImageView mSwapTeamsButton;
     private Spinner mTeamOneSpinner;
     private Spinner mTeamTwoSpinner;
     private ImageView mTeamOneLogo;
@@ -53,6 +54,7 @@ public class MatchPredictorActivity extends AppCompatActivity {
         HomeScreen.getActivityComponent().inject(this);
 
         mSimulateMatchButton = (Button) findViewById(R.id.match_predict_simulate_button);
+        mSwapTeamsButton = (ImageView) findViewById(R.id.match_predict_swap_icon);
 
         mTeamOneLogo = (ImageView) findViewById(R.id.match_predict_team_one_image);
         mTeamTwoLogo = (ImageView) findViewById(R.id.match_predict_team_two_image);
@@ -138,6 +140,17 @@ public class MatchPredictorActivity extends AppCompatActivity {
             }
         });
 
+        mSwapTeamsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int spinnerOnePosition = mTeamOneSpinner.getSelectedItemPosition();
+                int spinnerTwoPosition = mTeamTwoSpinner.getSelectedItemPosition();
+                mTeamOneSpinner.setSelection(spinnerTwoPosition);
+                mTeamTwoSpinner.setSelection(spinnerOnePosition);
+
+            }
+        });
+
         mSimulateMatchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -178,7 +191,7 @@ public class MatchPredictorActivity extends AppCompatActivity {
         if (!teamOneEloValue.isEmpty() && !teamTwoEloValue.isEmpty() && teamOneEloValue != null && teamTwoEloValue != null){
             Double teamOneElo = Double.valueOf(mTeamOneEloValue.getText().toString().trim());
             Double teamTwoElo = Double.valueOf(mTeamTwoEloValue.getText().toString().trim());
-            Double teamOneOddsToWin = ELORatingSystem.probabilityOfTeamOneWinning(teamOneElo, teamTwoElo);
+            Double teamOneOddsToWin = ELORatingSystem.probabilityOfTeamOneWinning(teamOneElo, teamTwoElo, true);
             Double teamTwoOddsToWin = 1 - teamOneOddsToWin;
             Double teamOneOddsPercent = teamOneOddsToWin * 100;
             Double teamTwoOddsPercent = teamTwoOddsToWin * 100;

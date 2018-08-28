@@ -18,6 +18,7 @@ import io.github.patpatchpatrick.nflseasonsim.dagger.ActivityModule;
 import io.github.patpatchpatrick.nflseasonsim.dagger.DaggerActivityComponent;
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.BaseView;
 import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
+import io.github.patpatchpatrick.nflseasonsim.mvp_utils.SimulatorMvpContract;
 import io.github.patpatchpatrick.nflseasonsim.presenter.SimulatorPresenter;
 
 public class HomeScreen extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener, BaseView {
@@ -70,7 +71,7 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
                 if (!getSeasonInitializedPref()) {
                     //If the season is not initialized, initialize it and start simulate activity after
                     //initialization is complete
-                    mPresenter.initializeSeason();
+                    mPresenter.initializeSeason(SimulatorPresenter.SEASON_INITIALIZED_FROM_HOME);
                     //Start loading animation
                     mAnimatedFootballAnimatable.start();
 
@@ -169,19 +170,23 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
     }
 
     @Override
-    public void onSeasonInitialized() {
+    public void onSeasonInitialized(final int initializedFrom) {
         //After the season is initialized, start the simlate activity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+
+                //If season was initialized from home screen, completed season initialized tasks
+                if (initializedFrom == SimulatorPresenter.SEASON_INITIALIZED_FROM_HOME) {
                     //Season initialized call received from presenter
                     //Stop loading animation
-                //Start simulateActivity
+                    //Start simulateActivity
                     if (mAnimatedFootballAnimatable.isRunning()) {
                         mAnimatedFootballAnimatable.stop();
                     }
                     Intent startSimulateActivity = new Intent(HomeScreen.this, MainActivity.class);
                     startActivity(startSimulateActivity);
+                }
 
             }
 

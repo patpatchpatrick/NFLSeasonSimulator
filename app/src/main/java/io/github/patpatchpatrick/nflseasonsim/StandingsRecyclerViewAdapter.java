@@ -72,19 +72,29 @@ public class StandingsRecyclerViewAdapter extends RecyclerView.Adapter<Standings
             String standingsDetails = "";
             String teamName = dataCursor.getString(dataCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_NAME));
             String teamShortName = dataCursor.getString(dataCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_SHORT_NAME));
-            String teamWins = Integer.toString(dataCursor.getInt(dataCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_WINS)));
-            String teamLosses = Integer.toString(dataCursor.getInt(dataCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_LOSSES)));
+            Integer teamWinsInt = dataCursor.getInt(dataCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_WINS));
+            Integer teamLossesInt = dataCursor.getInt(dataCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_LOSSES));
+            String teamWins = Integer.toString(teamWinsInt);
+            String teamLosses = Integer.toString(teamLossesInt);
             int playoffSeed = dataCursor.getInt(dataCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE));
             String playoffSeedString = Integer.toString(playoffSeed);
 
             standingsDetails += teamShortName + "  " + teamWins + " - " + teamLosses;
 
-            //Bold the strings of playoff teams and add their playoff seed to standings
-            if (playoffSeed > 0) {
-                standingsDetails += " (" + playoffSeedString + ")";
-                holder.standingsDetails.setTypeface(Typeface.DEFAULT_BOLD);
-            } else {
-                holder.standingsDetails.setTypeface(Typeface.DEFAULT);
+            //Check if it is the first week of the season by determining if a team has losses or wins
+            Boolean firstWeekOfSeason = true;
+            if (teamWinsInt != 0 || teamLossesInt != 0) {
+                firstWeekOfSeason = false;
+            }
+
+            if (!firstWeekOfSeason) {
+                //Bold the strings of playoff teams and add their playoff seed to standings
+                if (playoffSeed > 0) {
+                    standingsDetails += " (" + playoffSeedString + ")";
+                    holder.standingsDetails.setTypeface(Typeface.DEFAULT_BOLD);
+                } else {
+                    holder.standingsDetails.setTypeface(Typeface.DEFAULT);
+                }
             }
 
             holder.standingsDetails.setText(standingsDetails);

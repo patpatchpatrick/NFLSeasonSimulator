@@ -6,10 +6,11 @@ public class ELORatingSystem {
 
     // ELO constant used to determine magnitude that ratings change when a team wins
     private static double constantK = 32;
+    private static final double HOME_FIELD_ADVANTAGE_PROB = 0.079;
 
     private static final String LOG_TAG = ELORatingSystem.class.getSimpleName();
 
-    public static boolean simulateMatch(Match match, Team teamOne, Team teamTwo){
+    public static boolean simulateMatch(Match match, Team teamOne, Team teamTwo, Boolean useHomeFieldAdvantage){
 
         double eloTeamOne = teamOne.getElo();
         double eloTeamTwo = teamTwo.getElo();
@@ -18,7 +19,7 @@ public class ELORatingSystem {
         //If the first team wins, return true, otherwise return false
 
         //Calculate probability of the first team winning (double between 0-1)
-        double probTeamOneWin = probabilityOfTeamOneWinning(eloTeamOne, eloTeamTwo);
+        double probTeamOneWin = probabilityOfTeamOneWinning(eloTeamOne, eloTeamTwo, useHomeFieldAdvantage);
 
         //Calculate a random double value between 0-1
         double matchOutcome = (double) Math.random();
@@ -52,10 +53,28 @@ public class ELORatingSystem {
         return teamOneWon;
     }
 
-    public static double probabilityOfTeamOneWinning(double eloTeamOne, double eloTeamTwo) {
+    public static double probabilityOfTeamOneWinning(double eloTeamOne, double eloTeamTwo, boolean useHomeFieldAdvantage) {
         //Returns probably of team one winning based on their ELO
-        return 1.0 /(1 + Math.pow(10,
-                (eloTeamTwo - eloTeamOne) / 400.0));
+        //Team one is always the away team, so if home field advantage is being used in the calculation,
+        // subtract the Home field advantage probability from their elo probability of winning
+
+        if (useHomeFieldAdvantage){
+            //Return the elo probability of team one winning minus the home field advantage probability
+            //since team one is the away team
+            //If the probability is negative, return 0.001 (1 percent chance of winning)
+            double probOfTeamOneWinning = (1.0 /(1 + Math.pow(10,
+                    (eloTeamTwo - eloTeamOne) / 400.0))) - HOME_FIELD_ADVANTAGE_PROB;
+            if (probOfTeamOneWinning > 0){
+                return probOfTeamOneWinning;
+            } else {
+                return 0.001;
+            }
+
+        } else {
+            return 1.0 /(1 + Math.pow(10,
+                    (eloTeamTwo - eloTeamOne) / 400.0));
+        }
+
     }
 
     private static void updateRatings(Team teamOne, Team teamTwo, double probTeamOneWin, boolean teamOneWon){
@@ -96,7 +115,7 @@ public class ELORatingSystem {
         //If the first team wins, return true, otherwise return false
 
         //Calculate probability of the first team winning (double between 0-1)
-        double probTeamOneWin = probabilityOfTeamOneWinning(eloTeamOne, eloTeamTwo);
+        double probTeamOneWin = probabilityOfTeamOneWinning(eloTeamOne, eloTeamTwo, true);
 
         //Calculate a random double value between 0-1
         double matchOutcome = (double) Math.random();

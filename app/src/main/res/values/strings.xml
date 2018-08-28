@@ -66,18 +66,23 @@
     <!-- Main Menu Strings -->
     <string name="main_menu_sim_season">SIMULATE SEASON</string>
     <string name="main_menu_predict_matchup">PREDICT MATCHUP</string>
+    <string name="main_menu_next_week_matches">NEXT WEEK\'S MATCHES</string>
     <string name="main_menu_settings">SETTINGS</string>
 
     <!-- Settings Activity Strings -->
     <string name="settings_activity_elo_values">Set Team Elo Values</string>
 
     <!-- Matchup Predictor Activity Strings -->
-    <string name="match_predict_team_one">Select Team One</string>
-    <string name="match_predict_team_two">Select Team Two</string>
+    <string name="match_predict_team_one">Select Away Team</string>
+    <string name="match_predict_team_two">Select Home Team</string>
     <string name="match_predict_elo_header">Elo: </string>
     <string name="match_predict_odds_to_win_header">Odds To Win: </string>
     <string name="match_predict_simulate_match">SIMULATE MATCH</string>
     <string name="match_predict_score_header">Score</string>
+
+    <!-- Weekly Matches Activity Strings -->
+    <string name="weekly_matches_vegas_odds_header">Line: </string>
+    <string name="weekly_matches_elo_odds_header">Elo Odds: </string>
 
 
 

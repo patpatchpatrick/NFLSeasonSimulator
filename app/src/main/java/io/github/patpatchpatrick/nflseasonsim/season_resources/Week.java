@@ -23,9 +23,9 @@ public class Week {
         return mMatches;
     }
 
-    public void simulate(){
+    public void simulate(boolean useHomeFieldAdvantage){
         for (Match match: mMatches) {
-            match.simulate();
+            match.simulate(useHomeFieldAdvantage);
         }
     }
 }

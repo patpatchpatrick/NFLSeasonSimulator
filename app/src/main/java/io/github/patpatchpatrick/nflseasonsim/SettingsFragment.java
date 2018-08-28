@@ -54,7 +54,9 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
 
         String key = preference.getKey();
         if (key.equals(getString(R.string.settings_activity_elo_values))) {
-            if (!getSeasonLoadedPref()) {
+            if (!getSeasonInitializedPref()) {
+                mPresenter.initializeSeason(SimulatorPresenter.SEASON_INITIALIZED_FROM_SETTINGS);
+            } else if (!getSeasonLoadedPref()) {
                 mPresenter.loadSeasonFromDatabase(SimulatorModel.LOAD_SEASON_FROM_SETTINGS);
             } else {
                 Intent startEloValuesActivity = new Intent(getActivity(), EloValuesActivity.class);
@@ -112,18 +114,29 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         return mSharedPrefs.getBoolean(getString(R.string.settings_season_loaded_key), getResources().getBoolean(R.bool.settings_season_loaded_default));
     }
 
-    @Override
-    public void onSeasonInitialized() {
+    private Boolean getSeasonInitializedPref() {
+        //Return the preference value for if the season has been initialized
+        return mSharedPrefs.getBoolean(getString(R.string.settings_season_initialized_key), getResources().getBoolean(R.bool.pref_season_initialized_default));
+    }
 
+    @Override
+    public void onSeasonInitialized(int initalizedFrom) {
+        if (initalizedFrom == SimulatorPresenter.SEASON_INITIALIZED_FROM_SETTINGS) {
+            if (isAdded()) {
+                Intent startEloValuesActivity = new Intent(getActivity(), EloValuesActivity.class);
+                startActivity(startEloValuesActivity);
+            }
+        }
     }
 
     @Override
     public void onSeasonLoadedFromDb(int requestType) {
         if (requestType == SimulatorModel.LOAD_SEASON_FROM_SETTINGS) {
             //If season is loaded from database from settings activity, start elo values activity if the fragment is added to activity
-            if (isAdded()){
-            Intent startEloValuesActivity = new Intent(getActivity(), EloValuesActivity.class);
-            startActivity(startEloValuesActivity);}
+            if (isAdded()) {
+                Intent startEloValuesActivity = new Intent(getActivity(), EloValuesActivity.class);
+                startActivity(startEloValuesActivity);
+            }
         }
     }
 }

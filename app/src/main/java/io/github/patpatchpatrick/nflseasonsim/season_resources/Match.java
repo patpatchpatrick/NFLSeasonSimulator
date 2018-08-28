@@ -20,6 +20,7 @@ public class Match {
 
     private Data mData;
     private Uri matchUri;
+    //Team one is always the away team and team two is always the home team
     private Team mTeam1;
     private Team mTeam2;
     private int mWeek;
@@ -93,10 +94,10 @@ public class Match {
 
     }
 
-    protected void simulate() {
+    protected void simulate(boolean useHomeFieldAdvantage) {
 
         //Simulate match to determine if team one won
-        mTeamOneWon = ELORatingSystem.simulateMatch(this, mTeam1, mTeam2);
+        mTeamOneWon = ELORatingSystem.simulateMatch(this, mTeam1, mTeam2, useHomeFieldAdvantage);
 
         //Update team records based on outcome and mark match as complete
         if (mTeamOneWon){

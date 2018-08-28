@@ -260,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         //After data is deleted from database when season is reset, re-initialize the next season
 
         setViewsNotReadyToSimulate();
-        mPresenter.initializeSeason();
+        mPresenter.initializeSeason(SimulatorPresenter.SEASON_INITIALIZED_FROM_SIM_ACTIVITY);
     }
 
     @Override
@@ -324,8 +324,10 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         if (regularSeasonIsComplete() && !mPresenter.getPlayoffsStarted()) {
             mSimulateSeason.setVisibility(View.GONE);
             mStartPlayoffs.setVisibility(View.VISIBLE);
-        }
-        if (regularSeasonIsComplete() && !playoffsComplete()){
+            if (mAnimatedFootballAnimatable.isRunning()){
+                mAnimatedFootballAnimatable.stop();
+            }
+        } else if (regularSeasonIsComplete() && !playoffsComplete()){
             mAnimatedFootballAnimatable.start();
         }
     }
@@ -422,7 +424,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     }
 
     @Override
-    public void onSeasonInitialized() {
+    public void onSeasonInitialized(int initializedFrom) {
 
         runOnUiThread(new Runnable() {
             @Override

@@ -9,15 +9,14 @@
         android:roundIcon="@drawable/icon_logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
-        </activity>
+        <activity android:name=".MainActivity"></activity>
 
         <provider
             android:name=".data.SeasonSimProvider"
             android:authorities="io.github.patpatchpatrick.nflseasonsim"
             android:exported="false" />
 
-        <activity android:name=".EloValuesActivity"></activity>
+        <activity android:name=".EloValuesActivity" />
         <activity android:name=".HomeScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,14 +26,15 @@
         </activity>
         <activity
             android:name=".SettingsActivity"
-            android:theme="?normalActivity"
-            android:parentActivityName=".HomeScreen" />
+            android:parentActivityName=".HomeScreen"
+            android:theme="?normalActivity" />
 
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
 
-        <activity android:name=".MatchPredictorActivity"></activity>
+        <activity android:name=".MatchPredictorActivity" />
+        <activity android:name=".NextWeekMatchesActivity"></activity>
     </application>
 
 </manifest>

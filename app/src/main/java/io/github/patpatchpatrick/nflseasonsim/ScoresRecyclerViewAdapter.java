@@ -2,13 +2,10 @@ package io.github.patpatchpatrick.nflseasonsim;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.database.MergeCursor;
 import android.graphics.Typeface;
 import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +14,6 @@ import android.widget.TextView;
 
 import javax.inject.Inject;
 
-import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.MatchEntry;
 import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
 

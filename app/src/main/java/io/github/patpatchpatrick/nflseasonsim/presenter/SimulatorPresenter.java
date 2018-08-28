@@ -53,6 +53,10 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     private static int mCurrentWeek;
     private static Boolean mSeasonInitialized = false;
     private static Boolean mPlayoffsStarted = false;
+    public static final int SEASON_INITIALIZED_FROM_HOME = 0;
+    public static final int SEASON_INITIALIZED_FROM_SETTINGS = 1;
+    public static final int SEASON_INITIALIZED_FROM_SIM_ACTIVITY = 2;
+    private int mSeasonInitializedFrom;
 
     public SimulatorPresenter(SimulatorMvpContract.SimulatorView view) {
         super(view);
@@ -69,7 +73,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     @Override
     public void simulateWeek() {
         //Simulate a single week
-        mModel.getSchedule().getWeek(mCurrentWeek).simulate();
+        mModel.getSchedule().getWeek(mCurrentWeek).simulate(true);
         //After the week is complete, query the standings (and display them)
         mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_REGULAR);
         //Query the week scores and display them
@@ -81,8 +85,14 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
     @Override
     public void simulatePlayoffWeek() {
-        //Simulate a single week
-        mModel.getSchedule().getWeek(mCurrentWeek).simulate();
+        //Simulate a single playoff week
+        //If you are simulating the superbowl, don't use home field advantage in the simulation
+        //Otherwise, include home field advantage in the simulation
+        if (mCurrentWeek == MatchEntry.MATCH_WEEK_SUPERBOWL){
+            mModel.getSchedule().getWeek(mCurrentWeek).simulate(false);
+        } else {
+            mModel.getSchedule().getWeek(mCurrentWeek).simulate(true);
+        }
         //After the week is complete, query the standings (and display them)
         mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_POSTSEASON);
         //Week is complete so increment the current week value
@@ -91,7 +101,10 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     }
 
     @Override
-    public void initializeSeason() {
+    public void initializeSeason(int initializedFrom) {
+        //Set global variable for where season was initialized from (used to determine which activity
+        // to notify when the season is finished initializing)
+        mSeasonInitializedFrom = initializedFrom;
         mCurrentWeek = 1;
         setCurrentWeekPreference(mCurrentWeek);
         createTeams();
@@ -173,10 +186,14 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             //the simulate activity to restart
             setSeasonInitializedPreference(true);
             if (getSeasonLoadedPref()){
-                this.view.onSeasonInitialized();
+                this.view.onSeasonInitialized(SEASON_INITIALIZED_FROM_SIM_ACTIVITY);
             } else {
+                //Let the base views know where the season was initialized from, so that the correct intent
+                //can be called
                 setSeasonLoadedPreference(true);
-                mHomeScreenBaseView.onSeasonInitialized();
+                for (BaseView baseView : mBaseViews){
+                    baseView.onSeasonInitialized(mSeasonInitializedFrom);
+                }
             }
         }
 
@@ -965,7 +982,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     public void simulateSeason() {
         //From week 1 to week 17 (full season), simulate the season
         while (mCurrentWeek <= 17) {
-            mModel.getSchedule().getWeek(mCurrentWeek).simulate();
+            mModel.getSchedule().getWeek(mCurrentWeek).simulate(true);
             mCurrentWeek++;
         }
 
@@ -1054,11 +1071,12 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             Week wildCard = new Week(MatchEntry.MATCH_WEEK_WILDCARD);
 
             //Initialize wildcard matchups from cursor
+            //The better seed is always the home team, so they are added as team two (home team)
             // Seed 3 plays 6, 5 plays 4 for both conferences
-            wildCard.addMatch(new Match(afcTeams.get(2), afcTeams.get(5), MatchEntry.MATCH_WEEK_WILDCARD, this));
-            wildCard.addMatch(new Match(afcTeams.get(3), afcTeams.get(4), MatchEntry.MATCH_WEEK_WILDCARD, this));
-            wildCard.addMatch(new Match(nfcTeams.get(2), nfcTeams.get(5), MatchEntry.MATCH_WEEK_WILDCARD, this));
-            wildCard.addMatch(new Match(nfcTeams.get(3), nfcTeams.get(4), MatchEntry.MATCH_WEEK_WILDCARD, this));
+            wildCard.addMatch(new Match(afcTeams.get(5), afcTeams.get(2), MatchEntry.MATCH_WEEK_WILDCARD, this));
+            wildCard.addMatch(new Match(afcTeams.get(4), afcTeams.get(3), MatchEntry.MATCH_WEEK_WILDCARD, this));
+            wildCard.addMatch(new Match(nfcTeams.get(5), nfcTeams.get(2), MatchEntry.MATCH_WEEK_WILDCARD, this));
+            wildCard.addMatch(new Match(nfcTeams.get(4), nfcTeams.get(3), MatchEntry.MATCH_WEEK_WILDCARD, this));
 
             //Add the week to the schedule and insert the matches in the database
             mModel.getSchedule().addWeek(wildCard);
@@ -1073,11 +1091,12 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             Week divisional = new Week(MatchEntry.MATCH_WEEK_DIVISIONAL);
 
             //Initialize divisional matchups from cursor
+            //The better seed is always the home team, so they are added as team two (home team)
             // Highest remaining seed plays lowest and the two middle seeds play
-            divisional.addMatch(new Match(afcTeams.get(0), afcTeams.get(3), MatchEntry.MATCH_WEEK_DIVISIONAL, this));
-            divisional.addMatch(new Match(afcTeams.get(1), afcTeams.get(2), MatchEntry.MATCH_WEEK_DIVISIONAL, this));
-            divisional.addMatch(new Match(nfcTeams.get(0), nfcTeams.get(3), MatchEntry.MATCH_WEEK_DIVISIONAL, this));
-            divisional.addMatch(new Match(nfcTeams.get(1), nfcTeams.get(2), MatchEntry.MATCH_WEEK_DIVISIONAL, this));
+            divisional.addMatch(new Match(afcTeams.get(3), afcTeams.get(0), MatchEntry.MATCH_WEEK_DIVISIONAL, this));
+            divisional.addMatch(new Match(afcTeams.get(2), afcTeams.get(1), MatchEntry.MATCH_WEEK_DIVISIONAL, this));
+            divisional.addMatch(new Match(nfcTeams.get(3), nfcTeams.get(0), MatchEntry.MATCH_WEEK_DIVISIONAL, this));
+            divisional.addMatch(new Match(nfcTeams.get(2), nfcTeams.get(1), MatchEntry.MATCH_WEEK_DIVISIONAL, this));
 
             //Add the week to the schedule and  insert the matches in the database
             mModel.getSchedule().addWeek(divisional);
@@ -1093,9 +1112,10 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             Week championship = new Week(MatchEntry.MATCH_WEEK_CHAMPIONSHIP);
 
             //Initialize conference championship matchups from cursor
+            //The better seed is always the home team, so they are added as team two (home team)
             // Highest remaining seed plays lowest
-            championship.addMatch(new Match(afcTeams.get(0), afcTeams.get(1), MatchEntry.MATCH_WEEK_CHAMPIONSHIP, this));
-            championship.addMatch(new Match(nfcTeams.get(0), nfcTeams.get(1), MatchEntry.MATCH_WEEK_CHAMPIONSHIP, this));
+            championship.addMatch(new Match(afcTeams.get(1), afcTeams.get(0), MatchEntry.MATCH_WEEK_CHAMPIONSHIP, this));
+            championship.addMatch(new Match(nfcTeams.get(1), nfcTeams.get(0), MatchEntry.MATCH_WEEK_CHAMPIONSHIP, this));
 
             //Add the week to the schedule and insert the matches in the database
             mModel.getSchedule().addWeek(championship);
@@ -1154,14 +1174,16 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     }
 
 
-
     private void setEloType() {
-        Integer eloType = mSharedPreferences.getInt(mContext.getString(R.string.settings_elo_type_key), mContext.getResources().getInteger(R.integer.settings_elo_type_default));
+        Integer eloType = mSharedPreferences.getInt(mContext.getString(R.string.settings_elo_type_key), mContext.getResources().getInteger(R.integer.settings_elo_type_future));
         if (eloType == mContext.getResources().getInteger(R.integer.settings_elo_type_future)) {
             resetTeamFutureElos();
         }
         if (eloType == mContext.getResources().getInteger(R.integer.settings_elo_type_user)) {
             resetTeamUserElos();
+        }
+        if (eloType == mContext.getResources().getInteger(R.integer.settings_elo_type_default)){
+            resetTeamElos();
         }
     }
 
