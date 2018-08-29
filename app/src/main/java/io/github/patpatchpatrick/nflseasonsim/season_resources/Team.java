@@ -88,7 +88,7 @@ public class Team {
         mTeamRanking =  teamRanking;
         mData = data;
         mName = name;
-        mShortName = name;
+        mShortName = shortName;
         mElo = elo;
         mDefaultElo = defaultElo;
         mUserElo = userElo;

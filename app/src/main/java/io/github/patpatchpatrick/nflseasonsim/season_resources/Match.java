@@ -28,6 +28,7 @@ public class Match {
     private Team loser;
     private int mTeam1Score;
     private int mTeam2Score;
+    private Double mTeamTwoOdds;
     private Boolean mTeamOneWon;
     private Boolean matchComplete;
     private Boolean divisionalMatchup;
@@ -45,6 +46,7 @@ public class Match {
         mWeek = week;
         matchComplete = false;
         mTeamOneWon = false;
+        mTeamTwoOdds = SeasonSimContract.MatchEntry.MATCH_NO_ODDS_SET;
 
         //Determine if match is a divisional matchup
         if (mTeam1.getDivision() == mTeam2.getDivision()){
@@ -61,7 +63,35 @@ public class Match {
 
     }
 
-    public Match(Team team1, Team team2, int teamOneWon, int week, Data data, Uri uri) {
+    public Match(Team team1, Team team2, int week, Data data, Double teamTwoOdds) {
+
+        //Inject match with dagger to get contentResolver
+        HomeScreen.getActivityComponent().inject(this);
+
+        mData = data;
+        mTeam1 = team1;
+        mTeam2 = team2;
+        mWeek = week;
+        matchComplete = false;
+        mTeamOneWon = false;
+        mTeamTwoOdds = teamTwoOdds;
+
+        //Determine if match is a divisional matchup
+        if (mTeam1.getDivision() == mTeam2.getDivision()){
+            divisionalMatchup = true;
+        } else {
+            divisionalMatchup = false;
+        }
+
+        if (mWeek > 17){
+            playoffMatchup = true;
+        } else {
+            playoffMatchup = false;
+        }
+
+    }
+
+    public Match(Team team1, Team team2, int teamOneWon, int week, Data data, Uri uri, Double teamTwoOdds) {
 
         //Inject match with dagger to get contentResolver
         HomeScreen.getActivityComponent().inject(this);
@@ -72,6 +102,7 @@ public class Match {
         mWeek = week;
         matchComplete = false;
         matchUri = uri;
+        mTeamTwoOdds = teamTwoOdds;
 
         //Determine if match is a divisional matchup
         if (mTeam1.getDivision() == mTeam2.getDivision()){
@@ -172,6 +203,8 @@ public class Match {
     public int getWeek(){
         return mWeek;
     }
+
+    public Double getTeamTwoOdds(){return mTeamTwoOdds; }
 
 
 }

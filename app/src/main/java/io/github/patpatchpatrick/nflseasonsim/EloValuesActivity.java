@@ -51,7 +51,7 @@ public class EloValuesActivity extends AppCompatActivity {
             public void onClick(View view) {
                 mSimulatorPresenter.resetTeamElos();
                 eloRecyclerAdapter.notifyDataSetChanged();
-                setUseDefaultElosPref();
+                setUseLastSeasonElosPref();
             }
         });
 
@@ -91,9 +91,9 @@ public class EloValuesActivity extends AppCompatActivity {
         prefs.commit();
     }
 
-    private void setUseDefaultElosPref(){
+    private void setUseLastSeasonElosPref(){
         SharedPreferences.Editor prefs = mSharedPreferences.edit();
-        prefs.putInt(getString(R.string.settings_elo_type_key), getResources().getInteger(R.integer.settings_elo_type_default));
+        prefs.putInt(getString(R.string.settings_elo_type_key), getResources().getInteger(R.integer.settings_elo_type_last_season));
         prefs.commit();
     }
 

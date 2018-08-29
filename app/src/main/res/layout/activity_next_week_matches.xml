@@ -4,15 +4,53 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".NextWeekMatchesActivity">
+    tools:context=".NextWeekMatchesActivity"
+    style="?normalActivity">
+
+    <TextView
+        style="?normalHeaderTextView"
+        android:id="@+id/weekly_matches_week_number_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="Week 7" />
+
+    <ImageView
+        style="?normalButton"
+        android:id="@+id/weekly_matches_arrow_left"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginRight="16dp"
+        android:src="@drawable/ic_arrow_left"
+        app:layout_constraintEnd_toStartOf="@id/weekly_matches_week_number_header"
+        app:layout_constraintTop_toTopOf="@id/weekly_matches_week_number_header" />
+
+    <ImageView
+        style="?normalButton"
+        android:id="@+id/weekly_matches_arrow_right"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginLeft="16dp"
+        android:src="@drawable/ic_arrow_right"
+        app:layout_constraintStart_toEndOf="@id/weekly_matches_week_number_header"
+        app:layout_constraintTop_toTopOf="@id/weekly_matches_week_number_header" />
 
     <ScrollView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/weekly_matches_arrow_left"
+        android:layout_marginTop="16dp"
+        app:layout_constraintVertical_bias="0.060000002">
+
         <android.support.v7.widget.RecyclerView
-            android:layout_width="wrap_content"
+            android:id="@+id/next_week_matches_recyclerview"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/next_week_matches_recyclerview"></android.support.v7.widget.RecyclerView>
+            android:layout_marginBottom="128dp"></android.support.v7.widget.RecyclerView>
     </ScrollView>
 
 </android.support.constraint.ConstraintLayout>

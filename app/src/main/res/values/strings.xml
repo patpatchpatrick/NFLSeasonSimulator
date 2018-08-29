@@ -66,7 +66,7 @@
     <!-- Main Menu Strings -->
     <string name="main_menu_sim_season">SIMULATE SEASON</string>
     <string name="main_menu_predict_matchup">PREDICT MATCHUP</string>
-    <string name="main_menu_next_week_matches">NEXT WEEK\'S MATCHES</string>
+    <string name="main_menu_next_week_matches">WEEKLY MATCHES</string>
     <string name="main_menu_settings">SETTINGS</string>
 
     <!-- Settings Activity Strings -->

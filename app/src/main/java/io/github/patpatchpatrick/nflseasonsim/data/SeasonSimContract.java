@@ -128,6 +128,7 @@ public class SeasonSimContract {
         public static final String COLUMN_MATCH_TEAM_ONE_SCORE = "matchTeamOneScore";
         public static final String COLUMN_MATCH_TEAM_TWO_SCORE = "matchTeamTwoScore";
         public static final String COLUMN_MATCH_TEAM_ONE_WON = "matchTeamOneWon";
+        public static final String COLUMN_MATCH_TEAM_TWO_ODDS = "matchTeamTwoOdds";
         public static final String COLUMN_MATCH_WEEK = "matchWeek";
         public static final String COLUMN_MATCH_COMPLETE = "matchComplete";
 
@@ -144,6 +145,9 @@ public class SeasonSimContract {
         public static final int MATCH_WEEK_DIVISIONAL = 19;
         public static final int MATCH_WEEK_CHAMPIONSHIP = 20;
         public static final int MATCH_WEEK_SUPERBOWL = 21;
+
+        //Define input variables for no odds set
+        public static final double MATCH_NO_ODDS_SET = 50.0;
 
 
 

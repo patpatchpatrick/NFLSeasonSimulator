@@ -27,10 +27,11 @@ import io.github.patpatchpatrick.nflseasonsim.dagger.ActivityComponent;
 import io.github.patpatchpatrick.nflseasonsim.dagger.DaggerActivityComponent;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.MatchEntry;
 import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
+import io.github.patpatchpatrick.nflseasonsim.mvp_utils.ScoreView;
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.SimulatorMvpContract;
 import io.github.patpatchpatrick.nflseasonsim.presenter.SimulatorPresenter;
 
-public class MainActivity extends AppCompatActivity implements SimulatorMvpContract.SimulatorView {
+public class MainActivity extends AppCompatActivity implements SimulatorMvpContract.SimulatorView, ScoreView {
 
     @Inject
     SimulatorPresenter mPresenter;
@@ -81,6 +82,8 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
         //Set the view on the presenter
         mPresenter.setView(this);
+        mPresenter.addBaseView(this);
+        mPresenter.addScoreView(this);
 
         mWeekNumberHeader = (TextView) findViewById(R.id.week_number_header);
         mSimulateSeason = (Button) findViewById(R.id.simulate_season_button);
@@ -117,11 +120,9 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
             //If the current week is greater than one and playoffs haven't started, the season has been partially
             //simulated, so load the already simulated data
             mPresenter.loadAlreadySimulatedData();
-        } else if (mPresenter.getPlayoffsStarted() && !playoffsComplete()){
+        } else if (mPresenter.getPlayoffsStarted() && !playoffsComplete()) {
             mPresenter.loadAlreadySimulatedPlayoffData();
-        }
-
-        else {
+        } else {
             setUpViews();
         }
 
@@ -260,7 +261,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         //After data is deleted from database when season is reset, re-initialize the next season
 
         setViewsNotReadyToSimulate();
-        mPresenter.initializeSeason(SimulatorPresenter.SEASON_INITIALIZED_FROM_SIM_ACTIVITY);
+        mPresenter.initializeSeason();
     }
 
     @Override
@@ -276,16 +277,19 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     }
 
     @Override
-    public void onDisplayScores(int weekNumber, Cursor cursor, String scoresWeekNumberHeader, boolean matchesPlayed) {
-        Log.d("SCORES", "onDisplayScores");
+    public void onDisplayScores(int weekNumber, Cursor cursor, String scoresWeekNumberHeader, int queriedFrom) {
+
 
         //Callback received from presenter to display scores after they are loaded
-        //Swap in the scores cursor to display scores
+        //If scores were queried from the simulator activity,  swap in the scores cursor to display scores
         //Set week number header
         //Set up views now that week was simulated
-        mScoresRecyclerViewAdapter.swapCursor(cursor);
-        mWeekNumberHeader.setText(scoresWeekNumberHeader);
-        setUpViews();
+
+        if (queriedFrom == SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY) {
+            mScoresRecyclerViewAdapter.swapCursor(cursor);
+            mWeekNumberHeader.setText(scoresWeekNumberHeader);
+            setUpViews();
+        }
 
     }
 
@@ -303,8 +307,9 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mSimulateSeason.setEnabled(true);
         mSimulateWeek.setEnabled(true);
         mResetButton.setVisibility(View.GONE);
-        if (mAnimatedFootballAnimatable.isRunning()){
-        mAnimatedFootballAnimatable.stop();}
+        if (mAnimatedFootballAnimatable.isRunning()) {
+            mAnimatedFootballAnimatable.stop();
+        }
     }
 
     private void setViewsNotReadyToSimulate() {
@@ -324,10 +329,10 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         if (regularSeasonIsComplete() && !mPresenter.getPlayoffsStarted()) {
             mSimulateSeason.setVisibility(View.GONE);
             mStartPlayoffs.setVisibility(View.VISIBLE);
-            if (mAnimatedFootballAnimatable.isRunning()){
+            if (mAnimatedFootballAnimatable.isRunning()) {
                 mAnimatedFootballAnimatable.stop();
             }
-        } else if (regularSeasonIsComplete() && !playoffsComplete()){
+        } else if (regularSeasonIsComplete() && !playoffsComplete()) {
             mAnimatedFootballAnimatable.start();
         }
     }
@@ -341,8 +346,9 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mResetButton.setVisibility(View.GONE);
         mSimulateWeek.setEnabled(true);
         mSimulateWeek.setVisibility(View.VISIBLE);
-        if (mAnimatedFootballAnimatable.isRunning()){
-            mAnimatedFootballAnimatable.stop();}
+        if (mAnimatedFootballAnimatable.isRunning()) {
+            mAnimatedFootballAnimatable.stop();
+        }
     }
 
     private void setViewsPlayoffsComplete() {
@@ -424,16 +430,16 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     }
 
     @Override
-    public void onSeasonInitialized(int initializedFrom) {
+    public void onSeasonInitialized() {
 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
 
-                    //If season initialized call is received within simulateActivity, then the season
+                //If season initialized call is received within simulateActivity, then the season
                 //has been reset so restart the activity
 
-                    MainActivity.this.recreate();
+                MainActivity.this.recreate();
 
 
             }
@@ -444,7 +450,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     }
 
     @Override
-    public void onSeasonLoadedFromDb(int requestType) {
+    public void onSeasonLoadedFromDb() {
     }
 
     private void setUpViews() {
@@ -459,7 +465,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
             }
             if (mPresenter.getPlayoffsStarted()) {
                 if (playoffsComplete()) {
-                    if (mAnimatedFootballAnimatable.isRunning()){
+                    if (mAnimatedFootballAnimatable.isRunning()) {
                         mAnimatedFootballAnimatable.stop();
                     }
                     setViewsPlayoffsComplete();

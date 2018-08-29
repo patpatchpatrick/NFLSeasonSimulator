@@ -18,7 +18,6 @@ public interface SimulatorMvpContract {
 
     interface SimulatorView extends BaseView{
         void onDisplayStandings(int standingsType, Cursor cursor);
-        void onDisplayScores(int weekNumber, Cursor cursor, String scoresWeekNumberHeader, boolean matchesPlayed);
         void onPriorSimulatedDataLoaded();
         void onDataDeleted();
         void setCurrentWeekPreference(int currentWeek);
@@ -38,8 +37,9 @@ public interface SimulatorMvpContract {
         void teamsInserted();
         void addBaseView(BaseView baseView);
         void matchesInserted(int insertType);
-        void matchesQueried(int queryType, Cursor matchesCursor,  boolean matchesPlayed);
+        void matchesQueried(int queryType, Cursor matchesCursor, int queryFrom);
         void teamsOrStandingsQueried(int queryType, Cursor standingsCursor);
+        void queryMatches(int week, boolean singleMatch, int queryFrom);
         void resetSeason();
         void resetTeamElos();
         void resetTeamFutureElos();
@@ -69,7 +69,7 @@ public interface SimulatorMvpContract {
         void updateMatch(Match match, Uri uri);
         void updateTeam(Team team, Uri uri);
         void queryStandings(int queryType);
-        void queryMatches(int weekNumber, boolean singleMatch, boolean matchesPlayed);
+        void queryMatches(int weekNumber, boolean singleMatch, int queryFrom);
         void deleteAllData();
         void destroyModel();
     }

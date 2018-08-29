@@ -53,6 +53,9 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     public static final int QUERY_STANDINGS_LOAD_POSTSEASON = 5;
     public static final int QUERY_MATCHES_ALL = 0;
 
+    public static final int QUERY_FROM_SIMULATOR_ACTIVITY = 0;
+    public static final int QUERY_FROM_NEXT_WEEK_MATCHES_ACTIVITY = 1;
+
     public static final int INSERT_MATCHES_SCHEDULE = 0;
     public static final int INSERT_MATCHES_PLAYOFFS_WILDCARD = 1;
     public static final int INSERT_MATCHES_PLAYOFFS_DIVISIONAL = 2;
@@ -200,6 +203,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                 values.put(MatchEntry.COLUMN_MATCH_TEAM_ONE, match.getTeam1().getName());
                 values.put(MatchEntry.COLUMN_MATCH_TEAM_TWO, match.getTeam2().getName());
                 values.put(MatchEntry.COLUMN_MATCH_WEEK, match.getWeek());
+                values.put(MatchEntry.COLUMN_MATCH_TEAM_TWO_ODDS, match.getTeamTwoOdds());
                 Uri uri = contentResolver.insert(MatchEntry.CONTENT_URI, values);
                 return uri;
             }
@@ -266,6 +270,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                 values.put(MatchEntry.COLUMN_MATCH_TEAM_ONE, match.getTeam1().getName());
                 values.put(MatchEntry.COLUMN_MATCH_TEAM_TWO, match.getTeam2().getName());
                 values.put(MatchEntry.COLUMN_MATCH_WEEK, match.getWeek());
+                values.put(MatchEntry.COLUMN_MATCH_TEAM_TWO_ODDS, match.getTeamTwoOdds());
                 Uri uri = contentResolver.insert(MatchEntry.CONTENT_URI, values);
 
                 match.setUri(uri);
@@ -313,6 +318,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                 values.put(MatchEntry.COLUMN_MATCH_TEAM_ONE, match.getTeam1().getName());
                 values.put(MatchEntry.COLUMN_MATCH_TEAM_TWO, match.getTeam2().getName());
                 values.put(MatchEntry.COLUMN_MATCH_WEEK, match.getWeek());
+                values.put(MatchEntry.COLUMN_MATCH_TEAM_TWO_ODDS, match.getTeamTwoOdds());
                 Uri uri = contentResolver.insert(MatchEntry.CONTENT_URI, values);
 
                 match.setUri(uri);
@@ -673,7 +679,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     }
 
     @Override
-    public void queryMatches(final int weekNumber, final boolean singleMatch, final boolean matchesPlayed) {
+    public void queryMatches(final int weekNumber, final boolean singleMatch, final int queryFrom) {
         Log.d("MODEL", "MATCHESQUERIED");
 
         //Query the matches/schedule from the database
@@ -688,6 +694,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                         MatchEntry.COLUMN_MATCH_TEAM_TWO,
                         MatchEntry.COLUMN_MATCH_TEAM_ONE_SCORE,
                         MatchEntry.COLUMN_MATCH_TEAM_TWO_SCORE,
+                        MatchEntry.COLUMN_MATCH_TEAM_TWO_ODDS,
                         MatchEntry.COLUMN_MATCH_WEEK,
                         MatchEntry.COLUMN_MATCH_COMPLETE,
                         MatchEntry.COLUMN_MATCH_TEAM_ONE_WON,
@@ -774,7 +781,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
             @Override
             public void onNext(Cursor matchesCursor) {
                 Log.d("MODEL", "MATCHESQUERESPONSE");
-                mPresenter.matchesQueried(weekNumber, matchesCursor, matchesPlayed);
+                mPresenter.matchesQueried(weekNumber, matchesCursor, queryFrom);
             }
 
             @Override

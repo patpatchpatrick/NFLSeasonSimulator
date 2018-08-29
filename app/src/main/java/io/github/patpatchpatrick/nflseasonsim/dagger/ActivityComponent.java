@@ -12,6 +12,7 @@ import io.github.patpatchpatrick.nflseasonsim.NextWeekMatchesActivity;
 import io.github.patpatchpatrick.nflseasonsim.ScoresRecyclerViewAdapter;
 import io.github.patpatchpatrick.nflseasonsim.SettingsFragment;
 import io.github.patpatchpatrick.nflseasonsim.StandingsRecyclerViewAdapter;
+import io.github.patpatchpatrick.nflseasonsim.WeeklyMatchesRecyclerViewAdapter;
 import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
 import io.github.patpatchpatrick.nflseasonsim.presenter.SimulatorPresenter;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Match;
@@ -33,6 +34,7 @@ public interface ActivityComponent {
     void inject(EloRecyclerViewAdapter eloRecyclerViewAdapter);
     void inject(ScoresRecyclerViewAdapter scoresRecyclerViewAdapter);
     void inject(StandingsRecyclerViewAdapter standingsRecyclerViewAdapter);
+    void inject(WeeklyMatchesRecyclerViewAdapter weeklyMatchesRecyclerViewAdapter);
     void inject(SettingsFragment settingsFragment);
 
 }

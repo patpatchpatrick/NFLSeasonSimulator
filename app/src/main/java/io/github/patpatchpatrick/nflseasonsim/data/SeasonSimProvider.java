@@ -510,6 +510,15 @@ public class SeasonSimProvider extends ContentProvider{
             }
         }
 
+        // If the MatchEntry TEAM TWO ODDS key is present,
+        // check that the odds value is not null.
+        if (values.containsKey(MatchEntry.COLUMN_MATCH_TEAM_TWO_ODDS)) {
+            Double teamTwoOdds = values.getAsDouble(MatchEntry.COLUMN_MATCH_TEAM_TWO_ODDS);
+            if (teamTwoOdds == null) {
+                throw new IllegalArgumentException("Team two odds is null");
+            }
+        }
+
         // If the MatchEntry WEEK key is present,
         // check that the name value is not null.
         if (values.containsKey(MatchEntry.COLUMN_MATCH_WEEK)) {

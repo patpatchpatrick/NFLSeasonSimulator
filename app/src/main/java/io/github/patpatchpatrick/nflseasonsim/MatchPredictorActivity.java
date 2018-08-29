@@ -4,7 +4,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -18,7 +17,6 @@ import java.util.ArrayList;
 
 import javax.inject.Inject;
 
-import io.github.patpatchpatrick.nflseasonsim.dagger.ActivityComponent;
 import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.ELORatingSystem;
 
@@ -71,7 +69,7 @@ public class MatchPredictorActivity extends AppCompatActivity {
 
         //Get resources for spinners and values
         final ArrayList<String> teamNameArrayList = mModel.getTeamNameArrayList();
-        final Integer eloType = mSharedPrefs.getInt(getString(R.string.settings_elo_type_key), getResources().getInteger(R.integer.settings_elo_type_default));
+        final Integer eloType = mSharedPrefs.getInt(getString(R.string.settings_elo_type_key), getResources().getInteger(R.integer.settings_elo_type_future));
 
         //Set up team one spinner with arraylist of team names from model
         mTeamOneSpinner = findViewById(R.id.match_predict_team_one_spinner);
@@ -85,7 +83,7 @@ public class MatchPredictorActivity extends AppCompatActivity {
                 mTeamOneLogo.setImageResource(mModel.getLogo(teamName));
 
                 //Set elo value based on selected team
-                if (eloType == getResources().getInteger(R.integer.settings_elo_type_default)) {
+                if (eloType == getResources().getInteger(R.integer.settings_elo_type_last_season)) {
                     mTeamOneEloValue.setText("" + mModel.getTeam(teamName).getDefaultElo());
                 } else if (eloType == getResources().getInteger(R.integer.settings_elo_type_future)) {
                     mTeamOneEloValue.setText("" + mModel.getTeam(teamName).getFutureElo());
@@ -119,7 +117,7 @@ public class MatchPredictorActivity extends AppCompatActivity {
                 mTeamTwoLogo.setImageResource(mModel.getLogo(teamName));
 
                 //Set elo value based on selected team
-                if (eloType == getResources().getInteger(R.integer.settings_elo_type_default)) {
+                if (eloType == getResources().getInteger(R.integer.settings_elo_type_last_season)) {
                     mTeamTwoEloValue.setText("" + mModel.getTeam(teamName).getDefaultElo());
                 } else if (eloType == getResources().getInteger(R.integer.settings_elo_type_future)) {
                     mTeamTwoEloValue.setText("" + mModel.getTeam(teamName).getFutureElo());

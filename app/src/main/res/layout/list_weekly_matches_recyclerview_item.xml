@@ -21,7 +21,7 @@
         android:id="@+id/weekly_matches_middle_divider"
         app:layout_constraintBottom_toBottomOf="@+id/weekly_matches_recycler_team_two_score"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"></View>
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <ImageView
         android:layout_width="32dp"

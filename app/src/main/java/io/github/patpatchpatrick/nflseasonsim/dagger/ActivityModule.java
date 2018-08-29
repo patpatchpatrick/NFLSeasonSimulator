@@ -17,6 +17,7 @@ import io.github.patpatchpatrick.nflseasonsim.ScoresRecyclerViewAdapter;
 import io.github.patpatchpatrick.nflseasonsim.StandingsRecyclerViewAdapter;
 import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.BaseView;
+import io.github.patpatchpatrick.nflseasonsim.mvp_utils.ScoreView;
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.SimulatorMvpContract;
 import io.github.patpatchpatrick.nflseasonsim.presenter.SimulatorPresenter;
 
@@ -33,6 +34,7 @@ public class ActivityModule {
     private final Context context;
     private final BaseView baseView;
     private final ArrayList<BaseView> baseViews;
+    private final ArrayList<ScoreView> scoreViews;
 
     public ActivityModule(HomeScreen homeScreen) {
         this.presenter = new SimulatorPresenter();
@@ -43,6 +45,7 @@ public class ActivityModule {
         this.baseView =  homeScreen;
         this.baseViews = new ArrayList<>();
         this.baseViews.add(baseView);
+        this.scoreViews = new ArrayList<>();
     }
 
     @Provides
@@ -91,6 +94,12 @@ public class ActivityModule {
     @Singleton
     ArrayList<BaseView> providesBaseViews() {
         return baseViews;
+    }
+
+    @Provides
+    @Singleton
+    ArrayList<ScoreView> providesScoreViews() {
+        return scoreViews;
     }
 
 

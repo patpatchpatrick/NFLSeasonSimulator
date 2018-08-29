@@ -53,14 +53,6 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
         mActivityComponent.inject(mModel);
 
         setSeasonLoadedPreference(false);
-        
-        //Initialize season if not initialized
-        //Load season, if not loaded already
-        if (!getSeasonInitializedPref()){
-            mPresenter.initializeSeason();
-        } else if (!getSeasonLoadedPref()){
-            mPresenter.loadSeasonFromDatabase();
-        }
 
         mSimulateActivityButton = (Button) findViewById(R.id.main_menu_sim_season_button);
         mMatchPredictButton = (Button) findViewById(R.id.main_menu_predict_matchup_button);
@@ -73,28 +65,25 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
             mAnimatedFootballAnimatable.stop();
         }
 
+        //Initialize season if not initialized
+        //Load season, if not loaded already
+        //Start loading animation
+        if (!getSeasonInitializedPref()) {
+            setButtonsActive(false);
+            mAnimatedFootballAnimatable.start();
+            mPresenter.initializeSeason();
+        } else if (!getSeasonLoadedPref()) {
+            setButtonsActive(false);
+            mAnimatedFootballAnimatable.start();
+            mPresenter.loadSeasonFromDatabase();
+        }
+
         mSimulateActivityButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("SeasonLoad", "" + getSeasonLoadedPref());
-                Log.d("SeasonInit", "" + getSeasonInitializedPref());
-                if (!getSeasonInitializedPref()) {
-                    //If the season is not initialized, initialize it and start simulate activity after
-                    //initialization is complete
-                    mPresenter.initializeSeason(SimulatorPresenter.SEASON_INITIALIZED_FROM_HOME);
-                    //Start loading animation
-                    mAnimatedFootballAnimatable.start();
+                Intent startSimulateActivity = new Intent(HomeScreen.this, MainActivity.class);
+                startActivity(startSimulateActivity);
 
-                } else if (!getSeasonLoadedPref()) {
-                    //If the season is not loaded, load the season from the database
-                    mPresenter.loadSeasonFromDatabase(SimulatorModel.LOAD_SEASON_FROM_HOME_SEASON_SIM);
-                    //Start loading animation
-                    mAnimatedFootballAnimatable.start();
-                } else {
-                    //If season is loaded/initialized, start simulator activity
-                    Intent startSimulateActivity = new Intent(HomeScreen.this, MainActivity.class);
-                    startActivity(startSimulateActivity);
-                }
             }
         });
 
@@ -102,13 +91,9 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
             @Override
             public void onClick(View view) {
                 //If season isn't loaded, load it, otherwise start the match predictor activity
-                if (!getSeasonLoadedPref()) {
-                    mAnimatedFootballAnimatable.start();
-                    mPresenter.loadSeasonFromDatabase(SimulatorModel.LOAD_SEASON_FROM_HOME_MATCH_PREDICT);
-                } else {
-                    Intent startMatchPredictActivity = new Intent(HomeScreen.this, MatchPredictorActivity.class);
-                    startActivity(startMatchPredictActivity);
-                }
+                Intent startMatchPredictActivity = new Intent(HomeScreen.this, MatchPredictorActivity.class);
+                startActivity(startMatchPredictActivity);
+
             }
         });
 
@@ -128,6 +113,13 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
             }
         });
 
+    }
+
+    private void setButtonsActive(boolean buttonsActive) {
+        mSimulateActivityButton.setEnabled(buttonsActive);
+        mMatchPredictButton.setEnabled(buttonsActive);
+        mSettingsButton.setEnabled(buttonsActive);
+        mNextWeekMatchesButton.setEnabled(buttonsActive);
     }
 
 
@@ -190,45 +182,27 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
     }
 
     @Override
-    public void onSeasonInitialized(final int initializedFrom) {
-        //After the season is initialized, start the simlate activity
+    public void onSeasonInitialized() {
+        //After the season is initialized, stop loading animation and make buttons active again
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-
-                //If season was initialized from home screen, completed season initialized tasks
-                if (initializedFrom == SimulatorPresenter.SEASON_INITIALIZED_FROM_HOME) {
-                    //Season initialized call received from presenter
-                    //Stop loading animation
-                    //Start simulateActivity
-                    if (mAnimatedFootballAnimatable.isRunning()) {
-                        mAnimatedFootballAnimatable.stop();
-                    }
-                    Intent startSimulateActivity = new Intent(HomeScreen.this, MainActivity.class);
-                    startActivity(startSimulateActivity);
+                setButtonsActive(true);
+                if (mAnimatedFootballAnimatable.isRunning()) {
+                    mAnimatedFootballAnimatable.stop();
                 }
-
             }
 
         });
     }
 
     @Override
-    public void onSeasonLoadedFromDb(int requestType) {
-        if (requestType == SimulatorModel.LOAD_SEASON_FROM_HOME_SEASON_SIM) {
-            //Stop loading animation
-            mAnimatedFootballAnimatable.stop();
-            //If season was loaded from home activity, open simulation activity after season is finished loading
-            Intent startSimulateActivity = new Intent(HomeScreen.this, MainActivity.class);
-            startActivity(startSimulateActivity);
-        }
-        if (requestType == SimulatorModel.LOAD_SEASON_FROM_HOME_MATCH_PREDICT) {
-            //Stop loading animation
-            mAnimatedFootballAnimatable.stop();
-            //If season was loaded from home activity, open match predict activity after season is finished loading
-            Intent startMatchPredictActivity = new Intent(HomeScreen.this, MatchPredictorActivity.class);
-            startActivity(startMatchPredictActivity);
-        }
+    public void onSeasonLoadedFromDb() {
+        //Stop loading animation when season is finished loading
+        //Set all buttons back to active
+        setButtonsActive(true);
+        mAnimatedFootballAnimatable.stop();
+
     }
 
     private Boolean getSeasonLoadedPref() {

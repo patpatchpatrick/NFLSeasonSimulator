@@ -50,19 +50,13 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     @Override
     public boolean onPreferenceTreeClick(Preference preference) {
         //If the set elo values preference is clicked, open the elo values activity
-        //If the season is not yet loaded, load it
 
         String key = preference.getKey();
         if (key.equals(getString(R.string.settings_activity_elo_values))) {
-            if (!getSeasonInitializedPref()) {
-                mPresenter.initializeSeason(SimulatorPresenter.SEASON_INITIALIZED_FROM_SETTINGS);
-            } else if (!getSeasonLoadedPref()) {
-                mPresenter.loadSeasonFromDatabase(SimulatorModel.LOAD_SEASON_FROM_SETTINGS);
-            } else {
                 Intent startEloValuesActivity = new Intent(getActivity(), EloValuesActivity.class);
                 startActivity(startEloValuesActivity);
                 return true;
-            }
+
         }
 
         return super.onPreferenceTreeClick(preference);
@@ -120,23 +114,12 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     }
 
     @Override
-    public void onSeasonInitialized(int initalizedFrom) {
-        if (initalizedFrom == SimulatorPresenter.SEASON_INITIALIZED_FROM_SETTINGS) {
-            if (isAdded()) {
-                Intent startEloValuesActivity = new Intent(getActivity(), EloValuesActivity.class);
-                startActivity(startEloValuesActivity);
-            }
-        }
+    public void onSeasonInitialized() {
+
     }
 
     @Override
-    public void onSeasonLoadedFromDb(int requestType) {
-        if (requestType == SimulatorModel.LOAD_SEASON_FROM_SETTINGS) {
-            //If season is loaded from database from settings activity, start elo values activity if the fragment is added to activity
-            if (isAdded()) {
-                Intent startEloValuesActivity = new Intent(getActivity(), EloValuesActivity.class);
-                startActivity(startEloValuesActivity);
-            }
-        }
+    public void onSeasonLoadedFromDb() {
+
     }
 }
