@@ -32,6 +32,7 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
     Button mSimulateActivityButton;
     Button mMatchPredictButton;
     Button mSettingsButton;
+    Button mNextWeekMatchesButton;
     ImageView mAnimatedFootball;
     Animatable mAnimatedFootballAnimatable;
     static ActivityComponent mActivityComponent;
@@ -52,10 +53,19 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
         mActivityComponent.inject(mModel);
 
         setSeasonLoadedPreference(false);
+        
+        //Initialize season if not initialized
+        //Load season, if not loaded already
+        if (!getSeasonInitializedPref()){
+            mPresenter.initializeSeason();
+        } else if (!getSeasonLoadedPref()){
+            mPresenter.loadSeasonFromDatabase();
+        }
 
         mSimulateActivityButton = (Button) findViewById(R.id.main_menu_sim_season_button);
         mMatchPredictButton = (Button) findViewById(R.id.main_menu_predict_matchup_button);
         mSettingsButton = (Button) findViewById(R.id.main_menu_settings_button);
+        mNextWeekMatchesButton = (Button) findViewById(R.id.main_menu_next_week_matches_button);
 
         mAnimatedFootball = (ImageView) findViewById(R.id.football_animation);
         mAnimatedFootballAnimatable = (Animatable) mAnimatedFootball.getDrawable();
@@ -109,7 +119,17 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
                 startActivity(startSettingsActivity);
             }
         });
+
+        mNextWeekMatchesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent startNextWeekMatchesActivity = new Intent(HomeScreen.this, NextWeekMatchesActivity.class);
+                startActivity(startNextWeekMatchesActivity);
+            }
+        });
+
     }
+
 
     private void initializeTheme() {
         //Set the initial theme of the app based on shared prefs theme
