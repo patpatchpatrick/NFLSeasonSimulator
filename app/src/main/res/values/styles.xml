@@ -117,7 +117,7 @@
     <!-- Button -->
 
     <style name="NormalButton" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:background">@drawable/normal_button_border</item>
+        <item name="android:background">@drawable/selector_normal_button_border</item>
         <item name="android:textColor">@color/colorPrimaryLight</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -126,7 +126,7 @@
 
 
     <style name="NormalButtonDark" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:background">@drawable/normal_button_border</item>
+        <item name="android:background">@drawable/selector_normal_button_border</item>
         <item name="android:textColor">@color/colorPrimaryLightBlack</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDarkBlack</item>
         <item name="colorAccent">@color/colorAccentBlack</item>
@@ -136,7 +136,7 @@
     </style>
 
     <style name="NormalButtonGrey" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:background">@drawable/normal_button_border</item>
+        <item name="android:background">@drawable/selector_normal_button_border</item>
         <item name="android:textColor">@color/colorPrimaryLightGrey</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDarkGrey</item>
         <item name="colorAccent">@color/colorAccentGrey</item>
@@ -144,7 +144,7 @@
     </style>
 
     <style name="NormalButtonPurple" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:background">@drawable/normal_button_border</item>
+        <item name="android:background">@drawable/selector_normal_button_border</item>
         <item name="android:textColor">@color/colorPrimaryLightPurple</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDarkPurple</item>
         <item name="colorAccent">@color/colorAccentPurple</item>
