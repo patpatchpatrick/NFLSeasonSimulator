@@ -69,10 +69,21 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
     @Override
     public void simulateWeek() {
+
         //Simulate a single week
-        mModel.getSchedule().getWeek(mCurrentWeek).simulate(true);
+        Week currentWeek = mModel.getSchedule().getWeek(mCurrentWeek);
+        currentWeek.simulate(true);
+
+        ArrayList<Match> currentWeekMatches = currentWeek.getMatches();
+
+        Log.d("PresenterCurrentWeek",  "" + mCurrentWeek);
+        Log.d("Current Week Matches", "" + currentWeekMatches.size());
+        Log.d("Num Matches Updated", "" + currentWeek.getNumberMatchesUpdated());
+
         //After the week is complete, query the standings (and display them)
         mModel.queryStandings(SimulatorModel.QUERY_STANDINGS_REGULAR);
+
+        Log.d("Post Stand Query Num", "" + currentWeek.getNumberMatchesUpdated());
         //Query the week scores and display them
         mModel.queryMatches(mCurrentWeek, true, SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY);
         //Week is complete so increment the current week value

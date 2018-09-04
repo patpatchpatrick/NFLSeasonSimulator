@@ -523,12 +523,13 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
             @Override
             public void onNext(Integer rowsUpdated) {
+                Log.d("ModelWeek", "" + match.getWeek());
+                getSchedule().getWeek(match.getWeek()).matchUpdated();
             }
 
             @Override
             public void onError(Throwable e) {
                 Log.d("UpdateMatchError ", "" + e);
-
             }
 
             @Override

@@ -8,6 +8,7 @@ public class Week {
 
     private ArrayList<Match> mMatches;
     private int mWeekNumber;
+    private int mNumberMatchesUpdated = 0;
     private boolean mComplete;
 
     public Week(int weekNumber){
@@ -27,5 +28,13 @@ public class Week {
         for (Match match: mMatches) {
             match.simulate(useHomeFieldAdvantage);
         }
+    }
+
+    public void matchUpdated(){
+        mNumberMatchesUpdated++;
+    }
+
+    public int getNumberMatchesUpdated(){
+        return mNumberMatchesUpdated;
     }
 }

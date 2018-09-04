@@ -33,6 +33,8 @@ public class Match {
     private Boolean matchComplete;
     private Boolean divisionalMatchup;
     private Boolean playoffMatchup;
+    //Boolean to check if match was successfully updated in database
+    private Boolean mMatchUpdated = false;
 
 
     public Match(Team team1, Team team2, int week, Data data) {
@@ -205,6 +207,10 @@ public class Match {
     }
 
     public Double getTeamTwoOdds(){return mTeamTwoOdds; }
+
+    public void setMatchUpdated(Boolean matchUpdated){mMatchUpdated =  matchUpdated;}
+
+    public Boolean getMatchUpdated(){ return  mMatchUpdated;}
 
 
 }

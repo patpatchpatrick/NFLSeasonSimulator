@@ -11,6 +11,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import com.kobakei.ratethisapp.RateThisApp;
+
 import javax.inject.Inject;
 
 import io.github.patpatchpatrick.nflseasonsim.dagger.ActivityComponent;
@@ -46,11 +48,15 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
         getWindow().setBackgroundDrawable(null);
         getSupportActionBar().hide();
 
+
         //Initialize Dagger and inject the home activity,  presenter and model
         mActivityComponent = DaggerActivityComponent.builder().activityModule(new ActivityModule(this)).build();
         mActivityComponent.inject(this);
         mActivityComponent.inject(mPresenter);
         mActivityComponent.inject(mModel);
+
+        //Initialize app rater;
+        setUpAppRater();
 
         setSeasonLoadedPreference(false);
 
@@ -224,6 +230,33 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
         if (mAnimatedFootballAnimatable.isRunning()) {
             mAnimatedFootballAnimatable.stop();
         }
+    }
+
+    private void setUpAppRater(){
+        //Launch rate this app activity if conditions are met
+        // Monitor launch times and interval from installation
+        RateThisApp.onCreate(this);
+        // If the condition is satisfied, "Rate this app" dialog will be shown
+        RateThisApp.showRateDialogIfNeeded(this);
+        RateThisApp.Config config = new RateThisApp.Config();
+        config.setUrl("https://play.google.com/store/apps/details?id=io.github.patpatchpatrick.nflseasonsim");
+        RateThisApp.init(config);
+        RateThisApp.setCallback(new RateThisApp.Callback() {
+            @Override
+            public void onYesClicked() {
+                RateThisApp.stopRateDialog(HomeScreen.this);
+            }
+
+            @Override
+            public void onNoClicked() {
+                RateThisApp.stopRateDialog(HomeScreen.this);
+            }
+
+            @Override
+            public void onCancelClicked() {
+
+            }
+        });
     }
 
 

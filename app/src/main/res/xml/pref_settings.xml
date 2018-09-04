@@ -13,6 +13,11 @@
         android:key="@string/settings_activity_elo_values">
     </Preference>
 
+    <Preference android:title="@string/pref_libraries" >
+        <intent android:action="libraries.intent.action"
+            />
+    </Preference>
+
 
 
 </PreferenceScreen>

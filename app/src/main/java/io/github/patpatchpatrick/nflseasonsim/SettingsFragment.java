@@ -51,7 +51,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         //If the set elo values preference is clicked, open the elo values activity
 
         String key = preference.getKey();
-        if (key.equals(getString(R.string.settings_activity_elo_values))) {
+
+        if (key != null && key.equals(getString(R.string.settings_activity_elo_values))) {
                 Intent startEloValuesActivity = new Intent(getActivity(), EloValuesActivity.class);
                 startActivity(startEloValuesActivity);
                 return true;

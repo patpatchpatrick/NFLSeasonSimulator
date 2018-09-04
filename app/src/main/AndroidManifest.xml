@@ -9,7 +9,7 @@
         android:roundIcon="@drawable/icon_logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity"></activity>
+        <activity android:name=".MainActivity" />
 
         <provider
             android:name=".data.SeasonSimProvider"
@@ -34,7 +34,14 @@
             android:resource="@array/preloaded_fonts" />
 
         <activity android:name=".MatchPredictorActivity" />
-        <activity android:name=".NextWeekMatchesActivity"></activity>
+        <activity android:name=".NextWeekMatchesActivity" />
+        <activity android:name=".LibraryActivity">
+            <intent-filter>
+                <action android:name="libraries.intent.action" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+        </activity>
     </application>
 
 </manifest>
