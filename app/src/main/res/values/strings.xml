@@ -62,11 +62,12 @@
     <!-- ELO Values Activity Strings -->
     <string name="use_default_values">Last Season Elos</string>
     <string name="use_offseason_prediction_elos">Predicted Future Elos</string>
+    <string name="elo_values_set_simulator_elo_header">Set Simulator Elo Values</string>
 
     <!-- Main Menu Strings -->
     <string name="main_menu_sim_season">SIMULATE SEASON</string>
     <string name="main_menu_predict_matchup">PREDICT MATCHUP</string>
-    <string name="main_menu_next_week_matches">WEEKLY MATCHES</string>
+    <string name="main_menu_next_week_matches">SEASON SCHEDULE/SCORES</string>
     <string name="main_menu_settings">SETTINGS</string>
 
     <!-- Settings Activity Strings -->

@@ -41,8 +41,8 @@ public interface SimulatorMvpContract {
         void teamsOrStandingsQueried(int queryType, Cursor standingsCursor);
         void queryMatches(int week, boolean singleMatch, int queryFrom);
         void resetSeason();
-        void resetTeamElos();
-        void resetTeamFutureElos();
+        void resetTeamLastSeasonElos();
+        void resetTeamCurrentSeasonElos();
         void resetTeamUserElos();
         void setTeamUserElos();
         void dataDeleted();

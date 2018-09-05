@@ -20,7 +20,7 @@
     <integer name="settings_value_week_seventeen">17</integer>
 
     <integer name="settings_elo_type_last_season">1</integer>
-    <integer name="settings_elo_type_future">2</integer>
+    <integer name="settings_elo_type_current_season">2</integer>
     <integer name="settings_elo_type_user">3</integer>
 
 

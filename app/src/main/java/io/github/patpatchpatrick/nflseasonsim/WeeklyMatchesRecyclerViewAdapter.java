@@ -41,7 +41,7 @@ public class WeeklyMatchesRecyclerViewAdapter extends RecyclerView.Adapter<Weekl
         //Inject with Dagger Activity Component to get access to model data
         HomeScreen.getActivityComponent().inject(this);
 
-        eloType = mSharedPrefs.getInt(mContext.getString(R.string.settings_elo_type_key), mContext.getResources().getInteger(R.integer.settings_elo_type_future));
+        eloType = mSharedPrefs.getInt(mContext.getString(R.string.settings_elo_type_key), mContext.getResources().getInteger(R.integer.settings_elo_type_current_season));
 
     }
 
@@ -81,7 +81,7 @@ public class WeeklyMatchesRecyclerViewAdapter extends RecyclerView.Adapter<Weekl
         if (eloType == mContext.getResources().getInteger(R.integer.settings_elo_type_last_season)) {
             teamOneElo = teamOne.getDefaultElo();
             teamTwoElo = teamTwo.getDefaultElo();
-        } else if (eloType == mContext.getResources().getInteger(R.integer.settings_elo_type_future)) {
+        } else if (eloType == mContext.getResources().getInteger(R.integer.settings_elo_type_current_season)) {
             teamOneElo = teamOne.getFutureElo();
             teamTwoElo = teamTwo.getFutureElo();
         } else if (eloType == mContext.getResources().getInteger(R.integer.settings_elo_type_user)) {
@@ -139,7 +139,7 @@ public class WeeklyMatchesRecyclerViewAdapter extends RecyclerView.Adapter<Weekl
         }
 
         //When new data is swapped in, reload elo type preference
-        eloType = mSharedPrefs.getInt(mContext.getString(R.string.settings_elo_type_key), mContext.getResources().getInteger(R.integer.settings_elo_type_future));
+        eloType = mSharedPrefs.getInt(mContext.getString(R.string.settings_elo_type_key), mContext.getResources().getInteger(R.integer.settings_elo_type_current_season));
         this.notifyDataSetChanged();
 
 

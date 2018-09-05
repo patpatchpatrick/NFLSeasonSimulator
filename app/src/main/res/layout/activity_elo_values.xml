@@ -7,41 +7,26 @@
     android:layout_height="match_parent"
     tools:context=".EloValuesActivity">
 
-    <Button
-        android:id="@+id/current_elos_button"
-        style="?normalButton"
-        android:padding="8dp"
+    <TextView
+        style="?normalHeaderTextView"
+        android:id="@+id/simulator_set_elo_values_header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="Set Current Elos As Default"
+        android:text="@string/elo_values_set_simulator_elo_header"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/use_last_season_elos_button"
-        style="?normalButton"
-        android:padding="8dp"
+    <Spinner
+        android:id="@+id/elo_type_spinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/use_default_values"
+        app:layout_constraintTop_toBottomOf="@+id/simulator_set_elo_values_header"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/future_elos_button" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/future_elos_button"
-        android:padding="8dp"
-        style="?normalButton"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
+        app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="8dp"
-        android:text="@string/use_offseason_prediction_elos"
-        app:layout_constraintStart_toStartOf="@id/current_elos_button"
-        app:layout_constraintTop_toBottomOf="@id/current_elos_button" />
+        ></Spinner>
 
     <ScrollView
         android:layout_width="wrap_content"
@@ -53,15 +38,15 @@
         android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/use_last_season_elos_button">
+        app:layout_constraintTop_toBottomOf="@+id/elo_type_spinner">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_view_elo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingBottom="128dp"
-            app:layout_constraintStart_toEndOf="@id/use_last_season_elos_button"
-            app:layout_constraintTop_toBottomOf="@id/use_last_season_elos_button"></android.support.v7.widget.RecyclerView>
+            app:layout_constraintStart_toEndOf="@id/elo_type_spinner"
+            app:layout_constraintTop_toBottomOf="@id/elo_type_spinner"></android.support.v7.widget.RecyclerView>
 
 
     </ScrollView>

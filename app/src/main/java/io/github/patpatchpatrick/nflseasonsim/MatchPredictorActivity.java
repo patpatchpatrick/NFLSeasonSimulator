@@ -69,7 +69,7 @@ public class MatchPredictorActivity extends AppCompatActivity {
 
         //Get resources for spinners and values
         final ArrayList<String> teamNameArrayList = mModel.getTeamNameArrayList();
-        final Integer eloType = mSharedPrefs.getInt(getString(R.string.settings_elo_type_key), getResources().getInteger(R.integer.settings_elo_type_future));
+        final Integer eloType = mSharedPrefs.getInt(getString(R.string.settings_elo_type_key), getResources().getInteger(R.integer.settings_elo_type_current_season));
 
         //Set up team one spinner with arraylist of team names from model
         mTeamOneSpinner = findViewById(R.id.match_predict_team_one_spinner);
@@ -85,7 +85,7 @@ public class MatchPredictorActivity extends AppCompatActivity {
                 //Set elo value based on selected team
                 if (eloType == getResources().getInteger(R.integer.settings_elo_type_last_season)) {
                     mTeamOneEloValue.setText("" + mModel.getTeam(teamName).getDefaultElo());
-                } else if (eloType == getResources().getInteger(R.integer.settings_elo_type_future)) {
+                } else if (eloType == getResources().getInteger(R.integer.settings_elo_type_current_season)) {
                     mTeamOneEloValue.setText("" + mModel.getTeam(teamName).getFutureElo());
                 } else if (eloType == getResources().getInteger(R.integer.settings_elo_type_user)) {
                     mTeamOneEloValue.setText("" + mModel.getTeam(teamName).getUserElo());
@@ -119,7 +119,7 @@ public class MatchPredictorActivity extends AppCompatActivity {
                 //Set elo value based on selected team
                 if (eloType == getResources().getInteger(R.integer.settings_elo_type_last_season)) {
                     mTeamTwoEloValue.setText("" + mModel.getTeam(teamName).getDefaultElo());
-                } else if (eloType == getResources().getInteger(R.integer.settings_elo_type_future)) {
+                } else if (eloType == getResources().getInteger(R.integer.settings_elo_type_current_season)) {
                     mTeamTwoEloValue.setText("" + mModel.getTeam(teamName).getFutureElo());
                 } else if (eloType == getResources().getInteger(R.integer.settings_elo_type_user)) {
                     mTeamTwoEloValue.setText("" + mModel.getTeam(teamName).getUserElo());

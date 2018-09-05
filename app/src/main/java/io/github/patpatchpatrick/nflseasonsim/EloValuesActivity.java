@@ -7,7 +7,11 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.Button;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+
+import java.util.ArrayList;
 
 import javax.inject.Inject;
 
@@ -23,9 +27,7 @@ public class EloValuesActivity extends AppCompatActivity {
     SimulatorPresenter mSimulatorPresenter;
 
     private RecyclerView mRecyclerView;
-    private Button mLastSeasonEloButton;
-    private Button mFutureEloButton;
-    private Button mCurrentEloButton;
+    private Spinner mEloTypeSpinner;
 
 
     @Override
@@ -34,6 +36,8 @@ public class EloValuesActivity extends AppCompatActivity {
         initializeTheme();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_elo_values);
+        getWindow().setBackgroundDrawable(null);
+        getSupportActionBar().hide();
 
         //Inject with Dagger Activity Component to get access to presenter
         HomeScreen.getActivityComponent().inject(this);
@@ -45,35 +49,52 @@ public class EloValuesActivity extends AppCompatActivity {
         final EloRecyclerViewAdapter eloRecyclerAdapter = new EloRecyclerViewAdapter();
         mRecyclerView.setAdapter(eloRecyclerAdapter);
 
-        mLastSeasonEloButton = (Button) findViewById(R.id.use_last_season_elos_button);
-        mLastSeasonEloButton.setOnClickListener(new View.OnClickListener() {
+        //Set up elo type selection spinner
+        final ArrayList<String> eloTypeArrayList = new ArrayList<>();
+        eloTypeArrayList.add("Current Season Elo Values");
+        eloTypeArrayList.add("Last Season Elo Values");
+        eloTypeArrayList.add("Manually Set Elo Values");
+
+        mEloTypeSpinner = (Spinner) findViewById(R.id.elo_type_spinner);
+        ArrayAdapter<String> eloTypeAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, eloTypeArrayList);
+        mEloTypeSpinner.setAdapter(eloTypeAdapter);
+
+        //Set spinner position based on user elo preference
+        int currentEloPref = getEloPreference();
+        if (currentEloPref == getResources().getInteger(R.integer.settings_elo_type_current_season)){
+            mEloTypeSpinner.setSelection(0);
+        } else if (currentEloPref == getResources().getInteger(R.integer.settings_elo_type_last_season)){
+            mEloTypeSpinner.setSelection(1);
+        } else if (currentEloPref == getResources().getInteger(R.integer.settings_elo_type_user)){
+            mEloTypeSpinner.setSelection(2);
+        }
+
+        //Set on item selected listener for elo type spinner
+        //Depending on which elo type is selected, set team elo values accordingly
+        mEloTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onClick(View view) {
-                mSimulatorPresenter.resetTeamElos();
-                eloRecyclerAdapter.notifyDataSetChanged();
-                setUseLastSeasonElosPref();
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String eloTypeString = eloTypeArrayList.get(i);
+                if (eloTypeString == "Current Season Elo Values"){
+                    mSimulatorPresenter.resetTeamCurrentSeasonElos();
+                    eloRecyclerAdapter.notifyDataSetChanged();
+                    setUseFutureElosPref();
+                } else if (eloTypeString == "Last Season Elo Values"){
+                    mSimulatorPresenter.resetTeamLastSeasonElos();
+                    eloRecyclerAdapter.notifyDataSetChanged();
+                    setUseLastSeasonElosPref();
+                } else if (eloTypeString == "Manually Set Elo Values") {
+                    mSimulatorPresenter.setTeamUserElos();
+                    setUseUserElosPref();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
             }
         });
 
-        mFutureEloButton = (Button) findViewById(R.id.future_elos_button);
-        mFutureEloButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mSimulatorPresenter.resetTeamFutureElos();
-                eloRecyclerAdapter.notifyDataSetChanged();
-                setUseFutureElosPref();
-
-            }
-        });
-
-        mCurrentEloButton = (Button) findViewById(R.id.current_elos_button);
-        mCurrentEloButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mSimulatorPresenter.setTeamUserElos();
-                setUseUserElosPref();
-            }
-        });
 
 
     }
@@ -85,9 +106,13 @@ public class EloValuesActivity extends AppCompatActivity {
         setTheme(getTheme(appTheme));
     }
 
+    private int getEloPreference(){
+        return mSharedPreferences.getInt(getString(R.string.settings_elo_type_key), getResources().getInteger(R.integer.settings_elo_type_current_season));
+    }
+
     private void setUseFutureElosPref(){
         SharedPreferences.Editor prefs = mSharedPreferences.edit();
-        prefs.putInt(getString(R.string.settings_elo_type_key), getResources().getInteger(R.integer.settings_elo_type_future));
+        prefs.putInt(getString(R.string.settings_elo_type_key), getResources().getInteger(R.integer.settings_elo_type_current_season));
         prefs.commit();
     }
 

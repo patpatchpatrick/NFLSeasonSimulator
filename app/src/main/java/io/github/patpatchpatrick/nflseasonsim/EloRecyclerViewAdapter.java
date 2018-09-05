@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
@@ -53,6 +54,7 @@ public class EloRecyclerViewAdapter extends RecyclerView.Adapter<EloRecyclerView
         holder.eloEditTextListener.updateTeam(currentTeam);
         holder.teamNameTextView.setText(teamName);
         holder.teamEloEditText.setText(teamEloString);
+        holder.teamLogo.setImageResource(mModel.getLogo(teamName));
 
 
 
@@ -78,6 +80,7 @@ public class EloRecyclerViewAdapter extends RecyclerView.Adapter<EloRecyclerView
 
         public TextView teamNameTextView;
         public EditText teamEloEditText;
+        public ImageView teamLogo;
         public EloEditTextListener eloEditTextListener;
 
         public ViewHolder(View view, EloEditTextListener eloEditTextListener) {
@@ -85,6 +88,7 @@ public class EloRecyclerViewAdapter extends RecyclerView.Adapter<EloRecyclerView
 
             teamNameTextView = (TextView) view.findViewById(R.id.team_name_textview);
             teamEloEditText = (EditText) view.findViewById(R.id.team_elo_edittext);
+            teamLogo = (ImageView) view.findViewById(R.id.elo_list_item_team_logo);
             this.eloEditTextListener = eloEditTextListener;
             teamEloEditText.addTextChangedListener(this.eloEditTextListener);
 

@@ -8,6 +8,13 @@
     android:orientation="horizontal"
     style="?normalActivity">
 
+    <ImageView
+        android:id="@+id/elo_list_item_team_logo"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_gravity="center_vertical"
+        tools:src="@drawable/atlantafalcons"/>
+
     <TextView
         android:layout_width="wrap_content"
         android:id="@+id/team_name_textview"

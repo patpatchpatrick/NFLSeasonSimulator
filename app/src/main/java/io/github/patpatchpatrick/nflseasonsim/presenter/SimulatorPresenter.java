@@ -475,7 +475,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     }
 
     @Override
-    public void resetTeamElos() {
+    public void resetTeamLastSeasonElos() {
         //Reset teams Elos to last seasons Elo Values
         ArrayList<Team> teamList = mModel.getTeamArrayList();
         for (Team team : teamList) {
@@ -484,7 +484,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     }
 
     @Override
-    public void resetTeamFutureElos() {
+    public void resetTeamCurrentSeasonElos() {
         //Reset teams Elos to future Elo Values
         ArrayList<Team> teamList = mModel.getTeamArrayList();
         for (Team team : teamList) {
@@ -1190,15 +1190,15 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
 
     private void setEloType() {
-        Integer eloType = mSharedPreferences.getInt(mContext.getString(R.string.settings_elo_type_key), mContext.getResources().getInteger(R.integer.settings_elo_type_future));
-        if (eloType == mContext.getResources().getInteger(R.integer.settings_elo_type_future)) {
-            resetTeamFutureElos();
+        Integer eloType = mSharedPreferences.getInt(mContext.getString(R.string.settings_elo_type_key), mContext.getResources().getInteger(R.integer.settings_elo_type_current_season));
+        if (eloType == mContext.getResources().getInteger(R.integer.settings_elo_type_current_season)) {
+            resetTeamCurrentSeasonElos();
         }
         if (eloType == mContext.getResources().getInteger(R.integer.settings_elo_type_user)) {
             resetTeamUserElos();
         }
         if (eloType == mContext.getResources().getInteger(R.integer.settings_elo_type_last_season)) {
-            resetTeamElos();
+            resetTeamLastSeasonElos();
         }
     }
 
