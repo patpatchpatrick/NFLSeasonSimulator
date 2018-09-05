@@ -67,7 +67,8 @@
     <!-- Main Menu Strings -->
     <string name="main_menu_sim_season">SIMULATE SEASON</string>
     <string name="main_menu_predict_matchup">PREDICT MATCHUP</string>
-    <string name="main_menu_next_week_matches">SEASON SCHEDULE/SCORES</string>
+    <string name="main_menu_season_schedule">SEASON SCHEDULE/SCORES</string>
+    <string name="main_menu_season_standings">SEASON ELO STANDINGS</string>
     <string name="main_menu_settings">SETTINGS</string>
 
     <!-- Settings Activity Strings -->
@@ -84,6 +85,9 @@
     <!-- Weekly Matches Activity Strings -->
     <string name="weekly_matches_vegas_odds_header">Line: </string>
     <string name="weekly_matches_elo_odds_header">Elo Odds: </string>
+
+    <!-- Standings Activity Strings -->
+    <string name="standings_header">Season Standings</string>
 
     <!-- Library Activity Strings -->
     <string name="pref_libraries">Libraries/Licenses</string>

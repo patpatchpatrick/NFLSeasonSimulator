@@ -54,6 +54,7 @@ public class SeasonSimContract {
         public static final String COLUMN_TEAM_DIVISION = "teamDivision";
         public static final String COLUMN_TEAM_CONFERENCE = "teamConference";
         public static final String COLUMN_TEAM_PLAYOFF_ELIGIBILE = "playoffEligible";
+        public static final String COLUMN_TEAM_CURRENT_SEASON = "currentSeason";
 
         //Define input variables for team divisions
         public static final int DIVISION_AFC_NORTH = 1;
@@ -102,6 +103,11 @@ public class SeasonSimContract {
         public static final int PLAYOFF_DIVISION_WINNER = 1;
         public static final int PLAYOFF_WILD_CARD = 2;
 
+        //Define input variables for if team is from current season or not
+        public static final int CURRENT_SEASON_NO = 1;
+        public static final int CURRENT_SEASON_YES = 2;
+
+
     }
 
     public static final class MatchEntry implements BaseColumns{
@@ -130,7 +136,9 @@ public class SeasonSimContract {
         public static final String COLUMN_MATCH_TEAM_ONE_WON = "matchTeamOneWon";
         public static final String COLUMN_MATCH_TEAM_TWO_ODDS = "matchTeamTwoOdds";
         public static final String COLUMN_MATCH_WEEK = "matchWeek";
+        public static final String COLUMN_MATCH_CURRENT_SEASON = "matchCurrentSeason";
         public static final String COLUMN_MATCH_COMPLETE = "matchComplete";
+
 
         //Define input variables for match table
         public static final int MATCH_COMPLETE_NO = 0;
@@ -148,6 +156,10 @@ public class SeasonSimContract {
 
         //Define input variables for no odds set
         public static final double MATCH_NO_ODDS_SET = 50.0;
+
+        //Define input variables for if match is from current season
+        public static final int MATCH_TEAM_CURRENT_SEASON_NO = 1;
+        public static final int MATCH_TEAM_CURRENT_SEASON_YES = 2;
 
 
 

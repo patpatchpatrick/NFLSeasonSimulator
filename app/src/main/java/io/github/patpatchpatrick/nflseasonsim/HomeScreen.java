@@ -20,7 +20,6 @@ import io.github.patpatchpatrick.nflseasonsim.dagger.ActivityModule;
 import io.github.patpatchpatrick.nflseasonsim.dagger.DaggerActivityComponent;
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.BaseView;
 import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
-import io.github.patpatchpatrick.nflseasonsim.mvp_utils.SimulatorMvpContract;
 import io.github.patpatchpatrick.nflseasonsim.presenter.SimulatorPresenter;
 
 public class HomeScreen extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener, BaseView {
@@ -35,6 +34,7 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
     Button mMatchPredictButton;
     Button mSettingsButton;
     Button mNextWeekMatchesButton;
+    Button mStandingsButton;
     ImageView mAnimatedFootball;
     Animatable mAnimatedFootballAnimatable;
     static ActivityComponent mActivityComponent;
@@ -63,7 +63,8 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
         mSimulateActivityButton = (Button) findViewById(R.id.main_menu_sim_season_button);
         mMatchPredictButton = (Button) findViewById(R.id.main_menu_predict_matchup_button);
         mSettingsButton = (Button) findViewById(R.id.main_menu_settings_button);
-        mNextWeekMatchesButton = (Button) findViewById(R.id.main_menu_next_week_matches_button);
+        mNextWeekMatchesButton = (Button) findViewById(R.id.main_menu_season_schedule_button);
+        mStandingsButton = (Button) findViewById(R.id.main_menu_season_standings_button);
 
         mAnimatedFootball = (ImageView) findViewById(R.id.football_animation);
         mAnimatedFootballAnimatable = (Animatable) mAnimatedFootball.getDrawable();
@@ -119,6 +120,14 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
             }
         });
 
+        mStandingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent startStandingsActivity = new Intent(HomeScreen.this, StandingsActivity.class);
+                startActivity(startStandingsActivity);
+            }
+        });
+
     }
 
     private void setButtonsActive(boolean buttonsActive) {
@@ -126,6 +135,7 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
         mMatchPredictButton.setEnabled(buttonsActive);
         mSettingsButton.setEnabled(buttonsActive);
         mNextWeekMatchesButton.setEnabled(buttonsActive);
+        mStandingsButton.setEnabled(buttonsActive);
     }
 
 

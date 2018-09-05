@@ -38,10 +38,11 @@
         <activity android:name=".LibraryActivity">
             <intent-filter>
                 <action android:name="libraries.intent.action" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-
         </activity>
+        <activity android:name=".StandingsActivity"></activity>
     </application>
 
 </manifest>

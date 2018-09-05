@@ -44,6 +44,7 @@ public class SeasonSimDbHelper extends SQLiteOpenHelper {
                 + TeamEntry.COLUMN_TEAM_DIV_WIN_LOSS_PCT + " REAL NOT NULL DEFAULT 0, "
                 + TeamEntry.COLUMN_TEAM_DIVISION + " INTEGER NOT NULL DEFAULT 0, "
                 + TeamEntry.COLUMN_TEAM_CONFERENCE + " INTEGER NOT NULL DEFAULT 0, "
+                + TeamEntry.COLUMN_TEAM_CURRENT_SEASON + " INTEGER NOT NULL DEFAULT 1, "
                 + TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE + " INTEGER NOT NULL DEFAULT 0);";
 
 
@@ -60,6 +61,7 @@ public class SeasonSimDbHelper extends SQLiteOpenHelper {
                 + MatchEntry.COLUMN_MATCH_TEAM_ONE_WON + " INTEGER NOT NULL DEFAULT 0, "
                 + MatchEntry.COLUMN_MATCH_TEAM_TWO_ODDS + " REAL NOT NULL DEFAULT " + MatchEntry.MATCH_NO_ODDS_SET + ", "
                 + MatchEntry.COLUMN_MATCH_WEEK + " INTEGER NOT NULL, "
+                + MatchEntry.COLUMN_MATCH_CURRENT_SEASON + " INTEGER NOT NULL DEFAULT 1, "
                 + MatchEntry.COLUMN_MATCH_COMPLETE + " INTEGER NOT NULL DEFAULT 0);";
 
         // Execute the SQL statement

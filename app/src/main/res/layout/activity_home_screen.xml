@@ -25,25 +25,37 @@
         app:layout_constraintStart_toStartOf="@id/main_menu_logo"/>
 
     <Button
+        android:id="@+id/main_menu_season_schedule_button"
+        style="?normalButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="64dp"
+        android:background="@drawable/selector_home_screen_button_border"
+        android:text="@string/main_menu_season_schedule"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/main_menu_logo"  />
+
+    <Button
+        android:id="@+id/main_menu_season_standings_button"
+        style="?normalButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/selector_home_screen_button_no_top"
+        android:text="@string/main_menu_season_standings"
+        app:layout_constraintStart_toStartOf="@+id/main_menu_season_schedule_button"
+        app:layout_constraintTop_toBottomOf="@+id/main_menu_season_schedule_button"
+        />
+
+    <Button
         android:id="@+id/main_menu_sim_season_button"
         style="?normalButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/selector_home_screen_buttons_center"
         android:text="@string/main_menu_sim_season"
-        app:layout_constraintStart_toStartOf="@+id/main_menu_next_week_matches_button"
-        app:layout_constraintTop_toBottomOf="@+id/main_menu_next_week_matches_button" />
+        app:layout_constraintStart_toStartOf="@+id/main_menu_season_standings_button"
+        app:layout_constraintTop_toBottomOf="@+id/main_menu_season_standings_button" />
 
-    <Button
-        android:id="@+id/main_menu_next_week_matches_button"
-        style="?normalButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
-        android:background="@drawable/selector_home_screen_button_border"
-        android:text="@string/main_menu_next_week_matches"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/main_menu_logo"  />
 
     <Button
         android:id="@+id/main_menu_predict_matchup_button"

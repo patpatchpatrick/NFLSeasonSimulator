@@ -635,8 +635,8 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                     //For postseason query,  don't query teams that aren't playoff eligible
                     //Sort by playoff seed and conference
 
-                    String selection = TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE + "!=?";
-                    String[] selectionArgs = new String[]{String.valueOf(TeamEntry.PLAYOFF_NOT_ELIGIBLE)};
+                    String selection = TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE + "!=? AND " + TeamEntry.COLUMN_TEAM_CURRENT_SEASON + "=?";
+                    String[] selectionArgs = new String[]{String.valueOf(TeamEntry.PLAYOFF_NOT_ELIGIBLE),  String.valueOf(TeamEntry.CURRENT_SEASON_NO)};
 
                     standingsCursor = contentResolver.query(TeamEntry.CONTENT_URI, standingsProjection,
                             selection, selectionArgs,
@@ -644,8 +644,11 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
                 } else {
 
+                    String selection = TeamEntry.COLUMN_TEAM_CURRENT_SEASON + "=?";
+                    String[] selectionArgs = new String[]{String.valueOf(TeamEntry.CURRENT_SEASON_NO)};
+
                     standingsCursor = contentResolver.query(TeamEntry.CONTENT_URI, standingsProjection,
-                            null, null,
+                            selection, selectionArgs,
                             TeamEntry.COLUMN_TEAM_DIVISION + ", " + TeamEntry.COLUMN_TEAM_WIN_LOSS_PCT + " DESC, " + TeamEntry.COLUMN_TEAM_DIV_WIN_LOSS_PCT + " DESC");
                 }
 
@@ -710,15 +713,18 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
                     //Query all matches
 
+                    String selection = MatchEntry.COLUMN_MATCH_CURRENT_SEASON + "=?";
+                    String[] selectionArgs = new String[]{String.valueOf(MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO)};
+
                     matchesCursor = contentResolver.query(MatchEntry.CONTENT_URI, matchesProjection,
-                            null, null,
+                            selection, selectionArgs,
                             null);
                 } else if (weekNumber == MatchEntry.MATCH_WEEK_DIVISIONAL) {
 
                     //Query divisional playoff matches (include both division games and completed wildcard games)
 
-                    String selection = MatchEntry.COLUMN_MATCH_WEEK + "=? OR " + MatchEntry.COLUMN_MATCH_WEEK + "=?";
-                    String[] selectionArgs = new String[]{String.valueOf(weekNumber), String.valueOf(MatchEntry.MATCH_WEEK_WILDCARD)};
+                    String selection = "(" + MatchEntry.COLUMN_MATCH_WEEK + "=? OR " + MatchEntry.COLUMN_MATCH_WEEK + "=? ) AND (" + MatchEntry.COLUMN_MATCH_CURRENT_SEASON + "=? )" ;
+                    String[] selectionArgs = new String[]{String.valueOf(weekNumber), String.valueOf(MatchEntry.MATCH_WEEK_WILDCARD), String.valueOf(MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO)};
 
                     matchesCursor = contentResolver.query(MatchEntry.CONTENT_URI, matchesProjection,
                             selection, selectionArgs,
@@ -727,8 +733,8 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
                     //Query conference playoff matches (include conferences matches and completed division and wilcard matches)
 
-                    String selection = MatchEntry.COLUMN_MATCH_WEEK + "=? OR " + MatchEntry.COLUMN_MATCH_WEEK + "=? OR " + MatchEntry.COLUMN_MATCH_WEEK + "=?";
-                    String[] selectionArgs = new String[]{String.valueOf(weekNumber), String.valueOf(MatchEntry.MATCH_WEEK_DIVISIONAL), String.valueOf(MatchEntry.MATCH_WEEK_WILDCARD)};
+                    String selection = "(" + MatchEntry.COLUMN_MATCH_WEEK + "=? OR " + MatchEntry.COLUMN_MATCH_WEEK + "=? OR " + MatchEntry.COLUMN_MATCH_WEEK + "=? ) AND (" + MatchEntry.COLUMN_MATCH_CURRENT_SEASON + "=? )";
+                    String[] selectionArgs = new String[]{String.valueOf(weekNumber), String.valueOf(MatchEntry.MATCH_WEEK_DIVISIONAL), String.valueOf(MatchEntry.MATCH_WEEK_WILDCARD), String.valueOf(MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO)};
 
                     matchesCursor = contentResolver.query(MatchEntry.CONTENT_URI, matchesProjection,
                             selection, selectionArgs,
@@ -737,8 +743,8 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
                     //Query superbowl playoff matches (include superbowl matches and completed conference, division and wilcard matches)
 
-                    String selection = MatchEntry.COLUMN_MATCH_WEEK + "=? OR " + MatchEntry.COLUMN_MATCH_WEEK + "=? OR " + MatchEntry.COLUMN_MATCH_WEEK + "=? OR " + MatchEntry.COLUMN_MATCH_WEEK + "=?";
-                    String[] selectionArgs = new String[]{String.valueOf(weekNumber), String.valueOf(MatchEntry.MATCH_WEEK_CHAMPIONSHIP), String.valueOf(MatchEntry.MATCH_WEEK_DIVISIONAL), String.valueOf(MatchEntry.MATCH_WEEK_WILDCARD)};
+                    String selection =  "(" + MatchEntry.COLUMN_MATCH_WEEK + "=? OR " + MatchEntry.COLUMN_MATCH_WEEK + "=? OR " + MatchEntry.COLUMN_MATCH_WEEK + "=? OR " + MatchEntry.COLUMN_MATCH_WEEK + "=? ) AND (" + MatchEntry.COLUMN_MATCH_CURRENT_SEASON + "=? )";
+                    String[] selectionArgs = new String[]{String.valueOf(weekNumber), String.valueOf(MatchEntry.MATCH_WEEK_CHAMPIONSHIP), String.valueOf(MatchEntry.MATCH_WEEK_DIVISIONAL), String.valueOf(MatchEntry.MATCH_WEEK_WILDCARD), String.valueOf(MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO)};
 
                     matchesCursor = contentResolver.query(MatchEntry.CONTENT_URI, matchesProjection,
                             selection, selectionArgs,
@@ -748,8 +754,8 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
                     //Query a single week's matches
 
-                    String selection = MatchEntry.COLUMN_MATCH_WEEK + "=?";
-                    String[] selectionArgs = new String[]{String.valueOf(weekNumber)};
+                    String selection = MatchEntry.COLUMN_MATCH_WEEK + "=? AND " + MatchEntry.COLUMN_MATCH_CURRENT_SEASON + "=?";
+                    String[] selectionArgs = new String[]{String.valueOf(weekNumber), String.valueOf(MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO)};
 
                     matchesCursor = contentResolver.query(MatchEntry.CONTENT_URI, matchesProjection,
                             selection, selectionArgs,
@@ -759,8 +765,8 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
                     //Query all matches up to and including a single week
 
-                    String selection = MatchEntry.COLUMN_MATCH_WEEK + "<=?";
-                    String[] selectionArgs = new String[]{String.valueOf(weekNumber)};
+                    String selection = MatchEntry.COLUMN_MATCH_WEEK + "<=? AND " + MatchEntry.COLUMN_MATCH_CURRENT_SEASON + "=?";
+                    String[] selectionArgs = new String[]{String.valueOf(weekNumber), String.valueOf(MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO)};
 
                     matchesCursor = contentResolver.query(MatchEntry.CONTENT_URI, matchesProjection,
                             selection, selectionArgs,

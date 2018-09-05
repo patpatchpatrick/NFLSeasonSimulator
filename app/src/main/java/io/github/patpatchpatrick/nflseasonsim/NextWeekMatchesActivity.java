@@ -36,6 +36,7 @@ public class NextWeekMatchesActivity extends AppCompatActivity implements BaseVi
         initializeTheme();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_next_week_matches);
+        getWindow().setBackgroundDrawable(null);
         getSupportActionBar().hide();
 
         weekNumber = 1;
