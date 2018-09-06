@@ -73,8 +73,8 @@ public class WeeklyMatchesRecyclerViewAdapter extends RecyclerView.Adapter<Weekl
 
         //Set string for ELO odds to win. This string is the short name of the home team (team two)
         //combined with the ELO odds of team two winning
-        Team teamOne = mModel.getTeam(teamOneString);
-        Team teamTwo = mModel.getTeam(teamTwoString);
+        Team teamOne = mModel.getSimulatorTeam(teamOneString);
+        Team teamTwo = mModel.getSimulatorTeam(teamTwoString);
         Double teamOneElo;
         Double teamTwoElo;
         //Set elo value based on user selected elo preference

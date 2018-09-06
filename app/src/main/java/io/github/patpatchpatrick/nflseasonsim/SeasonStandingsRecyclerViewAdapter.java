@@ -94,6 +94,8 @@ public class SeasonStandingsRecyclerViewAdapter extends RecyclerView.Adapter<Sea
                 }
             }
 
+            standingsDetails += "\nELO Rating: " + mModel.getCurrentSeasonTeam(teamName).getFutureElo();
+
             holder.standingsDetails.setText(standingsDetails);
             //Set font by default (currently font won't auto-set in layout so need to programmatically set it)
             holder.standingsDetails.setTypeface(ResourcesCompat.getFont(mContext, R.font.montserrat));

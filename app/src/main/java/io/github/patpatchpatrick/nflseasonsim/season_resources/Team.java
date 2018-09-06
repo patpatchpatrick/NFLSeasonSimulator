@@ -47,6 +47,10 @@ public class Team {
     private int mPointsFor;
     private int mPointsAllowed;
 
+    //Current Season
+    //If team is from current season, value will be 2, otherwise will be 1 if it is a simulator team
+    private int mCurrentSeason;
+
     public Team(String name, String shortName, double elo, double teamRanking, double offRating, double defRating, int division, Data data) {
 
         //Constructor used when originally creating team
@@ -73,6 +77,7 @@ public class Team {
         mPointsFor = 0;
         mPointsAllowed = 0;
         mPlayoffEligible = TeamEntry.PLAYOFF_NOT_ELIGIBLE;
+        mCurrentSeason = TeamEntry.CURRENT_SEASON_NO;
 
         //Set conference value based on division value (all AFC divisions are ints less than 4)
         if (mDivision <= 4){
@@ -83,7 +88,44 @@ public class Team {
 
     }
 
-    public Team(String name, String shortName, double elo, double defaultElo,double userElo, double teamRanking, double offRating, double defRating, int division, Data data, int wins, int losses, int divWins, int divLosses, double winLossPct, double divWinLossPct, int playoffEligible,  Uri uri) {
+    public Team(String name, String shortName, double elo, double teamRanking, double offRating, double defRating, int division, Data data, int currentSeason) {
+
+        //Constructor used when originally creating team
+
+
+        mData = data;
+        mName = name;
+        mShortName = shortName;
+        mDefaultElo = elo;
+        mUserElo = 0;
+        mElo = elo;
+        mTeamRanking = teamRanking;
+        mOffRating = offRating;
+        mDefRating = defRating;
+        mCurrentWins = 0;
+        mCurrentLosses = 0;
+        mCurrentDraws = 0;
+        mWinLossPct = 0;
+        mCurrentDivisionWins = 0;
+        mCurrentDivisionLosses = 0;
+        mCurrentDivisionWinLossPct = 0;
+        mDivisionStanding = 0;
+        mDivision = division;
+        mPointsFor = 0;
+        mPointsAllowed = 0;
+        mPlayoffEligible = TeamEntry.PLAYOFF_NOT_ELIGIBLE;
+        mCurrentSeason = currentSeason;
+
+        //Set conference value based on division value (all AFC divisions are ints less than 4)
+        if (mDivision <= 4){
+            mConference = TeamEntry.CONFERENCE_AFC;
+        } else {
+            mConference = TeamEntry.CONFERENCE_NFC;
+        }
+
+    }
+
+    public Team(String name, String shortName, double elo, double defaultElo,double userElo, double teamRanking, double offRating, double defRating, int division, Data data, int wins, int losses, int divWins, int divLosses, double winLossPct, double divWinLossPct, int playoffEligible,  Uri uri, int currentSeason) {
 
         mTeamRanking =  teamRanking;
         mData = data;
@@ -107,6 +149,7 @@ public class Team {
         mPointsAllowed = 0;
         mPlayoffEligible = playoffEligible;
         mUri = uri;
+        mCurrentSeason = currentSeason;
 
         //Set conference value based on division value (all AFC divisions are ints less than 4)
         if (mDivision <= 4){
@@ -262,4 +305,6 @@ public class Team {
     public String getShortName(){
         return mShortName;
     }
+
+    public int getCurrentSeason() {return mCurrentSeason;}
 }

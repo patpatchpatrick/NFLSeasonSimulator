@@ -35,9 +35,11 @@ public class Match {
     private Boolean playoffMatchup;
     //Boolean to check if match was successfully updated in database
     private Boolean mMatchUpdated = false;
+    //Int to check if match is being used for current season or simulator season
+    private int mCurrentSeason;
 
 
-    public Match(Team team1, Team team2, int week, Data data) {
+    public Match(Team team1, Team team2, int week, Data data, int currentSeason) {
 
         //Inject match with dagger to get contentResolver
         HomeScreen.getActivityComponent().inject(this);
@@ -49,6 +51,7 @@ public class Match {
         matchComplete = false;
         mTeamOneWon = false;
         mTeamTwoOdds = SeasonSimContract.MatchEntry.MATCH_NO_ODDS_SET;
+        mCurrentSeason = currentSeason;
 
         //Determine if match is a divisional matchup
         if (mTeam1.getDivision() == mTeam2.getDivision()){
@@ -65,7 +68,7 @@ public class Match {
 
     }
 
-    public Match(Team team1, Team team2, int week, Data data, Double teamTwoOdds) {
+    public Match(Team team1, Team team2, int week, Data data, Double teamTwoOdds, int currentSeason) {
 
         //Inject match with dagger to get contentResolver
         HomeScreen.getActivityComponent().inject(this);
@@ -77,6 +80,7 @@ public class Match {
         matchComplete = false;
         mTeamOneWon = false;
         mTeamTwoOdds = teamTwoOdds;
+        mCurrentSeason = currentSeason;
 
         //Determine if match is a divisional matchup
         if (mTeam1.getDivision() == mTeam2.getDivision()){
@@ -93,7 +97,7 @@ public class Match {
 
     }
 
-    public Match(Team team1, Team team2, int teamOneWon, int week, Data data, Uri uri, Double teamTwoOdds) {
+    public Match(Team team1, Team team2, int teamOneWon, int week, Data data, Uri uri, Double teamTwoOdds, int currentSeason) {
 
         //Inject match with dagger to get contentResolver
         HomeScreen.getActivityComponent().inject(this);
@@ -105,6 +109,7 @@ public class Match {
         matchComplete = false;
         matchUri = uri;
         mTeamTwoOdds = teamTwoOdds;
+        mCurrentSeason = currentSeason;
 
         //Determine if match is a divisional matchup
         if (mTeam1.getDivision() == mTeam2.getDivision()){
@@ -211,6 +216,10 @@ public class Match {
     public void setMatchUpdated(Boolean matchUpdated){mMatchUpdated =  matchUpdated;}
 
     public Boolean getMatchUpdated(){ return  mMatchUpdated;}
+
+    public int getCurrentSeason(){
+        return mCurrentSeason;
+    }
 
 
 }

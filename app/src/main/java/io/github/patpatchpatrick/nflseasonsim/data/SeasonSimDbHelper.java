@@ -1,20 +1,38 @@
 package io.github.patpatchpatrick.nflseasonsim.data;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import javax.inject.Inject;
+
+import io.github.patpatchpatrick.nflseasonsim.HomeScreen;
+import io.github.patpatchpatrick.nflseasonsim.MainActivity;
+import io.github.patpatchpatrick.nflseasonsim.R;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.TeamEntry;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.MatchEntry;
+import io.github.patpatchpatrick.nflseasonsim.presenter.SimulatorPresenter;
 
 
 public class SeasonSimDbHelper extends SQLiteOpenHelper {
+
+    @Inject
+    SharedPreferences mSharedPrefs;
+
+    @Inject
+    Context mContext;
+
+    @Inject
+    SimulatorPresenter mPresenter;
 
     public static final String LOG_TAG = SeasonSimDbHelper.class.getSimpleName();
 
     //DB Name and version
     private static final String DATABASE_NAME = "seasonsim.db";
-    private static final int DATABASE_VERSION = 1;
+    //Current version of database is 2
+    private static final int DATABASE_VERSION = 2;
 
 
     public SeasonSimDbHelper(Context context) {
@@ -23,6 +41,9 @@ public class SeasonSimDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+
+        //Inject with dagger
+        HomeScreen.getActivityComponent().inject(this);
 
         // Create a String that contains the SQL statement to create the goals table
         String SQL_CREATE_TEAM_TABLE = "CREATE TABLE " + TeamEntry.TABLE_NAME + " ("
@@ -71,7 +92,32 @@ public class SeasonSimDbHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
+    public void onUpgrade(SQLiteDatabase db, int i, int i1) {
+
+        db.execSQL("DROP TABLE IF EXISTS " + TeamEntry.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + MatchEntry.TABLE_NAME);
+        onCreate(db);
+
+        //Set the season initialized and loaded preferences to false so season is reloaded
+        //after database is dropped and upgraded
+        SharedPreferences.Editor prefs = mSharedPrefs.edit();
+        prefs.putBoolean(mContext.getString(R.string.settings_season_initialized_key), false).apply();
+        prefs.putBoolean(mContext.getString(R.string.settings_season_loaded_key), false).apply();
+        prefs.putBoolean(mContext.getString(R.string.settings_playoffs_started_key), false).apply();
+        prefs.putInt(mContext.getString(R.string.settings_simulator_week_num_key), 0).apply();
+        prefs.putString(mContext.getString(R.string.settings_score_string_key), "").apply();
+        prefs.commit();
+        mPresenter.setPlayoffsStarted(false);
+        SimulatorPresenter.setCurrentWeek(0);
+
+        //After setting preferences, restart the entire app so that the database and seaosn are reloaded properly
+        Intent intent = mContext.getPackageManager()
+                .getLaunchIntentForPackage( mContext.getPackageName() );
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        mContext.startActivity(intent);
+
+
+
 
     }
 }

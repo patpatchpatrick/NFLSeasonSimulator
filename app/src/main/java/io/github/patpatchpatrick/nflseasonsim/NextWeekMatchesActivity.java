@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -64,7 +63,7 @@ public class NextWeekMatchesActivity extends AppCompatActivity implements BaseVi
         mWeekNumberHeader.setText("Week " + weekNumber);
 
         //Query the matches to be displayed
-        mPresenter.queryMatches(weekNumber, true, SimulatorModel.QUERY_FROM_NEXT_WEEK_MATCHES_ACTIVITY);
+        mPresenter.queryCurrentSeasonMatches(weekNumber, true, SimulatorModel.QUERY_FROM_NEXT_WEEK_MATCHES_ACTIVITY);
 
         mNextWeekButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -72,7 +71,7 @@ public class NextWeekMatchesActivity extends AppCompatActivity implements BaseVi
                 //If the week is less than 17, increase week number and query the next week's matches
                 if (weekNumber < 17) {
                     weekNumber++;
-                    mPresenter.queryMatches(weekNumber, true, SimulatorModel.QUERY_FROM_NEXT_WEEK_MATCHES_ACTIVITY);
+                    mPresenter.queryCurrentSeasonMatches(weekNumber, true, SimulatorModel.QUERY_FROM_NEXT_WEEK_MATCHES_ACTIVITY);
                     mWeekNumberHeader.setText("Week " + weekNumber);
                 }
             }
@@ -84,7 +83,7 @@ public class NextWeekMatchesActivity extends AppCompatActivity implements BaseVi
                 //If the week is greater than 1, decrease week number and query the prior week's matches
                 if (weekNumber > 1) {
                     weekNumber--;
-                    mPresenter.queryMatches(weekNumber, true, SimulatorModel.QUERY_FROM_NEXT_WEEK_MATCHES_ACTIVITY);
+                    mPresenter.queryCurrentSeasonMatches(weekNumber, true, SimulatorModel.QUERY_FROM_NEXT_WEEK_MATCHES_ACTIVITY);
                     mWeekNumberHeader.setText("Week " + weekNumber);
                 }
             }
@@ -109,6 +108,11 @@ public class NextWeekMatchesActivity extends AppCompatActivity implements BaseVi
         if (queriedFrom == SimulatorModel.QUERY_FROM_NEXT_WEEK_MATCHES_ACTIVITY) {
             mNextWeekMatchesRecyclerViewAdapter.swapCursor(cursor);
         }
+    }
+
+    @Override
+    public void onDisplayStandings(int standingsType, Cursor cursor, int queriedFrom) {
+
     }
 
     private void initializeTheme() {

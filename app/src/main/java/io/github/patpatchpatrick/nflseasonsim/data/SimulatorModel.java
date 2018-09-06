@@ -14,7 +14,6 @@ import java.util.concurrent.Executors;
 import javax.inject.Inject;
 
 import io.github.patpatchpatrick.nflseasonsim.R;
-import io.github.patpatchpatrick.nflseasonsim.mvp_utils.BaseView;
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.SimulatorMvpContract;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Match;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.NFLConstants;
@@ -55,6 +54,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
     public static final int QUERY_FROM_SIMULATOR_ACTIVITY = 0;
     public static final int QUERY_FROM_NEXT_WEEK_MATCHES_ACTIVITY = 1;
+    public static final int QUERY_FROM_SEASON_STANDINGS_ACTIVITY = 2;
 
     public static final int INSERT_MATCHES_SCHEDULE = 0;
     public static final int INSERT_MATCHES_PLAYOFFS_WILDCARD = 1;
@@ -67,8 +67,10 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     public static final int LOAD_SEASON_FROM_SETTINGS = 2;
 
     //Data for season resources
-    public Schedule mSchedule;
-    public HashMap<String, Team> mTeamList;
+    public Schedule mSimulatorSchedule;
+    public Schedule mSeasonSchedule;
+    public HashMap<String, Team> mSimulatorTeamList;
+    public HashMap<String, Team> mSeasonTeamList;
     public HashMap<String, Double> mUserEloList;
     public HashMap<String, Integer> mTeamLogoMap;
 
@@ -87,13 +89,23 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
 
     @Override
-    public void setSchedule(Schedule schedule) {
-        mSchedule = schedule;
+    public void setSimulatorSchedule(Schedule schedule) {
+        mSimulatorSchedule = schedule;
     }
 
     @Override
-    public void setTeamList(HashMap<String, Team> teamList) {
-        mTeamList = teamList;
+    public void setSeasonSchedule(Schedule schedule) {
+        mSeasonSchedule = schedule;
+    }
+
+    @Override
+    public void setSimulatorTeamList(HashMap<String, Team> teamList) {
+        mSimulatorTeamList = teamList;
+    }
+
+    @Override
+    public void setSeasonTeamList(HashMap<String, Team> teamList) {
+        mSeasonTeamList = teamList;
     }
 
     @Override
@@ -149,13 +161,23 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     }
 
     @Override
-    public Team getTeam(String teamName) {
-        return mTeamList.get(teamName);
+    public Team getSimulatorTeam(String teamName) {
+        return mSimulatorTeamList.get(teamName);
     }
 
     @Override
-    public HashMap<String, Team> getTeamList() {
-        return mTeamList;
+    public Team getCurrentSeasonTeam(String teamName) {
+        return mSeasonTeamList.get(teamName);
+    }
+
+    @Override
+    public HashMap<String, Team> getSimulatorTeamList() {
+        return mSimulatorTeamList;
+    }
+
+    @Override
+    public HashMap<String, Team> getSeasonTeamList() {
+        return mSeasonTeamList;
     }
 
     @Override
@@ -163,8 +185,8 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
         ArrayList<Team> teamArrayList = new ArrayList();
 
-        for (String teamName : mTeamList.keySet()) {
-            teamArrayList.add(mTeamList.get(teamName));
+        for (String teamName : mSimulatorTeamList.keySet()) {
+            teamArrayList.add(mSimulatorTeamList.get(teamName));
         }
 
         return teamArrayList;
@@ -174,7 +196,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     public ArrayList<String> getTeamNameArrayList() {
         ArrayList<String> teamNameArrayList = new ArrayList();
 
-        for (String teamName : mTeamList.keySet()) {
+        for (String teamName : mSimulatorTeamList.keySet()) {
             teamNameArrayList.add(teamName);
         }
 
@@ -188,7 +210,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
 
     @Override
     public Schedule getSchedule() {
-        return mSchedule;
+        return mSimulatorSchedule;
     }
 
     @Override
@@ -236,25 +258,25 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     }
 
     @Override
-    public void insertMatches(final int insertType) {
+    public void insertSimulatorMatches(final int insertType) {
 
         //Insert a regular season schedule's matches into the db
         //First, iterate through the schedule and add all season matches to an ArrayList
         //Then, add an Obervable.fromIterable to iterate through the ArrayList and add each
         //match to the db.
-        //After all matches are added to the db, notify the presenter via the matchesInserted callback
-        ArrayList<Match> seasonMatches = new ArrayList<>();
+        //After all matches are added to the db, notify the presenter via the simulatorMatchesInserted callback
+        ArrayList<Match> simulatorSeasonMatches = new ArrayList<>();
         int weekNumber = 1;
         while (weekNumber <= 17) {
-            ArrayList<Match> weekMatches = mSchedule.getWeek(weekNumber).getMatches();
+            ArrayList<Match> weekMatches = mSimulatorSchedule.getWeek(weekNumber).getMatches();
             for (Match match : weekMatches) {
-                seasonMatches.add(match);
+                simulatorSeasonMatches.add(match);
             }
             weekNumber++;
         }
 
 
-        Observable<Match> insertMatchesObservable = Observable.fromIterable(seasonMatches);
+        Observable<Match> insertMatchesObservable = Observable.fromIterable(simulatorSeasonMatches);
         insertMatchesObservable.subscribeOn(AndroidSchedulers.mainThread()).observeOn(mScheduler).subscribe(new Observer<Match>() {
             @Override
             public void onSubscribe(Disposable d) {
@@ -287,7 +309,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
             @Override
             public void onComplete() {
 
-                mPresenter.matchesInserted(insertType);
+                mPresenter.simulatorMatchesInserted(insertType);
             }
         });
 
@@ -295,7 +317,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     }
 
     @Override
-    public void insertMatches(final int insertType, Week week) {
+    public void insertSimulatorMatches(final int insertType, Week week) {
 
         //Insert a week's matches into the database
 
@@ -335,10 +357,69 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
             @Override
             public void onComplete() {
 
-                mPresenter.matchesInserted(insertType);
+                mPresenter.simulatorMatchesInserted(insertType);
             }
         });
 
+
+    }
+
+    @Override
+    public void insertSeasonMatches(final int insertType) {
+
+        //Insert a regular season schedule's matches into the db
+        //First, iterate through the schedule and add all season matches to an ArrayList
+        //Then, add an Obervable.fromIterable to iterate through the ArrayList and add each
+        //match to the db.
+        //After all matches are added to the db, notify the presenter via the simulatorMatchesInserted callback
+        ArrayList<Match> currentSeasonMatches = new ArrayList<>();
+        int weekNumber = 1;
+        while (weekNumber <= 17) {
+            ArrayList<Match> weekMatches = mSeasonSchedule.getWeek(weekNumber).getMatches();
+            for (Match match : weekMatches) {
+                currentSeasonMatches.add(match);
+            }
+            weekNumber++;
+        }
+
+
+        Observable<Match> insertMatchesObservable = Observable.fromIterable(currentSeasonMatches);
+        insertMatchesObservable.subscribeOn(AndroidSchedulers.mainThread()).observeOn(mScheduler).subscribe(new Observer<Match>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+                mCompositeDisposable.add(d);
+
+            }
+
+            @Override
+            public void onNext(Match match) {
+
+                ContentValues values = new ContentValues();
+                values.put(MatchEntry.COLUMN_MATCH_TEAM_ONE, match.getTeam1().getName());
+                values.put(MatchEntry.COLUMN_MATCH_TEAM_TWO, match.getTeam2().getName());
+                values.put(MatchEntry.COLUMN_MATCH_WEEK, match.getWeek());
+                values.put(MatchEntry.COLUMN_MATCH_TEAM_TWO_ODDS, match.getTeamTwoOdds());
+                values.put(MatchEntry.COLUMN_MATCH_CURRENT_SEASON, match.getCurrentSeason());
+                Uri uri = contentResolver.insert(MatchEntry.CONTENT_URI, values);
+
+                match.setUri(uri);
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+                Log.d("InsertMatchesError: ", "" + e);
+
+            }
+
+            @Override
+            public void onComplete() {
+
+                mPresenter.seasonMatchesInserted(insertType);
+            }
+        });
 
     }
 
@@ -405,21 +486,21 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     }
 
     @Override
-    public void insertTeams() {
+    public void insertSimulatorTeams() {
 
         //Insert a hashMap's matches into the db
         //First, iterate through the HashMap and add all matches to an ArrayList
         //Then, add an Obervable.fromIterable to iterate through the ArrayList and add each
         //team to the db.
-        //After all teams are added to the db, notify the presenter via the teamsInserted callback
+        //After all teams are added to the db, notify the presenter via the simulatorTeamsInserted callback
 
-        ArrayList<Team> teamArrayList = new ArrayList<>();
+        ArrayList<Team> simulatorTeamArrayList = new ArrayList<>();
 
-        for (String teamName : mTeamList.keySet()) {
-            teamArrayList.add(mTeamList.get(teamName));
+        for (String teamName : mSimulatorTeamList.keySet()) {
+            simulatorTeamArrayList.add(mSimulatorTeamList.get(teamName));
         }
 
-        Observable<Team> insertTeamsObservable = Observable.fromIterable(teamArrayList);
+        Observable<Team> insertTeamsObservable = Observable.fromIterable(simulatorTeamArrayList);
         insertTeamsObservable.subscribeOn(AndroidSchedulers.mainThread()).observeOn(mScheduler).subscribe(new Observer<Team>() {
             @Override
             public void onSubscribe(Disposable d) {
@@ -477,7 +558,89 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
             @Override
             public void onComplete() {
 
-                mPresenter.teamsInserted();
+                mPresenter.simulatorTeamsInserted();
+
+            }
+        });
+
+    }
+
+    @Override
+    public void insertSeasonTeams() {
+
+        //Insert the current seasons hashMap's teams into the db
+        //First, iterate through the HashMap and add all matches to an ArrayList
+        //Then, add an Obervable.fromIterable to iterate through the ArrayList and add each
+        //team to the db.
+        //After all teams are added to the db, notify the presenter via the seasonTeamsInserted callback
+
+        ArrayList<Team> seasonTeamArrayList = new ArrayList<>();
+
+        for (String teamName : mSeasonTeamList.keySet()) {
+            seasonTeamArrayList.add(mSeasonTeamList.get(teamName));
+        }
+
+        Observable<Team> insertTeamsObservable = Observable.fromIterable(seasonTeamArrayList);
+        insertTeamsObservable.subscribeOn(AndroidSchedulers.mainThread()).observeOn(mScheduler).subscribe(new Observer<Team>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+                mCompositeDisposable.add(d);
+
+            }
+
+            @Override
+            public void onNext(Team team) {
+
+                String name = team.getName();
+                String shortName = team.getShortName();
+                double elo = team.getElo();
+                double defaultElo = team.getDefaultElo();
+                double userElo = team.getUserElo();
+                double teamRanking = team.getTeamRanking();
+                double offRating = team.getOffRating();
+                double defRating = team.getDefRating();
+                int currentWins = team.getWins();
+                int currentLosses = team.getLosses();
+                int currentDraws = team.getDraws();
+                int division = team.getDivision();
+                int conference = team.getConference();
+                int currentSeason = team.getCurrentSeason();
+
+                ContentValues values = new ContentValues();
+                values.put(TeamEntry.COLUMN_TEAM_NAME, name);
+                values.put(TeamEntry.COLUMN_TEAM_SHORT_NAME, shortName);
+                values.put(TeamEntry.COLUMN_TEAM_ELO, elo);
+                values.put(TeamEntry.COLUMN_TEAM_DEFAULT_ELO, defaultElo);
+                values.put(TeamEntry.COLUMN_TEAM_USER_ELO, userElo);
+                values.put(TeamEntry.COLUMN_TEAM_RANKING, teamRanking);
+                values.put(TeamEntry.COLUMN_TEAM_OFF_RATING, offRating);
+                values.put(TeamEntry.COLUMN_TEAM_DEF_RATING, defRating);
+                values.put(TeamEntry.COLUMN_TEAM_CURRENT_WINS, currentWins);
+                values.put(TeamEntry.COLUMN_TEAM_CURRENT_LOSSES, currentLosses);
+                values.put(TeamEntry.COLUMN_TEAM_CURRENT_DRAWS, currentDraws);
+                values.put(TeamEntry.COLUMN_TEAM_DIVISION, division);
+                values.put(TeamEntry.COLUMN_TEAM_CONFERENCE, conference);
+                values.put(TeamEntry.COLUMN_TEAM_CURRENT_SEASON, currentSeason);
+
+                //Insert values into database
+                Uri uri = contentResolver.insert(TeamEntry.CONTENT_URI, values);
+
+                team.setUri(uri);
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+                Log.d("InsertTeamsError: ", "" + e);
+
+            }
+
+            @Override
+            public void onComplete() {
+
+                mPresenter.seasonTeamsInserted();
 
             }
         });
@@ -595,8 +758,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     }
 
     @Override
-    public void queryStandings(final int queryType) {
-        Log.d("MODEL", "STANDINGSQUERIED");
+    public void querySimulatorStandings(final int queryType) {
 
         //Query the standings from the database
 
@@ -624,6 +786,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                         TeamEntry.COLUMN_TEAM_RANKING,
                         TeamEntry.COLUMN_TEAM_OFF_RATING,
                         TeamEntry.COLUMN_TEAM_DEF_RATING,
+                        TeamEntry.COLUMN_TEAM_CURRENT_SEASON,
                 };
 
                 Cursor standingsCursor;
@@ -665,7 +828,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
             @Override
             public void onNext(Cursor standingsCursor) {
                 Log.d("MODEL", "STANDQUERESPONSE");
-                mPresenter.teamsOrStandingsQueried(queryType, standingsCursor);
+                mPresenter.simulatorStandingsQueried(queryType, standingsCursor);
             }
 
             @Override
@@ -683,10 +846,97 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     }
 
     @Override
-    public void queryMatches(final int weekNumber, final boolean singleMatch, final int queryFrom) {
-        Log.d("MODEL", "MATCHESQUERIED");
+    public void queryCurrentSeasonStandings(final int queryType) {
 
-        //Query the matches/schedule from the database
+        //Query the standings from the database
+
+        Observable<Cursor> queryStandingsObservable = Observable.fromCallable(new Callable<Cursor>() {
+            @Override
+            public Cursor call() throws Exception {
+                //Query standings
+                String[] standingsProjection = {
+                        TeamEntry._ID,
+                        TeamEntry.COLUMN_TEAM_NAME,
+                        TeamEntry.COLUMN_TEAM_SHORT_NAME,
+                        TeamEntry.COLUMN_TEAM_DIVISION,
+                        TeamEntry.COLUMN_TEAM_CONFERENCE,
+                        TeamEntry.COLUMN_TEAM_CURRENT_WINS,
+                        TeamEntry.COLUMN_TEAM_CURRENT_LOSSES,
+                        TeamEntry.COLUMN_TEAM_CURRENT_DRAWS,
+                        TeamEntry.COLUMN_TEAM_WIN_LOSS_PCT,
+                        TeamEntry.COLUMN_TEAM_DIV_WINS,
+                        TeamEntry.COLUMN_TEAM_DIV_LOSSES,
+                        TeamEntry.COLUMN_TEAM_DIV_WIN_LOSS_PCT,
+                        TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE,
+                        TeamEntry.COLUMN_TEAM_ELO,
+                        TeamEntry.COLUMN_TEAM_DEFAULT_ELO,
+                        TeamEntry.COLUMN_TEAM_USER_ELO,
+                        TeamEntry.COLUMN_TEAM_RANKING,
+                        TeamEntry.COLUMN_TEAM_OFF_RATING,
+                        TeamEntry.COLUMN_TEAM_DEF_RATING,
+                        TeamEntry.COLUMN_TEAM_CURRENT_SEASON,
+                };
+
+                Cursor standingsCursor;
+
+                //Query the team data depending on queryType requested
+
+                if (queryType == QUERY_STANDINGS_POSTSEASON || queryType == QUERY_STANDINGS_LOAD_POSTSEASON) {
+
+                    //For postseason query,  don't query teams that aren't playoff eligible
+                    //Sort by playoff seed and conference
+
+                    String selection = TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE + "!=? AND " + TeamEntry.COLUMN_TEAM_CURRENT_SEASON + "=?";
+                    String[] selectionArgs = new String[]{String.valueOf(TeamEntry.PLAYOFF_NOT_ELIGIBLE),  String.valueOf(TeamEntry.CURRENT_SEASON_YES)};
+
+                    standingsCursor = contentResolver.query(TeamEntry.CONTENT_URI, standingsProjection,
+                            selection, selectionArgs,
+                            TeamEntry.COLUMN_TEAM_CONFERENCE + ", " + TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE);
+
+                } else {
+
+                    String selection = TeamEntry.COLUMN_TEAM_CURRENT_SEASON + "=?";
+                    String[] selectionArgs = new String[]{String.valueOf(TeamEntry.CURRENT_SEASON_YES)};
+
+                    standingsCursor = contentResolver.query(TeamEntry.CONTENT_URI, standingsProjection,
+                            selection, selectionArgs,
+                            TeamEntry.COLUMN_TEAM_DIVISION + ", " + TeamEntry.COLUMN_TEAM_WIN_LOSS_PCT + " DESC, " + TeamEntry.COLUMN_TEAM_DIV_WIN_LOSS_PCT + " DESC");
+                }
+
+                return standingsCursor;
+            }
+        });
+
+        queryStandingsObservable.subscribeOn(mScheduler).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<Cursor>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                mCompositeDisposable.add(d);
+            }
+
+            @Override
+            public void onNext(Cursor standingsCursor) {
+                Log.d("MODEL", "STANDQUERESPONSE");
+                mPresenter.currentSeasonStandingsQueried(queryType, standingsCursor);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d("Query Error: ", "" + e);
+
+            }
+
+            @Override
+            public void onComplete() {
+            }
+        });
+
+
+    }
+
+    @Override
+    public void querySimulatorMatches(final int weekNumber, final boolean singleMatch, final int queryFrom) {
+
+        //Query the matches/schedule from the database for simulator
 
         Observable<Cursor> queryMatchesObservable = Observable.fromCallable(new Callable<Cursor>() {
             @Override
@@ -702,6 +952,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                         MatchEntry.COLUMN_MATCH_WEEK,
                         MatchEntry.COLUMN_MATCH_COMPLETE,
                         MatchEntry.COLUMN_MATCH_TEAM_ONE_WON,
+                        MatchEntry.COLUMN_MATCH_CURRENT_SEASON,
                 };
 
                 Cursor matchesCursor;
@@ -788,7 +1039,129 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
             @Override
             public void onNext(Cursor matchesCursor) {
                 Log.d("MODEL", "MATCHESQUERESPONSE");
-                mPresenter.matchesQueried(weekNumber, matchesCursor, queryFrom);
+                mPresenter.simulatorMatchesQueried(weekNumber, matchesCursor, queryFrom);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d("Query Error: ", "" + e);
+
+            }
+
+            @Override
+            public void onComplete() {
+            }
+        });
+
+
+    }
+
+    @Override
+    public void queryCurrentSeasonMatches(final int weekNumber, final boolean singleMatch, final int queryFrom) {
+
+        //Query the matches/schedule from the database for simulator
+
+        Observable<Cursor> queryMatchesObservable = Observable.fromCallable(new Callable<Cursor>() {
+            @Override
+            public Cursor call() throws Exception {
+                //Query standings
+                String[] matchesProjection = {
+                        MatchEntry._ID,
+                        MatchEntry.COLUMN_MATCH_TEAM_ONE,
+                        MatchEntry.COLUMN_MATCH_TEAM_TWO,
+                        MatchEntry.COLUMN_MATCH_TEAM_ONE_SCORE,
+                        MatchEntry.COLUMN_MATCH_TEAM_TWO_SCORE,
+                        MatchEntry.COLUMN_MATCH_TEAM_TWO_ODDS,
+                        MatchEntry.COLUMN_MATCH_WEEK,
+                        MatchEntry.COLUMN_MATCH_COMPLETE,
+                        MatchEntry.COLUMN_MATCH_TEAM_ONE_WON,
+                        MatchEntry.COLUMN_MATCH_CURRENT_SEASON,
+                };
+
+                Cursor matchesCursor;
+
+                //Either query all matches or query matches for a specific week, depending on the
+                //input weekNumber integer that was given
+
+                if (weekNumber == QUERY_MATCHES_ALL) {
+
+                    //Query all matches
+
+                    String selection = MatchEntry.COLUMN_MATCH_CURRENT_SEASON + "=?";
+                    String[] selectionArgs = new String[]{String.valueOf(MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES)};
+
+                    matchesCursor = contentResolver.query(MatchEntry.CONTENT_URI, matchesProjection,
+                            selection, selectionArgs,
+                            null);
+                } else if (weekNumber == MatchEntry.MATCH_WEEK_DIVISIONAL) {
+
+                    //Query divisional playoff matches (include both division games and completed wildcard games)
+
+                    String selection = "(" + MatchEntry.COLUMN_MATCH_WEEK + "=? OR " + MatchEntry.COLUMN_MATCH_WEEK + "=? ) AND (" + MatchEntry.COLUMN_MATCH_CURRENT_SEASON + "=? )" ;
+                    String[] selectionArgs = new String[]{String.valueOf(weekNumber), String.valueOf(MatchEntry.MATCH_WEEK_WILDCARD), String.valueOf(MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES)};
+
+                    matchesCursor = contentResolver.query(MatchEntry.CONTENT_URI, matchesProjection,
+                            selection, selectionArgs,
+                            MatchEntry.COLUMN_MATCH_WEEK + " DESC");
+                } else if (weekNumber == MatchEntry.MATCH_WEEK_CHAMPIONSHIP) {
+
+                    //Query conference playoff matches (include conferences matches and completed division and wilcard matches)
+
+                    String selection = "(" + MatchEntry.COLUMN_MATCH_WEEK + "=? OR " + MatchEntry.COLUMN_MATCH_WEEK + "=? OR " + MatchEntry.COLUMN_MATCH_WEEK + "=? ) AND (" + MatchEntry.COLUMN_MATCH_CURRENT_SEASON + "=? )";
+                    String[] selectionArgs = new String[]{String.valueOf(weekNumber), String.valueOf(MatchEntry.MATCH_WEEK_DIVISIONAL), String.valueOf(MatchEntry.MATCH_WEEK_WILDCARD), String.valueOf(MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES)};
+
+                    matchesCursor = contentResolver.query(MatchEntry.CONTENT_URI, matchesProjection,
+                            selection, selectionArgs,
+                            MatchEntry.COLUMN_MATCH_WEEK + " DESC");
+                } else if (weekNumber == MatchEntry.MATCH_WEEK_SUPERBOWL) {
+
+                    //Query superbowl playoff matches (include superbowl matches and completed conference, division and wilcard matches)
+
+                    String selection =  "(" + MatchEntry.COLUMN_MATCH_WEEK + "=? OR " + MatchEntry.COLUMN_MATCH_WEEK + "=? OR " + MatchEntry.COLUMN_MATCH_WEEK + "=? OR " + MatchEntry.COLUMN_MATCH_WEEK + "=? ) AND (" + MatchEntry.COLUMN_MATCH_CURRENT_SEASON + "=? )";
+                    String[] selectionArgs = new String[]{String.valueOf(weekNumber), String.valueOf(MatchEntry.MATCH_WEEK_CHAMPIONSHIP), String.valueOf(MatchEntry.MATCH_WEEK_DIVISIONAL), String.valueOf(MatchEntry.MATCH_WEEK_WILDCARD), String.valueOf(MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES)};
+
+                    matchesCursor = contentResolver.query(MatchEntry.CONTENT_URI, matchesProjection,
+                            selection, selectionArgs,
+                            MatchEntry.COLUMN_MATCH_WEEK + " DESC");
+
+                } else if (singleMatch == true) {
+
+                    //Query a single week's matches
+
+                    String selection = MatchEntry.COLUMN_MATCH_WEEK + "=? AND " + MatchEntry.COLUMN_MATCH_CURRENT_SEASON + "=?";
+                    String[] selectionArgs = new String[]{String.valueOf(weekNumber), String.valueOf(MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES)};
+
+                    matchesCursor = contentResolver.query(MatchEntry.CONTENT_URI, matchesProjection,
+                            selection, selectionArgs,
+                            null);
+
+                } else {
+
+                    //Query all matches up to and including a single week
+
+                    String selection = MatchEntry.COLUMN_MATCH_WEEK + "<=? AND " + MatchEntry.COLUMN_MATCH_CURRENT_SEASON + "=?";
+                    String[] selectionArgs = new String[]{String.valueOf(weekNumber), String.valueOf(MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES)};
+
+                    matchesCursor = contentResolver.query(MatchEntry.CONTENT_URI, matchesProjection,
+                            selection, selectionArgs,
+                            MatchEntry.COLUMN_MATCH_WEEK + " DESC");
+
+                }
+
+
+                return matchesCursor;
+            }
+        });
+
+        queryMatchesObservable.subscribeOn(mScheduler).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<Cursor>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                mCompositeDisposable.add(d);
+            }
+
+            @Override
+            public void onNext(Cursor matchesCursor) {
+                mPresenter.currentSeasonMatchesQueried(weekNumber, matchesCursor, queryFrom);
             }
 
             @Override

@@ -17,7 +17,8 @@
     <string name="settings_season_intialized_title">Season Initialized</string>
     <string name="settings_playoffs_started_key">playoffs started</string>
     <string name="settings_playoffs_started_title">Playoffs Started</string>
-    <string name="settings_week_num_key">week number</string>
+    <string name="settings_simulator_week_num_key">simulator week number</string>
+    <string name="settings_season_week_num_key">simulator week number</string>
     <string name="settings_week_number_title">Week Number</string>
     <string name="settings_score_string_key">score string</string>
     <string name="settings_elo_type_key">elo type key</string>

@@ -17,7 +17,6 @@ public interface SimulatorMvpContract {
     //Contract for interaction between MainActivity view, Presenter and Model
 
     interface SimulatorView extends BaseView{
-        void onDisplayStandings(int standingsType, Cursor cursor);
         void onPriorSimulatedDataLoaded();
         void onDataDeleted();
         void setCurrentWeekPreference(int currentWeek);
@@ -26,6 +25,7 @@ public interface SimulatorMvpContract {
     interface SimulatorPresenter {
         void simulateWeek();
         void simulatePlayoffWeek();
+        void queryCurrentSeasonStandings();
         void simulateSeason();
         void initializeSeason();
         void initiatePlayoffs();
@@ -34,12 +34,16 @@ public interface SimulatorMvpContract {
         void loadSeasonFromDatabase();
         void loadAlreadySimulatedData();
         void loadAlreadySimulatedPlayoffData();
-        void teamsInserted();
+        void simulatorTeamsInserted();
+        void seasonTeamsInserted();
         void addBaseView(BaseView baseView);
-        void matchesInserted(int insertType);
-        void matchesQueried(int queryType, Cursor matchesCursor, int queryFrom);
-        void teamsOrStandingsQueried(int queryType, Cursor standingsCursor);
-        void queryMatches(int week, boolean singleMatch, int queryFrom);
+        void simulatorMatchesInserted(int insertType);
+        void seasonMatchesInserted(int insertType);
+        void simulatorMatchesQueried(int queryType, Cursor matchesCursor, int queryFrom);
+        void currentSeasonMatchesQueried(int queryType, Cursor matchesCursor, int queryFrom);
+        void simulatorStandingsQueried(int queryType, Cursor standingsCursor);
+        void currentSeasonStandingsQueried(int queryType, Cursor standingsCursor);
+        void queryCurrentSeasonMatches(int week, boolean singleMatch, int queryFrom);
         void resetSeason();
         void resetTeamLastSeasonElos();
         void resetTeamCurrentSeasonElos();
@@ -50,26 +54,34 @@ public interface SimulatorMvpContract {
     }
 
     interface SimulatorModel {
-        void setSchedule(Schedule schedule);
-        void setTeamList(HashMap<String, Team> teamList);
+        void setSimulatorSchedule(Schedule schedule);
+        void setSeasonSchedule(Schedule schedule);
+        void setSimulatorTeamList(HashMap<String, Team> teamList);
+        void setSeasonTeamList(HashMap<String, Team> teamList);
         void createTeamLogoMap();
         int getLogo(String teamName);
         void setTeamEloMap(HashMap<String, Double> teamEloMap);
-        Team getTeam(String teamName);
-        HashMap<String, Team> getTeamList();
+        Team getSimulatorTeam(String teamName);
+        Team getCurrentSeasonTeam(String teamName);
+        HashMap<String, Team> getSimulatorTeamList();
+        HashMap<String, Team> getSeasonTeamList();
         ArrayList<Team> getTeamArrayList();
         ArrayList<String> getTeamNameArrayList();
         HashMap<String, Double> getTeamEloMap();
         Schedule getSchedule();
         void insertMatch(Match match);
-        void insertMatches(int insertType);
-        void insertMatches(int insertType, Week week);
+        void insertSimulatorMatches(int insertType);
+        void insertSimulatorMatches(int insertType, Week week);
+        void insertSeasonMatches(int insertType);
         void insertTeam(Team team);
-        void insertTeams();
+        void insertSimulatorTeams();
+        void insertSeasonTeams();
         void updateMatch(Match match, Uri uri);
         void updateTeam(Team team, Uri uri);
-        void queryStandings(int queryType);
-        void queryMatches(int weekNumber, boolean singleMatch, int queryFrom);
+        void querySimulatorStandings(int queryType);
+        void queryCurrentSeasonStandings(int queryType);
+        void querySimulatorMatches(int weekNumber, boolean singleMatch, int queryFrom);
+        void queryCurrentSeasonMatches(int weekNumber, boolean singleMatch, int queryFrom);
         void deleteAllData();
         void destroyModel();
     }

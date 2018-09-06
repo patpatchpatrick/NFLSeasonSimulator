@@ -85,11 +85,11 @@ public class MatchPredictorActivity extends AppCompatActivity {
 
                 //Set elo value based on selected team
                 if (eloType == getResources().getInteger(R.integer.settings_elo_type_last_season)) {
-                    mTeamOneEloValue.setText("" + mModel.getTeam(teamName).getDefaultElo());
+                    mTeamOneEloValue.setText("" + mModel.getSimulatorTeam(teamName).getDefaultElo());
                 } else if (eloType == getResources().getInteger(R.integer.settings_elo_type_current_season)) {
-                    mTeamOneEloValue.setText("" + mModel.getTeam(teamName).getFutureElo());
+                    mTeamOneEloValue.setText("" + mModel.getSimulatorTeam(teamName).getFutureElo());
                 } else if (eloType == getResources().getInteger(R.integer.settings_elo_type_user)) {
-                    mTeamOneEloValue.setText("" + mModel.getTeam(teamName).getUserElo());
+                    mTeamOneEloValue.setText("" + mModel.getSimulatorTeam(teamName).getUserElo());
                 }
 
                 //Reset team odds textviews when elos are changed
@@ -119,11 +119,11 @@ public class MatchPredictorActivity extends AppCompatActivity {
 
                 //Set elo value based on selected team
                 if (eloType == getResources().getInteger(R.integer.settings_elo_type_last_season)) {
-                    mTeamTwoEloValue.setText("" + mModel.getTeam(teamName).getDefaultElo());
+                    mTeamTwoEloValue.setText("" + mModel.getSimulatorTeam(teamName).getDefaultElo());
                 } else if (eloType == getResources().getInteger(R.integer.settings_elo_type_current_season)) {
-                    mTeamTwoEloValue.setText("" + mModel.getTeam(teamName).getFutureElo());
+                    mTeamTwoEloValue.setText("" + mModel.getSimulatorTeam(teamName).getFutureElo());
                 } else if (eloType == getResources().getInteger(R.integer.settings_elo_type_user)) {
-                    mTeamTwoEloValue.setText("" + mModel.getTeam(teamName).getUserElo());
+                    mTeamTwoEloValue.setText("" + mModel.getSimulatorTeam(teamName).getUserElo());
                 }
 
                 //Reset team odds textviews when elos are changed

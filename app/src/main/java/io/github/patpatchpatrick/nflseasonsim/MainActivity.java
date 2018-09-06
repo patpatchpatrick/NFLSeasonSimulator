@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.drawable.Animatable;
-import android.graphics.drawable.ColorDrawable;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -24,7 +23,6 @@ import android.widget.TextView;
 import javax.inject.Inject;
 
 import io.github.patpatchpatrick.nflseasonsim.dagger.ActivityComponent;
-import io.github.patpatchpatrick.nflseasonsim.dagger.DaggerActivityComponent;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.MatchEntry;
 import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.ScoreView;
@@ -229,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     public void setCurrentWeekPreference(int currentWeek) {
         //Set current week preference when week is updated
         SharedPreferences.Editor prefs = mSharedPreferences.edit();
-        prefs.putInt(getString(R.string.settings_week_num_key), currentWeek).apply();
+        prefs.putInt(getString(R.string.settings_simulator_week_num_key), currentWeek).apply();
         prefs.commit();
     }
 
@@ -243,7 +241,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         Boolean seasonInitialized = mSharedPreferences.getBoolean(getString(R.string.settings_season_initialized_key), getResources().getBoolean(R.bool.pref_season_initialized_default));
         mPresenter.setPlayoffsStarted(mSharedPreferences.getBoolean(getString(R.string.settings_playoffs_started_key), getResources().getBoolean(R.bool.pref_playoffs_started_default)));
         SimulatorPresenter.setSeasonInitialized(seasonInitialized);
-        int currentWeek = mSharedPreferences.getInt(getString(R.string.settings_week_num_key), 1);
+        int currentWeek = mSharedPreferences.getInt(getString(R.string.settings_simulator_week_num_key), 1);
         SimulatorPresenter.setCurrentWeek(currentWeek);
     }
 
@@ -264,17 +262,6 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         mPresenter.initializeSeason();
     }
 
-    @Override
-    public void onDisplayStandings(int standingsType, Cursor cursor) {
-        //Callback received from presenter to display standings after they are loaded
-
-        //Swap standings cursor into standings recyclerView to display standings
-        mStandingsRecyclerViewAdapter.swapCursor(standingsType, cursor);
-
-        //Set up the views now that the week was simulated
-        setUpViews();
-
-    }
 
     @Override
     public void onDisplayScores(int weekNumber, Cursor cursor, String scoresWeekNumberHeader, int queriedFrom) {
@@ -289,6 +276,22 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
             mScoresRecyclerViewAdapter.swapCursor(cursor);
             mWeekNumberHeader.setText(scoresWeekNumberHeader);
             setUpViews();
+        }
+
+    }
+
+    @Override
+    public void onDisplayStandings(int standingsType, Cursor cursor, int queriedFrom) {
+
+        if (queriedFrom == SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY){
+
+            //Callback received from presenter to display standings after they are loaded
+            //Swap standings cursor into standings recyclerView to display standings
+            mStandingsRecyclerViewAdapter.swapCursor(standingsType, cursor);
+
+            //Set up the views now that the week was simulated
+            setUpViews();
+
         }
 
     }
