@@ -62,12 +62,42 @@ public class WeeklyMatchesRecyclerViewAdapter extends RecyclerView.Adapter<Weekl
 
         //Set team  one and two name and logo
         Typeface tf = ResourcesCompat.getFont(mContext, R.font.montserrat);
+        Typeface tfBold = ResourcesCompat.getFont(mContext, R.font.montserrat_bold);
         teamOneString = dataCursor.getString(dataCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_ONE));
         teamTwoString = dataCursor.getString(dataCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_TWO));
-        holder.teamOneName.setText(teamOneString);
-        holder.teamTwoName.setText(teamTwoString);
-        holder.teamOneName.setTypeface(tf);
-        holder.teamTwoName.setTypeface(tf);
+        int scoreOne = dataCursor.getInt(dataCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_ONE_SCORE));
+        int scoreTwo = dataCursor.getInt(dataCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_TWO_SCORE));
+        int teamOneWonInt = dataCursor.getInt(dataCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_ONE_WON));
+        int matchComplete = dataCursor.getInt(dataCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_COMPLETE));
+        Double teamTwoVegasOdds = dataCursor.getDouble(dataCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_TWO_ODDS));
+
+        Boolean teamOneWon;
+        if (teamOneWonInt == MatchEntry.MATCH_TEAM_ONE_WON_YES) {
+            teamOneWon = true;
+        } else {
+            teamOneWon = false;
+        }
+
+        //If the match is complete, set the text appropriately
+        if (matchComplete == MatchEntry.MATCH_COMPLETE_YES) {
+            holder.teamOneName.setText(teamOneString + " " + scoreOne);
+            holder.teamTwoName.setText(teamTwoString + " " + scoreTwo);
+            //Bold the winning team
+            if (teamOneWon) {
+                holder.teamOneName.setTypeface(tfBold);
+                holder.teamTwoName.setTypeface(tf);
+            } else {
+                holder.teamOneName.setTypeface(tf);
+                holder.teamTwoName.setTypeface(tfBold);
+            }
+        } else {
+            holder.teamOneName.setText(teamOneString);
+            holder.teamTwoName.setText(teamTwoString);
+            holder.teamOneName.setTypeface(tf);
+            holder.teamTwoName.setTypeface(tf);
+        }
+
+
         holder.teamOneLogo.setImageResource(mModel.getLogo(teamOneString));
         holder.teamTwoLogo.setImageResource(mModel.getLogo(teamTwoString));
 
@@ -91,6 +121,8 @@ public class WeeklyMatchesRecyclerViewAdapter extends RecyclerView.Adapter<Weekl
             teamOneElo = teamOne.getDefaultElo();
             teamTwoElo = teamTwo.getDefaultElo();
         }
+        teamOneElo = teamOne.getElo();
+        teamTwoElo = teamTwo.getElo();
         Double teamOneOddsToWin = ELORatingSystem.probabilityOfTeamOneWinning(teamOneElo, teamTwoElo, true);
         Double teamTwoOddsToWin = 1 - teamOneOddsToWin;
         Double teamTwoOddsToWinPercent = teamTwoOddsToWin * 100;
@@ -103,7 +135,6 @@ public class WeeklyMatchesRecyclerViewAdapter extends RecyclerView.Adapter<Weekl
         //If team two is favored, the odds will be greater than 0 so show the absolute value of the odds with a - sign
         //If team one is favored, the odds will be less than  0 so show the absolute value of the odds with a + sign
         //If there are no odds, clear the textview
-        Double teamTwoVegasOdds = dataCursor.getDouble(dataCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_TWO_ODDS));
         if (teamTwoVegasOdds != MatchEntry.MATCH_NO_ODDS_SET) {
             if (teamTwoVegasOdds >= 0) {
                 holder.teamTwoVegasOdds.setText(teamTwoShortName + " -" + Math.abs(teamTwoVegasOdds));
@@ -112,6 +143,42 @@ public class WeeklyMatchesRecyclerViewAdapter extends RecyclerView.Adapter<Weekl
             }
         } else {
             holder.teamTwoVegasOdds.setText("");
+        }
+
+
+        //Set colors of vegas odds line depending on whether or not the team beat the vegas odds
+        Boolean teamTwoBeatVegasOdds;
+        if (matchComplete == MatchEntry.MATCH_COMPLETE_YES) {
+            Double scoreDifferential = (double) scoreTwo - (double) scoreOne;
+            if (scoreDifferential >= teamTwoVegasOdds) {
+                teamTwoBeatVegasOdds = true;
+            } else {
+                teamTwoBeatVegasOdds = false;
+            }
+            if (teamTwoBeatVegasOdds) {
+                holder.teamTwoVegasOdds.setTextColor(mContext.getResources().getColor(R.color.colorGreen));
+            } else {
+                holder.teamTwoVegasOdds.setTextColor(mContext.getResources().getColor(R.color.colorRed));
+            }
+        } else {
+            holder.teamTwoVegasOdds.setTextColor(holder.teamOneName.getCurrentTextColor());
+        }
+
+        //Set colors of elo odds depending on whether or not the team beat the elo odds
+        Boolean teamTwoBeatEloPercent;
+        if (matchComplete == MatchEntry.MATCH_COMPLETE_YES) {
+            if (teamTwoOddsToWinPercent >= 50 && !teamOneWon) {
+                teamTwoBeatEloPercent = true;
+            } else {
+                teamTwoBeatEloPercent = false;
+            }
+            if (teamTwoBeatEloPercent) {
+                holder.teamTwoEloOdds.setTextColor(mContext.getResources().getColor(R.color.colorGreen));
+            } else {
+                holder.teamTwoEloOdds.setTextColor(mContext.getResources().getColor(R.color.colorRed));
+            }
+        } else {
+            holder.teamTwoEloOdds.setTextColor(holder.teamOneName.getCurrentTextColor());
         }
 
 

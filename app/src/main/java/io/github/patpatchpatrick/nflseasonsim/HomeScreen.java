@@ -3,6 +3,7 @@ package io.github.patpatchpatrick.nflseasonsim;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Animatable;
+import android.graphics.drawable.AnimationDrawable;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.kobakei.ratethisapp.RateThisApp;
 
@@ -36,7 +38,10 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
     Button mNextWeekMatchesButton;
     Button mStandingsButton;
     ImageView mAnimatedFootball;
+    ImageView mAnimatedLoader;
     Animatable mAnimatedFootballAnimatable;
+    AnimationDrawable mAnimatedLoaderAnimation;
+    TextView mLoadingText;
     static ActivityComponent mActivityComponent;
     SharedPreferences mSharedPrefs;
 
@@ -68,20 +73,22 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
 
         mAnimatedFootball = (ImageView) findViewById(R.id.football_animation);
         mAnimatedFootballAnimatable = (Animatable) mAnimatedFootball.getDrawable();
-        if (mAnimatedFootballAnimatable.isRunning()) {
-            mAnimatedFootballAnimatable.stop();
-        }
+        mAnimatedLoader = (ImageView) findViewById(R.id.main_menu_loading_animation);
+        mAnimatedLoaderAnimation = (AnimationDrawable) mAnimatedLoader.getBackground();
+        mLoadingText = (TextView) findViewById(R.id.main_menu_loading_text);
+
+        stopAnimations();
 
         //Initialize season if not initialized
         //Load season, if not loaded already
         //Start loading animation
         if (!getSeasonInitializedPref()) {
             setButtonsActive(false);
-            mAnimatedFootballAnimatable.start();
+            startAnimations();
             mPresenter.initializeSeason();
         } else if (!getSeasonLoadedPref()) {
             setButtonsActive(false);
-            mAnimatedFootballAnimatable.start();
+            startAnimations();
             mPresenter.loadSeasonFromDatabase();
         }
 
@@ -127,6 +134,36 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
                 startActivity(startStandingsActivity);
             }
         });
+
+    }
+
+    private void startAnimations() {
+
+        if (!mAnimatedFootballAnimatable.isRunning()){
+
+        mAnimatedFootballAnimatable.start();
+        mAnimatedLoader.setVisibility(View.VISIBLE);
+        mAnimatedLoaderAnimation.start();
+        mLoadingText.setVisibility(View.VISIBLE);}
+    }
+
+    private void stopAnimations() {
+        //Stop all animations and set loading animations and text to invisible
+
+        if (mAnimatedFootballAnimatable.isRunning()){
+            mAnimatedFootballAnimatable.stop();
+            mAnimatedLoaderAnimation.stop();
+            mAnimatedLoader.setVisibility(View.INVISIBLE);
+            mLoadingText.setVisibility(View.INVISIBLE);}
+
+    }
+
+    private void forceStopAnimations(){
+
+            mAnimatedFootballAnimatable.stop();
+            mAnimatedLoaderAnimation.stop();
+            mAnimatedLoader.setVisibility(View.INVISIBLE);
+            mLoadingText.setVisibility(View.INVISIBLE);
 
     }
 
@@ -199,14 +236,13 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
 
     @Override
     public void onSeasonInitialized() {
+        //Load the current season's matches if they haven't  yet been loaded
         //After the season is initialized, stop loading animation and make buttons active again
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 setButtonsActive(true);
-                if (mAnimatedFootballAnimatable.isRunning()) {
-                    mAnimatedFootballAnimatable.stop();
-                }
+                stopAnimations();
             }
 
         });
@@ -214,10 +250,11 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
 
     @Override
     public void onSeasonLoadedFromDb() {
+        //Load the current season's matches if they haven't  yet been loaded
         //Stop loading animation when season is finished loading
         //Set all buttons back to active
         setButtonsActive(true);
-        mAnimatedFootballAnimatable.stop();
+        forceStopAnimations();
 
     }
 
@@ -237,9 +274,7 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
     protected void onResume() {
         super.onResume();
         //If animation is still running, stop it
-        if (mAnimatedFootballAnimatable.isRunning()) {
-            mAnimatedFootballAnimatable.stop();
-        }
+        stopAnimations();
     }
 
     private void setUpAppRater(){

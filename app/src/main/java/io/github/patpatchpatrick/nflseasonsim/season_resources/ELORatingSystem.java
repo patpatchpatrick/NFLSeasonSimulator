@@ -53,6 +53,30 @@ public class ELORatingSystem {
         return teamOneWon;
     }
 
+    public static boolean completeCurrentSeasonMatch(Match match, int teamOneScore, int teamTwoScore){
+
+        Team teamOne = match.getTeam1();
+        Team teamTwo = match.getTeam2();
+
+        double eloTeamOne = teamOne.getElo();
+        double eloTeamTwo = teamTwo.getElo();
+        double probTeamOneWin = probabilityOfTeamOneWinning(eloTeamOne, eloTeamTwo, true);
+
+        match.setTeam1Score(teamOneScore);
+        match.setmTeam2Score(teamTwoScore);
+
+        boolean teamOneWon;
+        if (teamOneScore > teamTwoScore){
+            teamOneWon = true;
+        } else {
+            teamOneWon = false;
+        }
+
+        updateRatings(teamOne, teamTwo, probTeamOneWin, teamOneWon);
+
+        return teamOneWon;
+    }
+
     public static double probabilityOfTeamOneWinning(double eloTeamOne, double eloTeamTwo, boolean useHomeFieldAdvantage) {
         //Returns probably of team one winning based on their ELO
         //Team one is always the away team, so if home field advantage is being used in the calculation,

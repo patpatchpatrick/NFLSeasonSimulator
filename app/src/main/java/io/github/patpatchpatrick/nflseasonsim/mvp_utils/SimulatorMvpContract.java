@@ -37,6 +37,7 @@ public interface SimulatorMvpContract {
         void simulatorTeamsInserted();
         void seasonTeamsInserted();
         void addBaseView(BaseView baseView);
+        void loadCurrentSeasonMatches();
         void simulatorMatchesInserted(int insertType);
         void seasonMatchesInserted(int insertType);
         void simulatorMatchesQueried(int queryType, Cursor matchesCursor, int queryFrom);
@@ -45,9 +46,10 @@ public interface SimulatorMvpContract {
         void currentSeasonStandingsQueried(int queryType, Cursor standingsCursor);
         void queryCurrentSeasonMatches(int week, boolean singleMatch, int queryFrom);
         void resetSeason();
-        void resetTeamLastSeasonElos();
-        void resetTeamCurrentSeasonElos();
-        void resetTeamUserElos();
+        void resetSimulatorTeamLastSeasonElos();
+        void resetSimulatorTeamCurrentSeasonElos();
+        void resetCurrentSeasonTeamCurrentSeasonElos();
+        void resetSimulatorTeamUserElos();
         void setTeamUserElos();
         void dataDeleted();
         void destroyPresenter();
@@ -65,10 +67,12 @@ public interface SimulatorMvpContract {
         Team getCurrentSeasonTeam(String teamName);
         HashMap<String, Team> getSimulatorTeamList();
         HashMap<String, Team> getSeasonTeamList();
-        ArrayList<Team> getTeamArrayList();
+        ArrayList<Team> getSimulatorTeamArrayList();
+        ArrayList<Team> getSeasonTeamArrayList();
         ArrayList<String> getTeamNameArrayList();
         HashMap<String, Double> getTeamEloMap();
-        Schedule getSchedule();
+        Schedule getSimulatorSchedule();
+        Schedule getSeasonSchedule();
         void insertMatch(Match match);
         void insertSimulatorMatches(int insertType);
         void insertSimulatorMatches(int insertType, Week week);

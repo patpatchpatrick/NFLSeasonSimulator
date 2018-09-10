@@ -41,6 +41,9 @@
     <color name="colorSecondaryTextPurple">#757575</color>
     <color name="colorTextAndIconsPurple">#FFFFFF</color>
 
+    <color name="colorGreen">#2fd117</color>
+    <color name="colorRed">#d61f1b</color>
+
 
 
 </resources>

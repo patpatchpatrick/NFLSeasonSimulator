@@ -181,12 +181,23 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     }
 
     @Override
-    public ArrayList<Team> getTeamArrayList() {
+    public ArrayList<Team> getSimulatorTeamArrayList() {
 
         ArrayList<Team> teamArrayList = new ArrayList();
 
         for (String teamName : mSimulatorTeamList.keySet()) {
             teamArrayList.add(mSimulatorTeamList.get(teamName));
+        }
+
+        return teamArrayList;
+    }
+
+    @Override
+    public ArrayList<Team> getSeasonTeamArrayList() {
+        ArrayList<Team> teamArrayList = new ArrayList();
+
+        for (String teamName : mSeasonTeamList.keySet()) {
+            teamArrayList.add(mSeasonTeamList.get(teamName));
         }
 
         return teamArrayList;
@@ -209,8 +220,13 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
     }
 
     @Override
-    public Schedule getSchedule() {
+    public Schedule getSimulatorSchedule() {
         return mSimulatorSchedule;
+    }
+
+    @Override
+    public Schedule getSeasonSchedule() {
+        return mSeasonSchedule;
     }
 
     @Override
@@ -687,7 +703,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
             @Override
             public void onNext(Integer rowsUpdated) {
                 Log.d("ModelWeek", "" + match.getWeek());
-                getSchedule().getWeek(match.getWeek()).matchUpdated();
+                getSimulatorSchedule().getWeek(match.getWeek()).matchUpdated();
             }
 
             @Override

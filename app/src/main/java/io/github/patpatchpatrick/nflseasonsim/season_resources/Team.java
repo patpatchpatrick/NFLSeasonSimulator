@@ -177,6 +177,7 @@ public class Team {
         mWinLossPct = (double) mCurrentWins / (double) (mCurrentWins + mCurrentLosses);
 
         mData.updateTeamCallback(this, mUri);
+        Log.d("EAGLES", "URI " + mUri);
     }
 
     public int getWins() {
@@ -274,7 +275,7 @@ public class Team {
         mElo = mDefaultElo;
     }
 
-    public void setFutureElos(){
+    public void setCurrentSeasonElos(){
         //Set team elos based on future ranking
         mElo = 1700 - (mTeamRanking * 12.5);
     }

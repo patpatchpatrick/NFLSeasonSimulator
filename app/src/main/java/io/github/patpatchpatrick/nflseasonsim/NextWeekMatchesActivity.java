@@ -62,6 +62,8 @@ public class NextWeekMatchesActivity extends AppCompatActivity implements BaseVi
         mWeekNumberHeader = (TextView) findViewById(R.id.weekly_matches_week_number_header);
         mWeekNumberHeader.setText("Week " + weekNumber);
 
+        //Load current season data
+        mPresenter.loadCurrentSeasonMatches();
         //Query the matches to be displayed
         mPresenter.queryCurrentSeasonMatches(weekNumber, true, SimulatorModel.QUERY_FROM_NEXT_WEEK_MATCHES_ACTIVITY);
 

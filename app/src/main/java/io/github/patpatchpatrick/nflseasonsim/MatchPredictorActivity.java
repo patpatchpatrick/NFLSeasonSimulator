@@ -84,12 +84,13 @@ public class MatchPredictorActivity extends AppCompatActivity {
                 mTeamOneLogo.setImageResource(mModel.getLogo(teamName));
 
                 //Set elo value based on selected team
+                DecimalFormat df = new DecimalFormat("#.##");
                 if (eloType == getResources().getInteger(R.integer.settings_elo_type_last_season)) {
-                    mTeamOneEloValue.setText("" + mModel.getSimulatorTeam(teamName).getDefaultElo());
+                    mTeamOneEloValue.setText("" + mModel.getCurrentSeasonTeam(teamName).getDefaultElo());
                 } else if (eloType == getResources().getInteger(R.integer.settings_elo_type_current_season)) {
-                    mTeamOneEloValue.setText("" + mModel.getSimulatorTeam(teamName).getFutureElo());
+                    mTeamOneEloValue.setText("" + df.format(mModel.getCurrentSeasonTeam(teamName).getElo()));
                 } else if (eloType == getResources().getInteger(R.integer.settings_elo_type_user)) {
-                    mTeamOneEloValue.setText("" + mModel.getSimulatorTeam(teamName).getUserElo());
+                    mTeamOneEloValue.setText("" + mModel.getCurrentSeasonTeam(teamName).getUserElo());
                 }
 
                 //Reset team odds textviews when elos are changed
@@ -118,12 +119,13 @@ public class MatchPredictorActivity extends AppCompatActivity {
                 mTeamTwoLogo.setImageResource(mModel.getLogo(teamName));
 
                 //Set elo value based on selected team
+                DecimalFormat df = new DecimalFormat("#.##");
                 if (eloType == getResources().getInteger(R.integer.settings_elo_type_last_season)) {
-                    mTeamTwoEloValue.setText("" + mModel.getSimulatorTeam(teamName).getDefaultElo());
+                    mTeamTwoEloValue.setText("" + mModel.getCurrentSeasonTeam(teamName).getDefaultElo());
                 } else if (eloType == getResources().getInteger(R.integer.settings_elo_type_current_season)) {
-                    mTeamTwoEloValue.setText("" + mModel.getSimulatorTeam(teamName).getFutureElo());
+                    mTeamTwoEloValue.setText("" + df.format(mModel.getCurrentSeasonTeam(teamName).getElo()));
                 } else if (eloType == getResources().getInteger(R.integer.settings_elo_type_user)) {
-                    mTeamTwoEloValue.setText("" + mModel.getSimulatorTeam(teamName).getUserElo());
+                    mTeamTwoEloValue.setText("" + mModel.getCurrentSeasonTeam(teamName).getUserElo());
                 }
 
                 //Reset team odds textviews when elos are changed

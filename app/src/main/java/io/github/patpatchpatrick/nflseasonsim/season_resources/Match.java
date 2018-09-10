@@ -54,13 +54,13 @@ public class Match {
         mCurrentSeason = currentSeason;
 
         //Determine if match is a divisional matchup
-        if (mTeam1.getDivision() == mTeam2.getDivision()){
+        if (mTeam1.getDivision() == mTeam2.getDivision()) {
             divisionalMatchup = true;
         } else {
             divisionalMatchup = false;
         }
 
-        if (mWeek > 17){
+        if (mWeek > 17) {
             playoffMatchup = true;
         } else {
             playoffMatchup = false;
@@ -83,13 +83,13 @@ public class Match {
         mCurrentSeason = currentSeason;
 
         //Determine if match is a divisional matchup
-        if (mTeam1.getDivision() == mTeam2.getDivision()){
+        if (mTeam1.getDivision() == mTeam2.getDivision()) {
             divisionalMatchup = true;
         } else {
             divisionalMatchup = false;
         }
 
-        if (mWeek > 17){
+        if (mWeek > 17) {
             playoffMatchup = true;
         } else {
             playoffMatchup = false;
@@ -97,7 +97,7 @@ public class Match {
 
     }
 
-    public Match(Team team1, Team team2, int teamOneWon, int week, Data data, Uri uri, Double teamTwoOdds, int currentSeason) {
+    public Match(Team team1, Team team2, int teamOneWon, int week, Data data, Uri uri, Double teamTwoOdds, int currentSeason, int matchCompleteInt) {
 
         //Inject match with dagger to get contentResolver
         HomeScreen.getActivityComponent().inject(this);
@@ -106,29 +106,46 @@ public class Match {
         mTeam1 = team1;
         mTeam2 = team2;
         mWeek = week;
-        matchComplete = false;
+        if (matchCompleteInt == SeasonSimContract.MatchEntry.MATCH_COMPLETE_NO) {
+            matchComplete = false;
+        } else {
+            matchComplete = true;
+        }
         matchUri = uri;
         mTeamTwoOdds = teamTwoOdds;
         mCurrentSeason = currentSeason;
 
         //Determine if match is a divisional matchup
-        if (mTeam1.getDivision() == mTeam2.getDivision()){
+        if (mTeam1.getDivision() == mTeam2.getDivision()) {
             divisionalMatchup = true;
         } else {
             divisionalMatchup = false;
         }
-        if (mWeek > 17){
+        if (mWeek > 17) {
             playoffMatchup = true;
         } else {
             playoffMatchup = false;
         }
 
         //Set the teamOneWon boolean based on DB values
-        if (teamOneWon == SeasonSimContract.MatchEntry.MATCH_TEAM_ONE_WON_YES){
+        if (teamOneWon == SeasonSimContract.MatchEntry.MATCH_TEAM_ONE_WON_YES) {
             mTeamOneWon = true;
         } else {
             mTeamOneWon = false;
         }
+
+    }
+
+    public void complete(int teamOneScore, int teamTwoScore) {
+        mTeamOneWon = ELORatingSystem.completeCurrentSeasonMatch(this, teamOneScore, teamTwoScore);
+
+        //Update team records based on outcome and mark match as complete
+        setMatchWins();
+        matchComplete = true;
+
+        //Callback to presenter to update match in database with match result
+        mData.updateMatchCallback(this, matchUri);
+
 
     }
 
@@ -138,27 +155,7 @@ public class Match {
         mTeamOneWon = ELORatingSystem.simulateMatch(this, mTeam1, mTeam2, useHomeFieldAdvantage);
 
         //Update team records based on outcome and mark match as complete
-        if (mTeamOneWon){
-            if (divisionalMatchup){
-                mTeam1.divisionalWin();
-                mTeam2.divisionalLoss();
-            }
-            if (playoffMatchup){
-                mTeam2.setPlayoffEligible(TeamEntry.PLAYOFF_NOT_ELIGIBLE);
-            }
-            mTeam1.win();
-            mTeam2.lose();
-        } else {
-            if (divisionalMatchup){
-                mTeam1.divisionalLoss();
-                mTeam2.divisionalWin();
-            }
-            if (playoffMatchup){
-                mTeam1.setPlayoffEligible(TeamEntry.PLAYOFF_NOT_ELIGIBLE);
-            }
-            mTeam1.lose();
-            mTeam2.win();
-        }
+        setMatchWins();
         matchComplete = true;
 
         //Callback to presenter to update match in database with match result
@@ -166,11 +163,35 @@ public class Match {
 
     }
 
-    public Boolean getTeamOneWon(){
+    private void setMatchWins() {
+        if (mTeamOneWon) {
+            if (divisionalMatchup) {
+                mTeam1.divisionalWin();
+                mTeam2.divisionalLoss();
+            }
+            if (playoffMatchup) {
+                mTeam2.setPlayoffEligible(TeamEntry.PLAYOFF_NOT_ELIGIBLE);
+            }
+            mTeam1.win();
+            mTeam2.lose();
+        } else {
+            if (divisionalMatchup) {
+                mTeam1.divisionalLoss();
+                mTeam2.divisionalWin();
+            }
+            if (playoffMatchup) {
+                mTeam1.setPlayoffEligible(TeamEntry.PLAYOFF_NOT_ELIGIBLE);
+            }
+            mTeam1.lose();
+            mTeam2.win();
+        }
+    }
+
+    public Boolean getTeamOneWon() {
         return mTeamOneWon;
     }
 
-    protected void setTeam1Score(int score){
+    protected void setTeam1Score(int score) {
         mTeam1Score = score;
         mTeam1.addPointsFor(score);
         mTeam2.addPointsAllowed(score);
@@ -182,43 +203,53 @@ public class Match {
         mTeam1.addPointsAllowed(score);
     }
 
-    public void setUri(Uri uri){
+    public void setUri(Uri uri) {
 
         matchUri = uri;
     }
 
-    public Team getTeam1(){
+    public Team getTeam1() {
         return mTeam1;
     }
 
-    public Team getTeam2(){
+    public Team getTeam2() {
         return mTeam2;
     }
 
-    public int getTeam1Score(){
+    public int getTeam1Score() {
         return mTeam1Score;
     }
 
-    public int getTeam2Score(){
+    public int getTeam2Score() {
         return mTeam2Score;
     }
 
-    public Uri getUri(){
+    public Uri getUri() {
         return matchUri;
     }
 
-    public int getWeek(){
+    public int getWeek() {
         return mWeek;
     }
 
-    public Double getTeamTwoOdds(){return mTeamTwoOdds; }
+    public Double getTeamTwoOdds() {
+        return mTeamTwoOdds;
+    }
 
-    public void setMatchUpdated(Boolean matchUpdated){mMatchUpdated =  matchUpdated;}
+    public void setMatchUpdated(Boolean matchUpdated) {
+        mMatchUpdated = matchUpdated;
+    }
 
-    public Boolean getMatchUpdated(){ return  mMatchUpdated;}
+    public Boolean getMatchUpdated() {
+        return mMatchUpdated;
+    }
 
-    public int getCurrentSeason(){
+    public int getCurrentSeason() {
         return mCurrentSeason;
+    }
+
+    public boolean getComplete(){
+        return matchComplete;
     }
 
 

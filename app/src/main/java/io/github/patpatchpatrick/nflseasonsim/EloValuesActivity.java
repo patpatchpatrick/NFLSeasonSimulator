@@ -76,11 +76,11 @@ public class EloValuesActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String eloTypeString = eloTypeArrayList.get(i);
                 if (eloTypeString == "Current Season Elo Values"){
-                    mSimulatorPresenter.resetTeamCurrentSeasonElos();
+                    mSimulatorPresenter.resetSimulatorTeamCurrentSeasonElos();
                     eloRecyclerAdapter.notifyDataSetChanged();
                     setUseFutureElosPref();
                 } else if (eloTypeString == "Last Season Elo Values"){
-                    mSimulatorPresenter.resetTeamLastSeasonElos();
+                    mSimulatorPresenter.resetSimulatorTeamLastSeasonElos();
                     eloRecyclerAdapter.notifyDataSetChanged();
                     setUseLastSeasonElosPref();
                 } else if (eloTypeString == "Manually Set Elo Values") {

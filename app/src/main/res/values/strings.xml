@@ -65,12 +65,13 @@
     <string name="use_offseason_prediction_elos">Predicted Future Elos</string>
     <string name="elo_values_set_simulator_elo_header">Set Simulator Elo Values</string>
 
-    <!-- Main Menu Strings -->
+    <!-- Home Screen Strings -->
     <string name="main_menu_sim_season">SIMULATE SEASON</string>
     <string name="main_menu_predict_matchup">PREDICT MATCHUP</string>
     <string name="main_menu_season_schedule">SEASON SCHEDULE/SCORES</string>
     <string name="main_menu_season_standings">SEASON ELO STANDINGS</string>
     <string name="main_menu_settings">SETTINGS</string>
+    <string name="main_menu_loading">LOADING</string>
 
     <!-- Settings Activity Strings -->
     <string name="settings_activity_elo_values">Set Team Elo Values</string>

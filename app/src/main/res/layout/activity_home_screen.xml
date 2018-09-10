@@ -77,6 +77,30 @@
         app:layout_constraintStart_toStartOf="@+id/main_menu_predict_matchup_button"
         app:layout_constraintTop_toBottomOf="@+id/main_menu_predict_matchup_button" />
 
+    <TextView
+        android:id="@+id/main_menu_loading_text"
+        style="?normalTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="@string/main_menu_loading"
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@+id/football_animation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.46"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/main_menu_loading_animation"
+        android:visibility="visible"
+        android:layout_width="50dp"
+        android:layout_height="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/ic_loading_indicator_animation"
+        app:layout_constraintTop_toTopOf="@+id/main_menu_loading_text"
+        app:layout_constraintStart_toEndOf="@+id/main_menu_loading_text"/>
+
     <ImageView
         android:id="@+id/football_animation"
         android:layout_width="wrap_content"

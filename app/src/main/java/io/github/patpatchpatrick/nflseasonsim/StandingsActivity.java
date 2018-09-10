@@ -43,6 +43,8 @@ public class StandingsActivity extends AppCompatActivity implements ScoreView {
         mSeasonStandingsRecyclerViewAdapter = new SeasonStandingsRecyclerViewAdapter();
         mStandingsRecyclerView.setAdapter(mSeasonStandingsRecyclerViewAdapter);
 
+        //Load and query the current season data
+        mPresenter.loadCurrentSeasonMatches();
         mPresenter.queryCurrentSeasonStandings();
 
 

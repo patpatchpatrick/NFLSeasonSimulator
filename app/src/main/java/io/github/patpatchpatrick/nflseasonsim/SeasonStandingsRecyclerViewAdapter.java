@@ -73,6 +73,7 @@ public class SeasonStandingsRecyclerViewAdapter extends RecyclerView.Adapter<Sea
             Integer teamLossesInt = dataCursor.getInt(dataCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_LOSSES));
             String teamWins = Integer.toString(teamWinsInt);
             String teamLosses = Integer.toString(teamLossesInt);
+            Integer teamElo = dataCursor.getInt(dataCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_ELO));
             int playoffSeed = dataCursor.getInt(dataCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE));
             String playoffSeedString = Integer.toString(playoffSeed);
 
@@ -94,7 +95,7 @@ public class SeasonStandingsRecyclerViewAdapter extends RecyclerView.Adapter<Sea
                 }
             }
 
-            standingsDetails += "\nELO Rating: " + mModel.getCurrentSeasonTeam(teamName).getFutureElo();
+            standingsDetails += "\nELO Rating: " + teamElo;
 
             holder.standingsDetails.setText(standingsDetails);
             //Set font by default (currently font won't auto-set in layout so need to programmatically set it)

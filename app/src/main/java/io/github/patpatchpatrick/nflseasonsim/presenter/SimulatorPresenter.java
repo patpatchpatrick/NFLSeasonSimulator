@@ -56,6 +56,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     private static Boolean mSeasonInitialized = false;
     private static Boolean mSimulatorPlayoffsStarted = false;
     private static Boolean mCurrentSeasonPlayoffsStarted = false;
+    public static Boolean mCurrentSeasonMatchesLoaded = false;
 
     public SimulatorPresenter(SimulatorMvpContract.SimulatorView view) {
         super(view);
@@ -73,12 +74,12 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     public void simulateWeek() {
 
         //Simulate a single week
-        Week currentWeek = mModel.getSchedule().getWeek(mCurrentSimulatorWeek);
+        Week currentWeek = mModel.getSimulatorSchedule().getWeek(mCurrentSimulatorWeek);
         currentWeek.simulate(true);
 
         ArrayList<Match> currentWeekMatches = currentWeek.getMatches();
 
-        Log.d("PresenterCurrentWeek",  "" + mCurrentSimulatorWeek);
+        Log.d("PresenterCurrentWeek", "" + mCurrentSimulatorWeek);
         Log.d("Current Week Matches", "" + currentWeekMatches.size());
         Log.d("Num Matches Updated", "" + currentWeek.getNumberMatchesUpdated());
 
@@ -99,9 +100,9 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         //If you are simulating the superbowl, don't use home field advantage in the simulation
         //Otherwise, include home field advantage in the simulation
         if (mCurrentSimulatorWeek == MatchEntry.MATCH_WEEK_SUPERBOWL) {
-            mModel.getSchedule().getWeek(mCurrentSimulatorWeek).simulate(false);
+            mModel.getSimulatorSchedule().getWeek(mCurrentSimulatorWeek).simulate(false);
         } else {
-            mModel.getSchedule().getWeek(mCurrentSimulatorWeek).simulate(true);
+            mModel.getSimulatorSchedule().getWeek(mCurrentSimulatorWeek).simulate(true);
         }
         //After the week is complete, query the standings (and display them)
         mModel.querySimulatorStandings(SimulatorModel.QUERY_STANDINGS_POSTSEASON);
@@ -125,11 +126,11 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         mCurrentSimulatorWeek = 1;
         setCurrentSimulatorWeekPreference(mCurrentSimulatorWeek);
         createSimulatorTeams();
-        
+
         mCurrentSeasonWeek = 1;
         setCurrentSeasonWeekPreference(mCurrentSeasonWeek);
         createSeasonTeams();
-        
+
         //Insert teams into database.  After teams are inserted, the simulatorTeamsInserted() callback is
         //received from the model
         mModel.insertSimulatorTeams();
@@ -151,7 +152,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         //Load season from database for both simulator activity and current season (create teams and schedule)
         mModel.querySimulatorStandings(SimulatorModel.QUERY_STANDINGS_LOAD_SEASON);
         mModel.queryCurrentSeasonStandings(SimulatorModel.QUERY_STANDINGS_LOAD_SEASON);
-        
+
         //Season has been loaded, so set preference to true
         setSeasonLoadedPreference(true);
 
@@ -170,7 +171,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         //Load the standings, as well as the matches that have already been simulated (last week's matches)
         mModel.querySimulatorStandings(SimulatorModel.QUERY_STANDINGS_REGULAR);
         //Query all weeks that have already occurred;
-        mModel.querySimulatorMatches(mCurrentSimulatorWeek - 1, false,  SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY);
+        mModel.querySimulatorMatches(mCurrentSimulatorWeek - 1, false, SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY);
     }
 
     @Override
@@ -188,7 +189,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         createSimulatorSchedule();
 
         //Set the teams elo types based on user selected preference
-        setEloType();
+        setSimulatorTeamEloType();
 
         mModel.insertSimulatorMatches(SimulatorModel.INSERT_MATCHES_SCHEDULE);
 
@@ -197,15 +198,31 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     @Override
     public void seasonTeamsInserted() {
 
+        //Set current season teams to use current season elos
+        resetCurrentSeasonTeamCurrentSeasonElos();
         createSeasonSchedule();
         mModel.insertSeasonMatches(SimulatorModel.INSERT_MATCHES_SCHEDULE);
-        
+
     }
 
     @Override
     public void addBaseView(BaseView baseView) {
         //Add a new baseView to the list of baseViews to notify when items are changed
         mBaseViews.add(baseView);
+    }
+
+    @Override
+    public void loadCurrentSeasonMatches() {
+        if (!SimulatorPresenter.mCurrentSeasonMatchesLoaded){
+            //Load all the current  season matches
+            //If they are complete, they have already been completed/loaded so no need to complete them again
+            Week weekOne = mModel.getSeasonSchedule().getWeek(1);
+            if (!weekOne.getMatches().get(0).getComplete()) {
+                Log.d("HI", "REACHED HERE");
+                weekOne.getMatches().get(0).complete(12, 18);
+            }
+            mCurrentSeasonMatchesLoaded = true;
+        }
     }
 
     public void addScoreView(ScoreView scoreView) {
@@ -265,7 +282,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     @Override
     public void simulatorMatchesQueried(int queryType, Cursor matchesCursor, int queriedFrom) {
 
-               //If you are not querying all matches, put the match score data in a string and display it in the main activity
+        //If you are not querying all matches, put the match score data in a string and display it in the main activity
         //If all matches are being queried, the ELSE statement below will be hit and the entire schedule will loaded and created
         //from the data queried in the database
 
@@ -294,7 +311,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
             matchesCursor.moveToPosition(0);
 
-            for (ScoreView scoreView : mScoreViews){
+            for (ScoreView scoreView : mScoreViews) {
                 scoreView.onDisplayScores(queryType, matchesCursor, scoreWeekNumberHeader, queriedFrom);
             }
 
@@ -336,6 +353,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
                 String teamTwo = matchesCursor.getString(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_TWO));
                 int teamOneWon = matchesCursor.getInt(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_ONE_WON));
                 int matchWeek = matchesCursor.getInt(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_WEEK));
+                int matchComplete = matchesCursor.getInt(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_COMPLETE));
                 double teamTwoOdds = matchesCursor.getDouble(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_TWO_ODDS));
                 int ID = matchesCursor.getInt(matchesCursor.getColumnIndexOrThrow(MatchEntry._ID));
                 Uri matchUri = ContentUris.withAppendedId(MatchEntry.CONTENT_URI, ID);
@@ -347,67 +365,67 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
                     switch (matchWeek) {
 
                         case 1:
-                            weekOne.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 1, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
+                            weekOne.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 1, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO, matchComplete));
                             break;
                         case 2:
-                            weekTwo.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 2, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
+                            weekTwo.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 2, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO, matchComplete));
                             break;
                         case 3:
-                            weekThree.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 3, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
+                            weekThree.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 3, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO, matchComplete));
                             break;
                         case 4:
-                            weekFour.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 4, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
+                            weekFour.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 4, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO, matchComplete));
                             break;
                         case 5:
-                            weekFive.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 5, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
+                            weekFive.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 5, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO, matchComplete));
                             break;
                         case 6:
-                            weekSix.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 6, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
+                            weekSix.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 6, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO, matchComplete));
                             break;
                         case 7:
-                            weekSeven.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 7, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
+                            weekSeven.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 7, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO, matchComplete));
                             break;
                         case 8:
-                            weekEight.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 8, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
+                            weekEight.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 8, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO, matchComplete));
                             break;
                         case 9:
-                            weekNine.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 9, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
+                            weekNine.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 9, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO, matchComplete));
                             break;
                         case 10:
-                            weekTen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 10, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
+                            weekTen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 10, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO, matchComplete));
                             break;
                         case 11:
-                            weekEleven.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 11, this, matchUri,  teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
+                            weekEleven.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 11, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO, matchComplete));
                             break;
                         case 12:
-                            weekTwelve.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 12, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
+                            weekTwelve.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 12, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO, matchComplete));
                             break;
                         case 13:
-                            weekThirteen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 13, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
+                            weekThirteen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 13, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO, matchComplete));
                             break;
                         case 14:
-                            weekFourteen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 14, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
+                            weekFourteen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 14, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO, matchComplete));
                             break;
                         case 15:
-                            weekFifteen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 15, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
+                            weekFifteen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 15, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO, matchComplete));
                             break;
                         case 16:
-                            weekSixteen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 16, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
+                            weekSixteen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 16, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO, matchComplete));
                             break;
                         case 17:
-                            weekSeventeen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 17, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
+                            weekSeventeen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 17, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO, matchComplete));
                             break;
                         case 18:
-                            wildCard.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 18, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
+                            wildCard.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 18, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO, matchComplete));
                             break;
                         case 19:
-                            divisional.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 19, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
+                            divisional.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 19, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO, matchComplete));
                             break;
                         case 20:
-                            championship.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 20, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
+                            championship.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 20, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO, matchComplete));
                             break;
                         case 21:
-                            superbowl.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 21, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
+                            superbowl.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 21, this, matchUri, teamTwoOdds, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO, matchComplete));
                             break;
 
                     }
@@ -491,7 +509,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
             matchesCursor.moveToPosition(0);
 
-            for (ScoreView scoreView : mScoreViews){
+            for (ScoreView scoreView : mScoreViews) {
                 scoreView.onDisplayScores(queryType, matchesCursor, scoreWeekNumberHeader, queriedFrom);
             }
 
@@ -533,6 +551,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
                 String teamTwo = matchesCursor.getString(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_TWO));
                 int teamOneWon = matchesCursor.getInt(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_ONE_WON));
                 int matchWeek = matchesCursor.getInt(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_WEEK));
+                int matchComplete = matchesCursor.getInt(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_COMPLETE));
                 double teamTwoOdds = matchesCursor.getDouble(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_TWO_ODDS));
                 int currentSeason = matchesCursor.getInt(matchesCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_CURRENT_SEASON));
                 int ID = matchesCursor.getInt(matchesCursor.getColumnIndexOrThrow(MatchEntry._ID));
@@ -545,67 +564,67 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
                     switch (matchWeek) {
 
                         case 1:
-                            weekOne.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 1, this, matchUri, teamTwoOdds, currentSeason));
+                            weekOne.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 1, this, matchUri, teamTwoOdds, currentSeason, matchComplete));
                             break;
                         case 2:
-                            weekTwo.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 2, this, matchUri, teamTwoOdds, currentSeason));
+                            weekTwo.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 2, this, matchUri, teamTwoOdds, currentSeason, matchComplete));
                             break;
                         case 3:
-                            weekThree.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 3, this, matchUri, teamTwoOdds, currentSeason));
+                            weekThree.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 3, this, matchUri, teamTwoOdds, currentSeason, matchComplete));
                             break;
                         case 4:
-                            weekFour.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 4, this, matchUri, teamTwoOdds, currentSeason));
+                            weekFour.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 4, this, matchUri, teamTwoOdds, currentSeason, matchComplete));
                             break;
                         case 5:
-                            weekFive.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 5, this, matchUri, teamTwoOdds, currentSeason));
+                            weekFive.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 5, this, matchUri, teamTwoOdds, currentSeason, matchComplete));
                             break;
                         case 6:
-                            weekSix.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 6, this, matchUri, teamTwoOdds, currentSeason));
+                            weekSix.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 6, this, matchUri, teamTwoOdds, currentSeason, matchComplete));
                             break;
                         case 7:
-                            weekSeven.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 7, this, matchUri, teamTwoOdds, currentSeason));
+                            weekSeven.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 7, this, matchUri, teamTwoOdds, currentSeason, matchComplete));
                             break;
                         case 8:
-                            weekEight.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 8, this, matchUri, teamTwoOdds, currentSeason));
+                            weekEight.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 8, this, matchUri, teamTwoOdds, currentSeason, matchComplete));
                             break;
                         case 9:
-                            weekNine.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 9, this, matchUri, teamTwoOdds, currentSeason));
+                            weekNine.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 9, this, matchUri, teamTwoOdds, currentSeason, matchComplete));
                             break;
                         case 10:
-                            weekTen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 10, this, matchUri, teamTwoOdds, currentSeason));
+                            weekTen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 10, this, matchUri, teamTwoOdds, currentSeason, matchComplete));
                             break;
                         case 11:
-                            weekEleven.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 11, this, matchUri,  teamTwoOdds, currentSeason));
+                            weekEleven.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 11, this, matchUri, teamTwoOdds, currentSeason, matchComplete));
                             break;
                         case 12:
-                            weekTwelve.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 12, this, matchUri, teamTwoOdds, currentSeason));
+                            weekTwelve.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 12, this, matchUri, teamTwoOdds, currentSeason, matchComplete));
                             break;
                         case 13:
-                            weekThirteen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 13, this, matchUri, teamTwoOdds, currentSeason));
+                            weekThirteen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 13, this, matchUri, teamTwoOdds, currentSeason, matchComplete));
                             break;
                         case 14:
-                            weekFourteen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 14, this, matchUri, teamTwoOdds, currentSeason));
+                            weekFourteen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 14, this, matchUri, teamTwoOdds, currentSeason, matchComplete));
                             break;
                         case 15:
-                            weekFifteen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 15, this, matchUri, teamTwoOdds, currentSeason));
+                            weekFifteen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 15, this, matchUri, teamTwoOdds, currentSeason, matchComplete));
                             break;
                         case 16:
-                            weekSixteen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 16, this, matchUri, teamTwoOdds, currentSeason));
+                            weekSixteen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 16, this, matchUri, teamTwoOdds, currentSeason, matchComplete));
                             break;
                         case 17:
-                            weekSeventeen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 17, this, matchUri, teamTwoOdds, currentSeason));
+                            weekSeventeen.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 17, this, matchUri, teamTwoOdds, currentSeason, matchComplete));
                             break;
                         case 18:
-                            wildCard.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 18, this, matchUri, teamTwoOdds, currentSeason));
+                            wildCard.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 18, this, matchUri, teamTwoOdds, currentSeason, matchComplete));
                             break;
                         case 19:
-                            divisional.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 19, this, matchUri, teamTwoOdds, currentSeason));
+                            divisional.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 19, this, matchUri, teamTwoOdds, currentSeason, matchComplete));
                             break;
                         case 20:
-                            championship.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 20, this, matchUri, teamTwoOdds, currentSeason));
+                            championship.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 20, this, matchUri, teamTwoOdds, currentSeason, matchComplete));
                             break;
                         case 21:
-                            superbowl.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 21, this, matchUri, teamTwoOdds, currentSeason));
+                            superbowl.addMatch(new Match(teamList.get(teamOne), teamList.get(teamTwo), teamOneWon, 21, this, matchUri, teamTwoOdds, currentSeason, matchComplete));
                             break;
 
                     }
@@ -684,7 +703,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             //The entire season was loaded from the db
             //Create teams from the db data and then query all matches from the db
             createSimulatorTeamsFromDb(standingsCursor);
-            mModel.querySimulatorMatches(SimulatorModel.QUERY_MATCHES_ALL, false,  SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY);
+            mModel.querySimulatorMatches(SimulatorModel.QUERY_MATCHES_ALL, false, SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY);
         }
         if (queryType == SimulatorModel.QUERY_STANDINGS_POSTSEASON) {
             //The postseason standings were queried
@@ -697,7 +716,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             //The app was restarted and the postseason standings need to be re-loaded from the database
             //Display the standings in the MainActivity UI and query the playoff matches
             displaySimulatorPlayoffStandings(standingsCursor);
-            mModel.querySimulatorMatches(mCurrentSimulatorWeek, true,  SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY);
+            mModel.querySimulatorMatches(mCurrentSimulatorWeek, true, SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY);
         }
 
     }
@@ -725,7 +744,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             //The entire season was loaded from the db
             //Create teams from the db data and then query all matches from the db
             createCurrentSeasonTeamsFromDb(standingsCursor);
-            mModel.queryCurrentSeasonMatches(SimulatorModel.QUERY_MATCHES_ALL, false,  SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY);
+            mModel.queryCurrentSeasonMatches(SimulatorModel.QUERY_MATCHES_ALL, false, SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY);
         }
         if (queryType == SimulatorModel.QUERY_STANDINGS_POSTSEASON) {
             //TODO Fix this so that it works for loading postseason if necessary for current season instead of simulator
@@ -740,7 +759,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             //The app was restarted and the postseason standings need to be re-loaded from the database
             //Display the standings in the MainActivity UI and query the playoff matches
             displaySimulatorPlayoffStandings(standingsCursor);
-            mModel.querySimulatorMatches(mCurrentSimulatorWeek, true,  SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY);
+            mModel.querySimulatorMatches(mCurrentSimulatorWeek, true, SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY);
         }
 
     }
@@ -786,7 +805,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         }
 
         mModel.setSeasonTeamList(teamList);
-        
+
         standingsCursor.close();
     }
 
@@ -802,26 +821,36 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     }
 
     @Override
-    public void resetTeamLastSeasonElos() {
+    public void resetSimulatorTeamLastSeasonElos() {
         //Reset teams Elos to last seasons Elo Values
-        ArrayList<Team> teamList = mModel.getTeamArrayList();
+        ArrayList<Team> teamList = mModel.getSimulatorTeamArrayList();
         for (Team team : teamList) {
             team.resetElo();
         }
     }
 
     @Override
-    public void resetTeamCurrentSeasonElos() {
-        //Reset teams Elos to future Elo Values
-        ArrayList<Team> teamList = mModel.getTeamArrayList();
+    public void resetSimulatorTeamCurrentSeasonElos() {
+        //Reset teams Elos to current season Elo Values
+        ArrayList<Team> teamList = mModel.getSimulatorTeamArrayList();
         for (Team team : teamList) {
-            team.setFutureElos();
+            team.setCurrentSeasonElos();
         }
 
     }
 
     @Override
-    public void resetTeamUserElos() {
+    public void resetCurrentSeasonTeamCurrentSeasonElos() {
+        //Reset teams Elos to current season Elo Values
+        ArrayList<Team> teamList = mModel.getSeasonTeamArrayList();
+        for (Team team : teamList) {
+            team.setCurrentSeasonElos();
+        }
+
+    }
+
+    @Override
+    public void resetSimulatorTeamUserElos() {
         //Reset team Elo values to be user defined values
         HashMap<String, Team> teamMap = mModel.getSimulatorTeamList();
         HashMap<String, Double> teamElos = mModel.getTeamEloMap();
@@ -841,7 +870,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         // back to default when the season is reset)
 
         HashMap<String, Double> teamUserElos = new HashMap<>();
-        ArrayList<Team> teamList = mModel.getTeamArrayList();
+        ArrayList<Team> teamList = mModel.getSimulatorTeamArrayList();
 
         for (Team team : teamList) {
             team.setUserElo();
@@ -856,8 +885,9 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     public void dataDeleted() {
         //Callback after data has been deleted
         //If this.view is not null, main activity is loaded so we will call on data deleted method of main activity
-        if (this.view != null){
-        this.view.onDataDeleted();}
+        if (this.view != null) {
+            this.view.onDataDeleted();
+        }
     }
 
     private void createSimulatorTeamsFromDb(Cursor standingsCursor) {
@@ -1123,9 +1153,9 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
                 new Team(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING, NFLConstants.TEAM_WASHINGTON_REDSKINS_SHORT_STRING, NFLConstants.TEAM_WASHINGTON_REDSKINS_ELO, NFLConstants.TEAM_WASHINGTON_REDSKINS_FUTURE_RANKING,
                         NFLConstants.TEAM_WASHINGTON_REDSKINS_OFFRAT, NFLConstants.TEAM_WASHINGTON_REDSKINS_DEFRAT, TeamEntry.DIVISION_NFC_EAST, this, TeamEntry.CURRENT_SEASON_YES));
         mModel.setSeasonTeamList(seasonTeamList);
-        
+
     }
-    
+
     private void createSimulatorSchedule() {
 
         //Initialize all schedule, weeks, and matches.  Add weeks to schedule.
@@ -1153,16 +1183,16 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), 1, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
         weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), 1, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
         weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), 1, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
-        weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), 1, this,  MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
+        weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), 1, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
         weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), 1, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
         weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), 1, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
         weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), 1, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
         weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), 1, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
         weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), 1, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
-        weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), 1, this,  MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
+        weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), 1, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
         weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), 1, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
-        weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), 1, this,  MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
-        weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), 1, this,  MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
+        weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), 1, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
+        weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), 1, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
         weekTwo.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
         weekTwo.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
         weekTwo.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
@@ -1425,7 +1455,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
 
     }
-    
+
     private void createSeasonSchedule() {
         //Initialize all schedule, weeks, and matches.  Add weeks to schedule.
         Schedule currentSeasonSchedule = new Schedule();
@@ -1446,262 +1476,262 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         Week weekFifteen = new Week(15);
         Week weekSixteen = new Week(16);
         Week weekSeventeen = new Week(17);
-        weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), 1, this, 1.0, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), 1, this, 3.0, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), 1, this, 7.5, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), 1, this, 9.5, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), 1, this, 6.5, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), 1, this, 6.5, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), 1, this, -1.5, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), 1, this, -3.0, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), 1, this, -3.5, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), 1, this, 3.5, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), 1, this, 3.0, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), 1, this, 1.0, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), 1, this,  3.0, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), 1, this, 7.5, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), 1, this,  6.5, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekOne.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), 1, this,  -4.0, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwo.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwo.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwo.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwo.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwo.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwo.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwo.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwo.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwo.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwo.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwo.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwo.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwo.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwo.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwo.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwo.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThree.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThree.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThree.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThree.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThree.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThree.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThree.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThree.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThree.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThree.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThree.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThree.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThree.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThree.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThree.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThree.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFour.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFour.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFour.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFour.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFour.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFour.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFour.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFour.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFour.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFour.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFour.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFour.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFour.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFour.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFour.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFive.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFive.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFive.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFive.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFive.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFive.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFive.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFive.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFive.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFive.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFive.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFive.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFive.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFive.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFive.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSix.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSix.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSix.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSix.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSix.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSix.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSix.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSix.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSix.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSix.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSix.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSix.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSix.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSix.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSix.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeven.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), 7, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeven.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), 7, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeven.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), 7, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeven.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), 7, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeven.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), 7, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeven.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), 7, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeven.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), 7, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeven.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), 7, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeven.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), 7, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeven.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), 7, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeven.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), 7, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeven.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), 7, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeven.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), 7, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeven.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), 7, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekEight.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), 8, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekEight.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), 8, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekEight.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), 8, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekEight.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), 8, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekEight.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), 8, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekEight.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), 8, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekEight.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), 8, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekEight.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), 8, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekEight.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), 8, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekEight.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), 8, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekEight.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), 8, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekEight.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), 8, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekEight.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), 8, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekEight.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), 8, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekNine.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), 9, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekNine.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), 9, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekNine.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), 9, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekNine.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), 9, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekNine.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), 9, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekNine.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), 9, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekNine.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), 9, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekNine.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), 9, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekNine.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), 9, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekNine.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), 9, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekNine.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), 9, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekNine.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), 9, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekNine.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), 9, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), 10, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), 10, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), 10, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), 10, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), 10, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), 10, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), 10, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), 10, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), 10, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), 10, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), 10, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), 10, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), 10, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), 10, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekEleven.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), 11, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekEleven.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), 11, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekEleven.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), 11, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekEleven.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), 11, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekEleven.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), 11, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekEleven.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), 11, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekEleven.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), 11, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekEleven.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), 11, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekEleven.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), 11, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekEleven.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), 11, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekEleven.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), 11, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekEleven.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), 11, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekEleven.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), 11, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwelve.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwelve.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwelve.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwelve.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwelve.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwelve.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwelve.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwelve.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwelve.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwelve.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwelve.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwelve.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwelve.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwelve.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekTwelve.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThirteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThirteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThirteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThirteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThirteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThirteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThirteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThirteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThirteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThirteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThirteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThirteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThirteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThirteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThirteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekThirteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFourteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFourteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFourteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFourteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFourteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFourteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFourteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFourteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFourteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFourteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFourteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFourteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFourteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFourteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFourteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFourteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFifteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFifteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFifteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFifteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFifteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFifteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFifteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFifteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFifteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFifteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFifteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFifteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFifteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFifteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFifteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekFifteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSixteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSixteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSixteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSixteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSixteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSixteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSixteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSixteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSixteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSixteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSixteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSixteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSixteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSixteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSixteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSixteen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeventeen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeventeen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeventeen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeventeen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeventeen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeventeen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeventeen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeventeen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeventeen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeventeen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeventeen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeventeen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeventeen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeventeen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeventeen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
-        weekSeventeen.addMatch(new Match(mModel.getSimulatorTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), mModel.getSimulatorTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekOne.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), 1, this, 1.0, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekOne.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), 1, this, 3.0, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekOne.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), 1, this, 7.5, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekOne.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), 1, this, 9.5, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekOne.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), 1, this, 6.5, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekOne.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), 1, this, 6.5, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekOne.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), 1, this, -1.5, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekOne.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), 1, this, -3.0, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekOne.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), 1, this, -3.5, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekOne.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), 1, this, 3.5, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekOne.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), 1, this, 3.0, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekOne.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), 1, this, 1.0, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekOne.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), 1, this, 3.0, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekOne.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), 1, this, 7.5, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekOne.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), 1, this, 6.5, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekOne.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), 1, this, -4.0, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwo.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwo.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwo.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwo.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwo.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwo.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwo.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwo.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwo.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwo.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwo.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwo.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwo.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwo.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwo.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwo.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), 2, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThree.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThree.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThree.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThree.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThree.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThree.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThree.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThree.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThree.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThree.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThree.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThree.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThree.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThree.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThree.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThree.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), 3, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFour.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFour.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFour.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFour.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFour.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFour.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFour.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFour.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFour.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFour.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFour.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFour.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFour.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFour.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFour.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), 4, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFive.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFive.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFive.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFive.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFive.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFive.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFive.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFive.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFive.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFive.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFive.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFive.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFive.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFive.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFive.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), 5, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSix.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSix.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSix.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSix.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSix.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSix.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSix.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSix.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSix.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSix.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSix.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSix.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSix.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSix.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSix.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), 6, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeven.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), 7, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeven.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), 7, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeven.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), 7, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeven.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), 7, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeven.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), 7, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeven.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), 7, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeven.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), 7, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeven.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), 7, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeven.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), 7, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeven.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), 7, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeven.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), 7, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeven.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), 7, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeven.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), 7, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeven.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), 7, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekEight.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), 8, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekEight.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), 8, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekEight.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), 8, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekEight.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), 8, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekEight.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), 8, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekEight.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), 8, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekEight.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), 8, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekEight.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), 8, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekEight.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), 8, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekEight.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), 8, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekEight.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), 8, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekEight.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), 8, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekEight.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), 8, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekEight.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), 8, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekNine.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), 9, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekNine.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), 9, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekNine.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), 9, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekNine.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), 9, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekNine.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), 9, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekNine.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), 9, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekNine.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), 9, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekNine.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), 9, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekNine.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), 9, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekNine.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), 9, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekNine.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), 9, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekNine.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), 9, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekNine.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), 9, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), 10, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), 10, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), 10, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), 10, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), 10, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), 10, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), 10, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), 10, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), 10, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), 10, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), 10, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), 10, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), 10, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), 10, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekEleven.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), 11, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekEleven.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), 11, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekEleven.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), 11, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekEleven.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), 11, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekEleven.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), 11, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekEleven.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), 11, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekEleven.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), 11, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekEleven.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), 11, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekEleven.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), 11, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekEleven.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), 11, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekEleven.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), 11, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekEleven.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), 11, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekEleven.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), 11, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwelve.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwelve.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwelve.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwelve.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwelve.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwelve.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwelve.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwelve.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwelve.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwelve.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwelve.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwelve.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwelve.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwelve.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekTwelve.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), 12, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThirteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThirteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThirteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThirteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThirteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThirteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThirteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThirteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThirteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThirteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThirteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThirteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThirteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThirteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThirteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekThirteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), 13, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFourteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFourteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFourteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFourteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFourteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFourteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFourteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFourteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFourteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFourteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFourteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFourteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFourteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFourteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFourteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFourteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), 14, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFifteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFifteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFifteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFifteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFifteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFifteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFifteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFifteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFifteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFifteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFifteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFifteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFifteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFifteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFifteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekFifteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), 15, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSixteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSixteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSixteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSixteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSixteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSixteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSixteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSixteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSixteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSixteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSixteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSixteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSixteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSixteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSixteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSixteen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), 16, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeventeen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeventeen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_BUFFALO_BILLS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeventeen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeventeen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeventeen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_DETROIT_LIONS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeventeen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_JETS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeventeen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CHICAGO_BEARS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeventeen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeventeen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeventeen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeventeen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeventeen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeventeen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeventeen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeventeen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
+        weekSeventeen.addMatch(new Match(mModel.getSeasonTeamList().get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING), mModel.getSeasonTeamList().get(NFLConstants.TEAM_DENVER_BRONCOS_STRING), 17, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_YES));
         currentSeasonSchedule.addWeek(weekOne);
         currentSeasonSchedule.addWeek(weekTwo);
         currentSeasonSchedule.addWeek(weekThree);
@@ -1728,28 +1758,28 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     public void simulateSeason() {
         //From week 1 to week 17 (full season), simulate the season
         while (mCurrentSimulatorWeek <= 17) {
-            mModel.getSchedule().getWeek(mCurrentSimulatorWeek).simulate(true);
+            mModel.getSimulatorSchedule().getWeek(mCurrentSimulatorWeek).simulate(true);
             mCurrentSimulatorWeek++;
         }
 
         //After the season  is complete, query the standings (and display them)
         mModel.querySimulatorStandings(SimulatorModel.QUERY_STANDINGS_REGULAR);
         //Query all weeks that have already occurred;
-        mModel.querySimulatorMatches(mCurrentSimulatorWeek - 1, false,   SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY);
+        mModel.querySimulatorMatches(mCurrentSimulatorWeek - 1, false, SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY);
     }
 
     private void displaySimulatorStandings(Cursor standingsCursor) {
 
         //Call display standings call for simulator regular season
-        for (ScoreView scoreView : mScoreViews){
+        for (ScoreView scoreView : mScoreViews) {
             scoreView.onDisplayStandings(MainActivity.STANDINGS_TYPE_REGULAR_SEASON, standingsCursor, SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY);
         }
     }
 
-    private void displayCurrentSeasonStandings(Cursor standingsCursor){
+    private void displayCurrentSeasonStandings(Cursor standingsCursor) {
 
         //Call display standings call for current season regular season
-        for (ScoreView scoreView : mScoreViews){
+        for (ScoreView scoreView : mScoreViews) {
             scoreView.onDisplayStandings(MainActivity.STANDINGS_TYPE_REGULAR_SEASON, standingsCursor, SimulatorModel.QUERY_FROM_SEASON_STANDINGS_ACTIVITY);
         }
 
@@ -1758,7 +1788,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     private void displaySimulatorPlayoffStandings(Cursor standingsCursor) {
 
         //Call display standings call for simulator playoffs
-        for (ScoreView scoreView : mScoreViews){
+        for (ScoreView scoreView : mScoreViews) {
             scoreView.onDisplayStandings(MainActivity.STANDINGS_TYPE_PLAYOFFS, standingsCursor, SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY);
         }
 
@@ -1839,7 +1869,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             wildCard.addMatch(new Match(nfcTeams.get(4), nfcTeams.get(3), MatchEntry.MATCH_WEEK_WILDCARD, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
 
             //Add the week to the schedule and insert the matches in the database
-            mModel.getSchedule().addWeek(wildCard);
+            mModel.getSimulatorSchedule().addWeek(wildCard);
             mModel.insertSimulatorMatches(SimulatorModel.INSERT_MATCHES_PLAYOFFS_WILDCARD, wildCard);
         }
 
@@ -1859,7 +1889,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             divisional.addMatch(new Match(nfcTeams.get(2), nfcTeams.get(1), MatchEntry.MATCH_WEEK_DIVISIONAL, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
 
             //Add the week to the schedule and  insert the matches in the database
-            mModel.getSchedule().addWeek(divisional);
+            mModel.getSimulatorSchedule().addWeek(divisional);
             mModel.insertSimulatorMatches(SimulatorModel.INSERT_MATCHES_PLAYOFFS_DIVISIONAL, divisional);
 
 
@@ -1867,7 +1897,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         if (remainingPlayoffTeams == 4) {
 
             //Query the divisional match scores
-            mModel.querySimulatorMatches(MatchEntry.MATCH_WEEK_DIVISIONAL, true,  SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY);
+            mModel.querySimulatorMatches(MatchEntry.MATCH_WEEK_DIVISIONAL, true, SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY);
 
             Week championship = new Week(MatchEntry.MATCH_WEEK_CHAMPIONSHIP);
 
@@ -1878,14 +1908,14 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             championship.addMatch(new Match(nfcTeams.get(1), nfcTeams.get(0), MatchEntry.MATCH_WEEK_CHAMPIONSHIP, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
 
             //Add the week to the schedule and insert the matches in the database
-            mModel.getSchedule().addWeek(championship);
+            mModel.getSimulatorSchedule().addWeek(championship);
             mModel.insertSimulatorMatches(SimulatorModel.INSERT_MATCHES_PLAYOFFS_CHAMPIONSHIP, championship);
 
         }
         if (remainingPlayoffTeams == 2) {
 
             //Query the championship match scores
-            mModel.querySimulatorMatches(MatchEntry.MATCH_WEEK_CHAMPIONSHIP, true,   SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY);
+            mModel.querySimulatorMatches(MatchEntry.MATCH_WEEK_CHAMPIONSHIP, true, SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY);
 
             Week superbowl = new Week(MatchEntry.MATCH_WEEK_SUPERBOWL);
 
@@ -1894,7 +1924,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             superbowl.addMatch(new Match(afcTeams.get(0), nfcTeams.get(0), MatchEntry.MATCH_WEEK_SUPERBOWL, this, MatchEntry.MATCH_TEAM_CURRENT_SEASON_NO));
 
             //Add the week to the schedule and insert the matches in the database
-            mModel.getSchedule().addWeek(superbowl);
+            mModel.getSimulatorSchedule().addWeek(superbowl);
             mModel.insertSimulatorMatches(SimulatorModel.INSERT_MATCHES_PLAYOFFS_SUPERBOWL, superbowl);
 
         }
@@ -1941,16 +1971,16 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     }
 
 
-    private void setEloType() {
+    private void setSimulatorTeamEloType() {
         Integer eloType = mSharedPreferences.getInt(mContext.getString(R.string.settings_elo_type_key), mContext.getResources().getInteger(R.integer.settings_elo_type_current_season));
         if (eloType == mContext.getResources().getInteger(R.integer.settings_elo_type_current_season)) {
-            resetTeamCurrentSeasonElos();
+            resetSimulatorTeamCurrentSeasonElos();
         }
         if (eloType == mContext.getResources().getInteger(R.integer.settings_elo_type_user)) {
-            resetTeamUserElos();
+            resetSimulatorTeamUserElos();
         }
         if (eloType == mContext.getResources().getInteger(R.integer.settings_elo_type_last_season)) {
-            resetTeamLastSeasonElos();
+            resetSimulatorTeamLastSeasonElos();
         }
     }
 
