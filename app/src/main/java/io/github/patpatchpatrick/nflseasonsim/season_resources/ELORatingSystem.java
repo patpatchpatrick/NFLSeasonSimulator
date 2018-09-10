@@ -2,6 +2,8 @@ package io.github.patpatchpatrick.nflseasonsim.season_resources;
 
 import java.util.ArrayList;
 
+import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract;
+
 public class ELORatingSystem {
 
     // ELO constant used to determine magnitude that ratings change when a team wins
@@ -26,11 +28,11 @@ public class ELORatingSystem {
 
         //If the random double is less than the probability of the first team winning, they won and set boolean to true
         //If not, they lost and set boolean to false
-        boolean teamOneWon;
+        int teamOneWon;
         if (matchOutcome <= probTeamOneWin) {
-            teamOneWon = true;
+            teamOneWon = SeasonSimContract.MatchEntry.MATCH_TEAM_ONE_WON_YES;
         } else {
-            teamOneWon = false;
+            teamOneWon = SeasonSimContract.MatchEntry.MATCH_TEAM_ONE_WON_NO;
         }
 
         //Get the losers score
@@ -40,7 +42,7 @@ public class ELORatingSystem {
         int winningScore = ScoringSystem.getWinningScore(losingScore, matchOutcome, probTeamOneWin);
 
         //Set the scores in the match for the winners and losers
-        if (teamOneWon) {
+        if (teamOneWon == SeasonSimContract.MatchEntry.MATCH_TEAM_ONE_WON_YES) {
             match.setTeam1Score(winningScore);
             match.setmTeam2Score(losingScore);
         } else {
@@ -50,10 +52,15 @@ public class ELORatingSystem {
 
         //Update the teams ratings based on the outcome, and return the outcome boolean
         updateRatings(teamOne, teamTwo, probTeamOneWin, teamOneWon);
-        return teamOneWon;
+
+        if (teamOneWon == SeasonSimContract.MatchEntry.MATCH_TEAM_ONE_WON_YES){
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    public static boolean completeCurrentSeasonMatch(Match match, int teamOneScore, int teamTwoScore){
+    public static int completeCurrentSeasonMatch(Match match, int teamOneScore, int teamTwoScore){
 
         Team teamOne = match.getTeam1();
         Team teamTwo = match.getTeam2();
@@ -65,11 +72,13 @@ public class ELORatingSystem {
         match.setTeam1Score(teamOneScore);
         match.setmTeam2Score(teamTwoScore);
 
-        boolean teamOneWon;
+        int teamOneWon;
         if (teamOneScore > teamTwoScore){
-            teamOneWon = true;
+            teamOneWon = SeasonSimContract.MatchEntry.MATCH_TEAM_ONE_WON_YES;
+        } else if (teamOneScore < teamTwoScore) {
+            teamOneWon = SeasonSimContract.MatchEntry.MATCH_TEAM_ONE_WON_NO;
         } else {
-            teamOneWon = false;
+            teamOneWon = SeasonSimContract.MatchEntry.MATCH_TEAM_ONE_WON_DRAW;
         }
 
         updateRatings(teamOne, teamTwo, probTeamOneWin, teamOneWon);
@@ -101,7 +110,7 @@ public class ELORatingSystem {
 
     }
 
-    private static void updateRatings(Team teamOne, Team teamTwo, double probTeamOneWin, boolean teamOneWon){
+    private static void updateRatings(Team teamOne, Team teamTwo, double probTeamOneWin, int teamOneWon){
         //Updates the ratings of teamOne and teamTwo, based on the outcome of match
 
         //Get the elos of the teams
@@ -112,10 +121,10 @@ public class ELORatingSystem {
         double probTeamTwoWin = (1.0 - probTeamOneWin);
 
         //Calculate the new elos for both teams depending on outcome of match
-        if (teamOneWon) {
+        if (teamOneWon == SeasonSimContract.MatchEntry.MATCH_TEAM_ONE_WON_YES) {
             eloTeamOne = eloTeamOne + constantK * (1.0 - probTeamOneWin);
             eloTeamTwo = eloTeamTwo + constantK * (0.0 - probTeamTwoWin);
-        } else {
+        } else if (teamOneWon == SeasonSimContract.MatchEntry.MATCH_TEAM_ONE_WON_NO){
             eloTeamOne = eloTeamOne + constantK * (0.0 - probTeamOneWin);
             eloTeamTwo = eloTeamTwo + constantK * (1.0 - probTeamTwoWin);
         }

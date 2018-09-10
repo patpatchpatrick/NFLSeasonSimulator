@@ -71,13 +71,15 @@ public class SeasonStandingsRecyclerViewAdapter extends RecyclerView.Adapter<Sea
             String teamShortName = dataCursor.getString(dataCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_SHORT_NAME));
             Integer teamWinsInt = dataCursor.getInt(dataCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_WINS));
             Integer teamLossesInt = dataCursor.getInt(dataCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_LOSSES));
+            Integer teamDrawsInt = dataCursor.getInt(dataCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_DRAWS));
             String teamWins = Integer.toString(teamWinsInt);
             String teamLosses = Integer.toString(teamLossesInt);
+            String teamDraws = Integer.toString(teamDrawsInt);
             Integer teamElo = dataCursor.getInt(dataCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_ELO));
             int playoffSeed = dataCursor.getInt(dataCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_PLAYOFF_ELIGIBILE));
             String playoffSeedString = Integer.toString(playoffSeed);
 
-            standingsDetails += teamShortName + "  " + teamWins + " - " + teamLosses;
+            standingsDetails += teamShortName + "  " + teamWins + " - " + teamLosses + " - " + teamDraws;
 
             //Check if it is the first week of the season by determining if a team has losses or wins
             Boolean firstWeekOfSeason = true;

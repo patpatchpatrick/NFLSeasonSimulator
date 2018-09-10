@@ -29,7 +29,7 @@ public class Match {
     private int mTeam1Score;
     private int mTeam2Score;
     private Double mTeamTwoOdds;
-    private Boolean mTeamOneWon;
+    private Integer mTeamOneWon;
     private Boolean matchComplete;
     private Boolean divisionalMatchup;
     private Boolean playoffMatchup;
@@ -49,7 +49,7 @@ public class Match {
         mTeam2 = team2;
         mWeek = week;
         matchComplete = false;
-        mTeamOneWon = false;
+        mTeamOneWon = SeasonSimContract.MatchEntry.MATCH_TEAM_ONE_WON_NO;
         mTeamTwoOdds = SeasonSimContract.MatchEntry.MATCH_NO_ODDS_SET;
         mCurrentSeason = currentSeason;
 
@@ -78,7 +78,7 @@ public class Match {
         mTeam2 = team2;
         mWeek = week;
         matchComplete = false;
-        mTeamOneWon = false;
+        mTeamOneWon = SeasonSimContract.MatchEntry.MATCH_TEAM_ONE_WON_NO;
         mTeamTwoOdds = teamTwoOdds;
         mCurrentSeason = currentSeason;
 
@@ -129,9 +129,9 @@ public class Match {
 
         //Set the teamOneWon boolean based on DB values
         if (teamOneWon == SeasonSimContract.MatchEntry.MATCH_TEAM_ONE_WON_YES) {
-            mTeamOneWon = true;
+            mTeamOneWon = SeasonSimContract.MatchEntry.MATCH_TEAM_ONE_WON_YES;
         } else {
-            mTeamOneWon = false;
+            mTeamOneWon = SeasonSimContract.MatchEntry.MATCH_TEAM_ONE_WON_NO;
         }
 
     }
@@ -152,7 +152,14 @@ public class Match {
     protected void simulate(boolean useHomeFieldAdvantage) {
 
         //Simulate match to determine if team one won
-        mTeamOneWon = ELORatingSystem.simulateMatch(this, mTeam1, mTeam2, useHomeFieldAdvantage);
+        Boolean teamOneWonBool;
+        teamOneWonBool = ELORatingSystem.simulateMatch(this, mTeam1, mTeam2, useHomeFieldAdvantage);
+
+        if (teamOneWonBool) {
+            mTeamOneWon = SeasonSimContract.MatchEntry.MATCH_TEAM_ONE_WON_YES;
+        } else {
+            mTeamOneWon = SeasonSimContract.MatchEntry.MATCH_TEAM_ONE_WON_NO;
+        }
 
         //Update team records based on outcome and mark match as complete
         setMatchWins();
@@ -164,7 +171,7 @@ public class Match {
     }
 
     private void setMatchWins() {
-        if (mTeamOneWon) {
+        if (mTeamOneWon == SeasonSimContract.MatchEntry.MATCH_TEAM_ONE_WON_YES) {
             if (divisionalMatchup) {
                 mTeam1.divisionalWin();
                 mTeam2.divisionalLoss();
@@ -174,7 +181,7 @@ public class Match {
             }
             mTeam1.win();
             mTeam2.lose();
-        } else {
+        } else if (mTeamOneWon == SeasonSimContract.MatchEntry.MATCH_TEAM_ONE_WON_NO) {
             if (divisionalMatchup) {
                 mTeam1.divisionalLoss();
                 mTeam2.divisionalWin();
@@ -184,10 +191,13 @@ public class Match {
             }
             mTeam1.lose();
             mTeam2.win();
+        } else {
+            mTeam1.draw();
+            mTeam2.draw();
         }
     }
 
-    public Boolean getTeamOneWon() {
+    public Integer getTeamOneWon() {
         return mTeamOneWon;
     }
 
@@ -248,8 +258,17 @@ public class Match {
         return mCurrentSeason;
     }
 
-    public boolean getComplete(){
+    public boolean getComplete() {
         return matchComplete;
+    }
+
+    public void setOdds(Double teamTwoOdds) {
+        mTeamTwoOdds = teamTwoOdds;
+        mData.updateMatchOddsCallback(this, matchUri);
+    }
+
+    public double getOdds(){
+        return mTeamTwoOdds;
     }
 
 

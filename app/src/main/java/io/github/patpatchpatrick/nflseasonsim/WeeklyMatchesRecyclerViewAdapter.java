@@ -71,24 +71,21 @@ public class WeeklyMatchesRecyclerViewAdapter extends RecyclerView.Adapter<Weekl
         int matchComplete = dataCursor.getInt(dataCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_COMPLETE));
         Double teamTwoVegasOdds = dataCursor.getDouble(dataCursor.getColumnIndexOrThrow(MatchEntry.COLUMN_MATCH_TEAM_TWO_ODDS));
 
-        Boolean teamOneWon;
-        if (teamOneWonInt == MatchEntry.MATCH_TEAM_ONE_WON_YES) {
-            teamOneWon = true;
-        } else {
-            teamOneWon = false;
-        }
 
         //If the match is complete, set the text appropriately
         if (matchComplete == MatchEntry.MATCH_COMPLETE_YES) {
             holder.teamOneName.setText(teamOneString + " " + scoreOne);
             holder.teamTwoName.setText(teamTwoString + " " + scoreTwo);
             //Bold the winning team
-            if (teamOneWon) {
+            if (teamOneWonInt == MatchEntry.MATCH_TEAM_ONE_WON_YES) {
                 holder.teamOneName.setTypeface(tfBold);
                 holder.teamTwoName.setTypeface(tf);
-            } else {
+            } else if (teamOneWonInt == MatchEntry.MATCH_TEAM_ONE_WON_NO) {
                 holder.teamOneName.setTypeface(tf);
                 holder.teamTwoName.setTypeface(tfBold);
+            } else {
+                holder.teamOneName.setTypeface(tf);
+                holder.teamTwoName.setTypeface(tf);
             }
         } else {
             holder.teamOneName.setText(teamOneString);
@@ -166,16 +163,30 @@ public class WeeklyMatchesRecyclerViewAdapter extends RecyclerView.Adapter<Weekl
 
         //Set colors of elo odds depending on whether or not the team beat the elo odds
         Boolean teamTwoBeatEloPercent;
+        Boolean teamDraw;
         if (matchComplete == MatchEntry.MATCH_COMPLETE_YES) {
-            if (teamTwoOddsToWinPercent >= 50 && !teamOneWon) {
+            if (teamTwoOddsToWinPercent > 50 && teamOneWonInt == MatchEntry.MATCH_TEAM_ONE_WON_NO) {
                 teamTwoBeatEloPercent = true;
+                teamDraw = false;
+            } else if (teamTwoOddsToWinPercent > 50 && teamOneWonInt == MatchEntry.MATCH_TEAM_ONE_WON_YES) {
+                teamTwoBeatEloPercent = false;
+                teamDraw = false;
+            } else if (teamTwoOddsToWinPercent <= 50 && teamOneWonInt == MatchEntry.MATCH_TEAM_ONE_WON_NO) {
+                teamTwoBeatEloPercent = false;
+                teamDraw = false;
+            } else if (teamTwoOddsToWinPercent <= 50 && teamOneWonInt == MatchEntry.MATCH_TEAM_ONE_WON_YES) {
+                teamTwoBeatEloPercent = true;
+                teamDraw = false;
             } else {
                 teamTwoBeatEloPercent = false;
+                teamDraw = true;
             }
-            if (teamTwoBeatEloPercent) {
+            if (teamTwoBeatEloPercent && !teamDraw) {
                 holder.teamTwoEloOdds.setTextColor(mContext.getResources().getColor(R.color.colorGreen));
-            } else {
+            } else if (!teamDraw) {
                 holder.teamTwoEloOdds.setTextColor(mContext.getResources().getColor(R.color.colorRed));
+            } else {
+                holder.teamTwoEloOdds.setTextColor(holder.teamOneName.getCurrentTextColor());
             }
         } else {
             holder.teamTwoEloOdds.setTextColor(holder.teamOneName.getCurrentTextColor());

@@ -674,12 +674,8 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
             public Integer call() throws Exception {
 
                 //Get integers for if team one won or not.  Convert the match boolean to an int.
-                int teamOneWon = 0;
-                if (match.getTeamOneWon()) {
-                    teamOneWon = MatchEntry.MATCH_TEAM_ONE_WON_YES;
-                } else {
-                    teamOneWon = MatchEntry.MATCH_TEAM_ONE_WON_NO;
-                }
+                int teamOneWon = match.getTeamOneWon();
+
 
                 //Update match database scores and match complete values
                 ContentValues values = new ContentValues();
@@ -687,6 +683,7 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
                 values.put(MatchEntry.COLUMN_MATCH_TEAM_TWO_SCORE, match.getTeam2Score());
                 values.put(MatchEntry.COLUMN_MATCH_TEAM_ONE_WON, teamOneWon);
                 values.put(MatchEntry.COLUMN_MATCH_COMPLETE, MatchEntry.MATCH_COMPLETE_YES);
+                values.put(MatchEntry.COLUMN_MATCH_TEAM_TWO_ODDS, match.getTeamTwoOdds());
 
                 int rowsUpdated = contentResolver.update(uri, values, null, null);
 
@@ -716,6 +713,48 @@ public class SimulatorModel implements SimulatorMvpContract.SimulatorModel {
             }
         });
 
+
+    }
+
+    @Override
+    public void updateMatchOdds(final Match match, final Uri uri) {
+
+        //Update a match in the database
+
+        Observable<Integer> updateMatchObservable = Observable.fromCallable(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+
+
+                //Update match database odds values
+                ContentValues values = new ContentValues();
+                values.put(MatchEntry.COLUMN_MATCH_TEAM_TWO_ODDS, match.getTeamTwoOdds());
+
+                int rowsUpdated = contentResolver.update(uri, values, null, null);
+
+                return rowsUpdated;
+            }
+        });
+
+        updateMatchObservable.subscribeOn(mScheduler).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<Integer>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                mCompositeDisposable.add(d);
+            }
+
+            @Override
+            public void onNext(Integer rowsUpdated) {
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d("UpdateMatchError ", "" + e);
+            }
+
+            @Override
+            public void onComplete() {
+            }
+        });
 
     }
 

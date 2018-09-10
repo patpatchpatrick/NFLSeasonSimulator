@@ -125,7 +125,7 @@ public class Team {
 
     }
 
-    public Team(String name, String shortName, double elo, double defaultElo,double userElo, double teamRanking, double offRating, double defRating, int division, Data data, int wins, int losses, int divWins, int divLosses, double winLossPct, double divWinLossPct, int playoffEligible,  Uri uri, int currentSeason) {
+    public Team(String name, String shortName, double elo, double defaultElo,double userElo, double teamRanking, double offRating, double defRating, int division, Data data, int wins, int losses, int draws, int divWins, int divLosses, double winLossPct, double divWinLossPct, int playoffEligible,  Uri uri, int currentSeason) {
 
         mTeamRanking =  teamRanking;
         mData = data;
@@ -138,7 +138,7 @@ public class Team {
         mDefRating = defRating;
         mCurrentWins = wins;
         mCurrentLosses = losses;
-        mCurrentDraws = 0;
+        mCurrentDraws = draws;
         mWinLossPct = winLossPct;
         mCurrentDivisionWins = divWins;
         mCurrentDivisionLosses = divLosses;
@@ -177,7 +177,15 @@ public class Team {
         mWinLossPct = (double) mCurrentWins / (double) (mCurrentWins + mCurrentLosses);
 
         mData.updateTeamCallback(this, mUri);
-        Log.d("EAGLES", "URI " + mUri);
+    }
+
+    public void draw() {
+        mCurrentDraws++;
+        //If no games have  been  played and there is a draw, win loss pct is 0.5
+        if (mCurrentWins == 0 && mCurrentLosses == 0){
+            mWinLossPct = 0.5;
+        }
+        mData.updateTeamCallback(this, mUri);
     }
 
     public int getWins() {

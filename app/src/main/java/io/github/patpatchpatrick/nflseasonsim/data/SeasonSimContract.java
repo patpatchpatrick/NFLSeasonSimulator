@@ -147,6 +147,7 @@ public class SeasonSimContract {
         //Define input variables for match table
         public static final int MATCH_TEAM_ONE_WON_NO = 0;
         public static final int MATCH_TEAM_ONE_WON_YES = 1;
+        public static final int MATCH_TEAM_ONE_WON_DRAW = 2;
 
         //Define input variables for match playoff weeks
         public static final int MATCH_WEEK_WILDCARD = 18;

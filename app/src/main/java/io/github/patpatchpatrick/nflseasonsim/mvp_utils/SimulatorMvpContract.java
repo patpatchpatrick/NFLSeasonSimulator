@@ -81,6 +81,7 @@ public interface SimulatorMvpContract {
         void insertSimulatorTeams();
         void insertSeasonTeams();
         void updateMatch(Match match, Uri uri);
+        void updateMatchOdds(Match match, Uri uri);
         void updateTeam(Team team, Uri uri);
         void querySimulatorStandings(int queryType);
         void queryCurrentSeasonStandings(int queryType);

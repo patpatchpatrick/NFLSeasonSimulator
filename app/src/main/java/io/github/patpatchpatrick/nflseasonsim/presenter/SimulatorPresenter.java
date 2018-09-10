@@ -213,14 +213,55 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
     @Override
     public void loadCurrentSeasonMatches() {
-        if (!SimulatorPresenter.mCurrentSeasonMatchesLoaded){
+        if (!SimulatorPresenter.mCurrentSeasonMatchesLoaded) {
             //Load all the current  season matches
             //If they are complete, they have already been completed/loaded so no need to complete them again
             Week weekOne = mModel.getSeasonSchedule().getWeek(1);
-            if (!weekOne.getMatches().get(0).getComplete()) {
-                Log.d("HI", "REACHED HERE");
-                weekOne.getMatches().get(0).complete(12, 18);
+            ArrayList<Match> weekOneMatches = weekOne.getMatches();
+            if (!weekOneMatches.get(0).getComplete()) {
+                weekOneMatches.get(0).complete(12, 18);
             }
+            if (!weekOneMatches.get(1).getComplete()) {
+                weekOneMatches.get(1).complete(34, 23);
+            }
+            if (!weekOneMatches.get(2).getComplete()) {
+                weekOneMatches.get(2).complete(3, 47);
+            }
+            if (!weekOneMatches.get(3).getComplete()) {
+                weekOneMatches.get(3).complete(48, 40);
+            }
+            if (!weekOneMatches.get(4).getComplete()) {
+                weekOneMatches.get(4).complete(20, 27);
+            }
+            if (!weekOneMatches.get(5).getComplete()) {
+                weekOneMatches.get(5).complete(16, 24);
+            }
+            if (!weekOneMatches.get(6).getComplete()) {
+                weekOneMatches.get(6).complete(20, 27);
+            }
+            if (!weekOneMatches.get(7).getComplete()) {
+                weekOneMatches.get(7).complete(20, 15);
+            }
+            if (!weekOneMatches.get(8).getComplete()) {
+                weekOneMatches.get(8).complete(21, 21);
+            }
+            if (!weekOneMatches.get(9).getComplete()) {
+                weekOneMatches.get(9).complete(38, 28);
+            }
+            if (!weekOneMatches.get(10).getComplete()) {
+                weekOneMatches.get(10).complete(8, 16);
+            }
+            if (!weekOneMatches.get(11).getComplete()) {
+                weekOneMatches.get(11).complete(24, 6);
+            }
+            if (!weekOneMatches.get(12).getComplete()) {
+                weekOneMatches.get(12).complete(24, 27);
+            }
+            if (!weekOneMatches.get(13).getComplete()) {
+                weekOneMatches.get(13).complete(23, 24);
+            }
+
+
             mCurrentSeasonMatchesLoaded = true;
         }
     }
@@ -238,6 +279,8 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         if (insertType == SimulatorModel.INSERT_MATCHES_SCHEDULE) {
             //After simulator season is initialized, teams are inserted, and matches inserted, 
             //insert season teams to finish initializing the current season
+
+            updateSimulatorCompletedGameScores();
 
             mModel.insertSeasonTeams();
 
@@ -258,6 +301,32 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         }
     }
 
+    private void updateSimulatorCompletedGameScores() {
+        //Update the scores for games that have already occurred
+            Week weekOne = mModel.getSimulatorSchedule().getWeek(1);
+            ArrayList<Match> weekOneMatches = weekOne.getMatches();
+                weekOneMatches.get(0).complete(12, 18);
+                weekOneMatches.get(1).complete(34, 23);
+                weekOneMatches.get(2).complete(3, 47);
+                weekOneMatches.get(3).complete(48, 40);
+                weekOneMatches.get(4).complete(20, 27);
+                weekOneMatches.get(5).complete(16, 24);
+                weekOneMatches.get(6).complete(20, 27);
+                weekOneMatches.get(7).complete(20, 15);
+                weekOneMatches.get(8).complete(21, 21);
+                weekOneMatches.get(9).complete(38, 28);
+                weekOneMatches.get(10).complete(8, 16);
+                weekOneMatches.get(11).complete(24, 6);
+                weekOneMatches.get(12).complete(24, 27);
+                weekOneMatches.get(13).complete(23, 24);
+                weekOneMatches.get(14).complete(2, 3);
+                weekOneMatches.get(15).complete(1, 2);
+
+        mCurrentSimulatorWeek++;
+        this.view.setCurrentWeekPreference(mCurrentSimulatorWeek);
+
+    }
+
     @Override
     public void seasonMatchesInserted(int insertType) {
 
@@ -265,6 +334,8 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         //An action is performed below depending on the insertType
 
         if (insertType == SimulatorModel.INSERT_MATCHES_SCHEDULE) {
+
+            updateCurrentSeasonTeamOdds();
 
             //After current season is initialized, set season initialized pref to true
             //Set season loading preference to true as well, since initializing a season also loads it
@@ -667,6 +738,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
 
             mModel.setSeasonSchedule(seasonSchedule);
+            updateCurrentSeasonTeamOdds();
 
             if (mCurrentSeasonPlayoffsStarted) {
                 //If the playoffs have already started, re-query the playoff standings  after all matches are created
@@ -764,6 +836,47 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
     }
 
+    private void updateCurrentSeasonTeamOdds() {
+        Schedule currentSchedule = mModel.getSeasonSchedule();
+        Week weekOne = currentSchedule.getWeek(1);
+        ArrayList<Match> weekOneMatches = weekOne.getMatches();
+        weekOneMatches.get(0).setOdds(1.0);
+        weekOneMatches.get(1).setOdds(3.0);
+        weekOneMatches.get(2).setOdds(7.5);
+        weekOneMatches.get(3).setOdds(9.5);
+        weekOneMatches.get(4).setOdds(6.5);
+        weekOneMatches.get(5).setOdds(6.5);
+        weekOneMatches.get(6).setOdds(-1.5);
+        weekOneMatches.get(7).setOdds(-3.0);
+        weekOneMatches.get(8).setOdds(-3.5);
+        weekOneMatches.get(9).setOdds(3.5);
+        weekOneMatches.get(10).setOdds(3.0);
+        weekOneMatches.get(11).setOdds(1.0);
+        weekOneMatches.get(12).setOdds(3.0);
+        weekOneMatches.get(13).setOdds(7.5);
+        weekOneMatches.get(14).setOdds(6.5);
+        weekOneMatches.get(15).setOdds(-4.0);
+        Week weekTwo = currentSchedule.getWeek(2);
+        ArrayList<Match> weekTwoMatches = weekTwo.getMatches();
+        weekTwoMatches.get(0).setOdds(-1.0);
+        weekTwoMatches.get(1).setOdds(5.5);
+        weekTwoMatches.get(2).setOdds(-1.5);
+        weekTwoMatches.get(3).setOdds(-3.0);
+        weekTwoMatches.get(4).setOdds(8.5);
+        weekTwoMatches.get(5).setOdds(5.5);
+        weekTwoMatches.get(6).setOdds(-7.5);
+        weekTwoMatches.get(7).setOdds(1.0);
+        weekTwoMatches.get(8).setOdds(5.5);
+        weekTwoMatches.get(9).setOdds(0.0);
+        weekTwoMatches.get(10).setOdds(11.0);
+        weekTwoMatches.get(11).setOdds(3.5);
+        weekTwoMatches.get(12).setOdds(5.0);
+        weekTwoMatches.get(13).setOdds(-2.0);
+        weekTwoMatches.get(14).setOdds(3.0);
+        weekTwoMatches.get(15).setOdds(3.5);
+
+    }
+
     private void createCurrentSeasonTeamsFromDb(Cursor standingsCursor) {
 
         //Create team objects from team database data
@@ -781,6 +894,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             String teamShortName = standingsCursor.getString(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_SHORT_NAME));
             int teamWins = standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_WINS));
             int teamLosses = standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_LOSSES));
+            int teamDraws = standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_DRAWS));
             double winLossPct = standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_WIN_LOSS_PCT));
             int divisionWins = standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DIV_WINS));
             int divisionLosses = standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DIV_LOSSES));
@@ -798,7 +912,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
             teamList.put(teamName,
                     new Team(teamName, teamShortName, teamElo, teamDefaultElo, teamUserElo, teamRanking,
-                            offRating, defRating, division, this, teamWins, teamLosses, divisionWins, divisionLosses, winLossPct, divWinLossPct, playoffEligible, teamUri, TeamEntry.CURRENT_SEASON_YES));
+                            offRating, defRating, division, this, teamWins, teamLosses, teamDraws, divisionWins, divisionLosses, winLossPct, divWinLossPct, playoffEligible, teamUri, TeamEntry.CURRENT_SEASON_YES));
 
             teamUserElos.put(teamName, teamUserElo);
 
@@ -907,6 +1021,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             String teamShortName = standingsCursor.getString(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_SHORT_NAME));
             int teamWins = standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_WINS));
             int teamLosses = standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_LOSSES));
+            int teamDraws = standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_DRAWS));
             double winLossPct = standingsCursor.getDouble(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_WIN_LOSS_PCT));
             int divisionWins = standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DIV_WINS));
             int divisionLosses = standingsCursor.getInt(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DIV_LOSSES));
@@ -924,7 +1039,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
             teamList.put(teamName,
                     new Team(teamName, teamShortName, teamElo, teamDefaultElo, teamUserElo, teamRanking,
-                            offRating, defRating, division, this, teamWins, teamLosses, divisionWins, divisionLosses, winLossPct, divWinLossPct, playoffEligible, teamUri, TeamEntry.CURRENT_SEASON_NO));
+                            offRating, defRating, division, this, teamWins, teamLosses, teamDraws, divisionWins, divisionLosses, winLossPct, divWinLossPct, playoffEligible, teamUri, TeamEntry.CURRENT_SEASON_NO));
 
             teamUserElos.put(teamName, teamUserElo);
 
@@ -1801,6 +1916,13 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         //Callback is received when a match is completed
         //The model is then notified to update the match in the database
         mModel.updateMatch(match, uri);
+    }
+
+    @Override
+    public void updateMatchOddsCallback(Match match, Uri uri) {
+        //Callback is received when a match is completed
+        //The model is then notified to update the match odds in the database
+        mModel.updateMatchOdds(match, uri);
     }
 
     @Override

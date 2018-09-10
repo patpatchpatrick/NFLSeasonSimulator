@@ -11,6 +11,7 @@ public interface Data {
     //The presenter will then let the model know to update the database
 
     void updateMatchCallback(Match match, Uri uri);
+    void updateMatchOddsCallback(Match match, Uri uri);
     void updateTeamCallback(Team team, Uri uri);
 
 

@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     StandingsRecyclerViewAdapter mStandingsRecyclerViewAdapter;
     ScoresRecyclerViewAdapter mScoresRecyclerViewAdapter;
     private static ActivityComponent mActivityComponent;
+    private static boolean mResetInProgress = false;
 
     public final static int STANDINGS_TYPE_REGULAR_SEASON = 1;
     public final static int STANDINGS_TYPE_PLAYOFFS = 2;
@@ -187,6 +188,8 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         //Reset the season
         //Reset all shared preference values
 
+        mResetInProgress = true;
+        invalidateOptionsMenu();
         setSeasonInitializedPreference(false);
         mPresenter.setPlayoffsStarted(false);
         setPlayoffsStartedPreference(mPresenter.getPlayoffsStarted());
@@ -406,6 +409,24 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         }
     }
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+
+        MenuItem resetButton= menu.findItem(R.id.reset_menu_button);
+        MenuItem eloButton = menu.findItem(R.id.primary_settings);
+
+        //If the app reset is in progress, disable reset button and elo buttons so reset is not interfered with.
+        if (mResetInProgress){
+            resetButton.setEnabled(false);
+            eloButton.setEnabled(false);
+            return true;
+        } else {
+            resetButton.setEnabled(true);
+            eloButton.setEnabled(true);
+            return true;
+        }
+    }
+
     private int getTheme(String themeValue) {
         //Return the actual theme style that corresponds with the theme sharedPrefs String value
         if (themeValue.equals(getString(R.string.settings_theme_value_default))) {
@@ -442,6 +463,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
                 //If season initialized call is received within simulateActivity, then the season
                 //has been reset so restart the activity
 
+                mResetInProgress = false;
                 MainActivity.this.recreate();
 
 
