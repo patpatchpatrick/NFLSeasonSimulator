@@ -27,6 +27,7 @@ public interface SimulatorMvpContract {
         void simulatePlayoffWeek();
         void queryCurrentSeasonStandings();
         void simulateSeason();
+        void simulateTestSeason();
         void initializeSeason();
         void initiatePlayoffs();
         boolean getPlayoffsStarted();

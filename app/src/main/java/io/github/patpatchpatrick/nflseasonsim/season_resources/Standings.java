@@ -16,6 +16,17 @@ public class Standings {
     public static void generateStandings() {
     }
 
+    public static void generateTestPlayoffTeams(ArrayList<Team> divisionWinnersAFC, ArrayList<Team> divisionWinnersNFC, ArrayList<Team> potentialAFCWildCardTeams, ArrayList<Team> potentialNFCWildCardTeams){
+
+        generateDivisionWinnerSeeds(divisionWinnersAFC);
+        generateDivisionWinnerSeeds(divisionWinnersNFC);
+
+        //Generate two wildcard teams for each conference
+        generateWildCardTeams(potentialAFCWildCardTeams);
+        generateWildCardTeams(potentialNFCWildCardTeams);
+
+    }
+
     public static void generatePlayoffTeams(Cursor standingsCursor, HashMap<String, Team> teams) {
 
         ArrayList<Team> potentialAFCWildCardTeams = new ArrayList<>();

@@ -57,6 +57,9 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     private static Boolean mSimulatorPlayoffsStarted = false;
     private static Boolean mCurrentSeasonPlayoffsStarted = false;
     public static Boolean mCurrentSeasonMatchesLoaded = false;
+    public static Boolean mTestSimulation = false;
+    public static int mTotalTestSimulations;
+    public static int mCurrentTestSimulations;
 
     public SimulatorPresenter(SimulatorMvpContract.SimulatorView view) {
         super(view);
@@ -309,26 +312,26 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
     private void updateSimulatorCompletedGameScores() {
         //Update the scores for games that have already occurred
-            Week weekOne = mModel.getSimulatorSchedule().getWeek(1);
-            ArrayList<Match> weekOneMatches = weekOne.getMatches();
-                weekOneMatches.get(0).complete(12, 18);
-                weekOneMatches.get(1).complete(34, 23);
-                weekOneMatches.get(2).complete(3, 47);
-                weekOneMatches.get(3).complete(48, 40);
-                weekOneMatches.get(4).complete(20, 27);
-                weekOneMatches.get(5).complete(16, 24);
-                weekOneMatches.get(6).complete(20, 27);
-                weekOneMatches.get(7).complete(20, 15);
-                weekOneMatches.get(8).complete(21, 21);
-                weekOneMatches.get(9).complete(38, 28);
-                weekOneMatches.get(10).complete(8, 16);
-                weekOneMatches.get(11).complete(24, 6);
-                weekOneMatches.get(12).complete(24, 27);
-                weekOneMatches.get(13).complete(23, 24);
-                weekOneMatches.get(14).complete(48, 17);
-                weekOneMatches.get(15).complete(33, 13);
+        Week weekOne = mModel.getSimulatorSchedule().getWeek(1);
+        ArrayList<Match> weekOneMatches = weekOne.getMatches();
+        weekOneMatches.get(0).complete(12, 18);
+        weekOneMatches.get(1).complete(34, 23);
+        weekOneMatches.get(2).complete(3, 47);
+        weekOneMatches.get(3).complete(48, 40);
+        weekOneMatches.get(4).complete(20, 27);
+        weekOneMatches.get(5).complete(16, 24);
+        weekOneMatches.get(6).complete(20, 27);
+        weekOneMatches.get(7).complete(20, 15);
+        weekOneMatches.get(8).complete(21, 21);
+        weekOneMatches.get(9).complete(38, 28);
+        weekOneMatches.get(10).complete(8, 16);
+        weekOneMatches.get(11).complete(24, 6);
+        weekOneMatches.get(12).complete(24, 27);
+        weekOneMatches.get(13).complete(23, 24);
+        weekOneMatches.get(14).complete(48, 17);
+        weekOneMatches.get(15).complete(33, 13);
 
-                mCurrentSimulatorWeek = 1;
+        mCurrentSimulatorWeek = 1;
         mCurrentSimulatorWeek++;
         //Set current week preference when week is updated
         SharedPreferences.Editor prefs = mSharedPreferences.edit();
@@ -1894,6 +1897,223 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         mModel.querySimulatorMatches(mCurrentSimulatorWeek - 1, false, SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY);
     }
 
+    @Override
+    public void simulateTestSeason() {
+
+        //From week 1 to week 17 (full season), simulate the season
+        while (mCurrentSimulatorWeek <= 17) {
+            mModel.getSimulatorSchedule().getWeek(mCurrentSimulatorWeek).simulate(true);
+            mCurrentSimulatorWeek++;
+        }
+
+        mCurrentSimulatorWeek = 18;
+        this.view.setCurrentWeekPreference(mCurrentSimulatorWeek);
+
+        createTestPlayoffMatchups();
+
+
+
+
+    }
+
+    private void createTestPlayoffMatchups() {
+
+        Team afcNorthDivLeader = null;
+        Team afcSouthDivLeader =  null;
+        Team afcWestDivLeader = null;
+        Team afcEastDivLeader = null;
+        Team nfcNorthDivLeader = null;
+        Team nfcSouthDivLeader =  null;
+        Team nfcWestDivLeader = null;
+        Team nfcEastDivLeader = null;
+        ArrayList<Team> afcPotentialWildCardTeams = new ArrayList<>();
+        ArrayList<Team> nfcPotentialWildCardTeams = new ArrayList<>();
+        ArrayList<Team> afcDivisonWinners = new ArrayList<>();
+        ArrayList<Team> nfcDivisionWinners = new ArrayList<>();
+
+        ArrayList<Team> allTeams = mModel.getSimulatorTeamArrayList();
+
+        for (Team team : allTeams){
+            if (team.getDivision() == TeamEntry.DIVISION_AFC_NORTH){
+                if (afcNorthDivLeader == null){
+                    afcNorthDivLeader = team;
+                } else {
+                    if (team.getWinLossPct() > afcNorthDivLeader.getWinLossPct()){
+                        afcPotentialWildCardTeams.add(afcNorthDivLeader);
+                        afcNorthDivLeader = team;
+                    } else if (team.getWinLossPct() == afcNorthDivLeader.getWinLossPct()){
+                        if (team.getDivisionWinLossPct() > afcNorthDivLeader.getDivisionWinLossPct()){
+                            afcPotentialWildCardTeams.add(afcNorthDivLeader);
+                            afcNorthDivLeader = team;
+                        } else if (team.getDivisionWinLossPct() == afcNorthDivLeader.getDivisionWinLossPct()){
+                            if (Math.random() > 0.5){
+                                afcPotentialWildCardTeams.add(afcNorthDivLeader);
+                                afcNorthDivLeader = team;
+                            }
+                        }
+                    }
+                }
+            } else if (team.getDivision() == TeamEntry.DIVISION_AFC_SOUTH){
+                if (afcSouthDivLeader == null){
+                    afcSouthDivLeader = team;
+                } else {
+                    if (team.getWinLossPct() > afcSouthDivLeader.getWinLossPct()){
+                        afcPotentialWildCardTeams.add(afcSouthDivLeader);
+                        afcSouthDivLeader = team;
+                    } else if (team.getWinLossPct() == afcSouthDivLeader.getWinLossPct()){
+                        if (team.getDivisionWinLossPct() > afcSouthDivLeader.getDivisionWinLossPct()){
+                            afcPotentialWildCardTeams.add(afcSouthDivLeader);
+                            afcSouthDivLeader = team;
+                        } else if (team.getDivisionWinLossPct() == afcSouthDivLeader.getDivisionWinLossPct()){
+                            if (Math.random() > 0.5){
+                                afcPotentialWildCardTeams.add(afcSouthDivLeader);
+                                afcSouthDivLeader = team;
+                            }
+                        }
+                    }
+                }
+                
+            } else if (team.getDivision() == TeamEntry.DIVISION_AFC_WEST){
+                if (afcWestDivLeader == null){
+                    afcWestDivLeader = team;
+                } else {
+                    if (team.getWinLossPct() > afcWestDivLeader.getWinLossPct()){
+                        afcPotentialWildCardTeams.add(afcWestDivLeader);
+                        afcWestDivLeader = team;
+                    } else if (team.getWinLossPct() == afcWestDivLeader.getWinLossPct()){
+                        if (team.getDivisionWinLossPct() > afcWestDivLeader.getDivisionWinLossPct()){
+                            afcPotentialWildCardTeams.add(afcWestDivLeader);
+                            afcWestDivLeader = team;
+                        } else if (team.getDivisionWinLossPct() == afcWestDivLeader.getDivisionWinLossPct()){
+                            if (Math.random() > 0.5){
+                                afcPotentialWildCardTeams.add(afcWestDivLeader);
+                                afcWestDivLeader = team;
+                            }
+                        }
+                    }
+                }
+
+            } else if (team.getDivision() == TeamEntry.DIVISION_AFC_EAST){
+                if (afcEastDivLeader == null){
+                    afcEastDivLeader = team;
+                } else {
+                    if (team.getWinLossPct() > afcEastDivLeader.getWinLossPct()){
+                        afcPotentialWildCardTeams.add(afcEastDivLeader);
+                        afcEastDivLeader = team;
+                    } else if (team.getWinLossPct() == afcEastDivLeader.getWinLossPct()){
+                        if (team.getDivisionWinLossPct() > afcEastDivLeader.getDivisionWinLossPct()){
+                            afcPotentialWildCardTeams.add(afcEastDivLeader);
+                            afcEastDivLeader = team;
+                        } else if (team.getDivisionWinLossPct() == afcEastDivLeader.getDivisionWinLossPct()){
+                            if (Math.random() > 0.5){
+                                afcPotentialWildCardTeams.add(afcEastDivLeader);
+                                afcEastDivLeader = team;
+                            }
+                        }
+                    }
+                }
+
+            } else if (team.getDivision() == TeamEntry.DIVISION_NFC_NORTH){
+                if (nfcNorthDivLeader == null){
+                    nfcNorthDivLeader = team;
+                } else {
+                    if (team.getWinLossPct() > nfcNorthDivLeader.getWinLossPct()){
+                        nfcPotentialWildCardTeams.add(nfcNorthDivLeader);
+                        nfcNorthDivLeader = team;
+                    } else if (team.getWinLossPct() == nfcNorthDivLeader.getWinLossPct()){
+                        if (team.getDivisionWinLossPct() > nfcNorthDivLeader.getDivisionWinLossPct()){
+                            nfcPotentialWildCardTeams.add(nfcNorthDivLeader);
+                            nfcNorthDivLeader = team;
+                        } else if (team.getDivisionWinLossPct() == nfcNorthDivLeader.getDivisionWinLossPct()){
+                            if (Math.random() > 0.5){
+                                nfcPotentialWildCardTeams.add(nfcNorthDivLeader);
+                                nfcNorthDivLeader = team;
+                            }
+                        }
+                    }
+                }
+
+            } else if (team.getDivision() == TeamEntry.DIVISION_NFC_SOUTH){
+                if (nfcSouthDivLeader == null){
+                    nfcSouthDivLeader = team;
+                } else {
+                    if (team.getWinLossPct() > nfcSouthDivLeader.getWinLossPct()){
+                        nfcPotentialWildCardTeams.add(nfcSouthDivLeader);
+                        nfcSouthDivLeader = team;
+                    } else if (team.getWinLossPct() == nfcSouthDivLeader.getWinLossPct()){
+                        if (team.getDivisionWinLossPct() > nfcSouthDivLeader.getDivisionWinLossPct()){
+                            nfcPotentialWildCardTeams.add(nfcSouthDivLeader);
+                            nfcSouthDivLeader = team;
+                        } else if (team.getDivisionWinLossPct() == nfcSouthDivLeader.getDivisionWinLossPct()){
+                            if (Math.random() > 0.5){
+                                nfcPotentialWildCardTeams.add(nfcSouthDivLeader);
+                                nfcSouthDivLeader = team;
+                            }
+                        }
+                    }
+                }
+
+            } else if (team.getDivision() == TeamEntry.DIVISION_NFC_EAST){
+                if (nfcEastDivLeader == null){
+                    nfcEastDivLeader = team;
+                } else {
+                    if (team.getWinLossPct() > nfcEastDivLeader.getWinLossPct()){
+                        nfcPotentialWildCardTeams.add(nfcEastDivLeader);
+                        nfcEastDivLeader = team;
+                    } else if (team.getWinLossPct() == nfcEastDivLeader.getWinLossPct()){
+                        if (team.getDivisionWinLossPct() > nfcEastDivLeader.getDivisionWinLossPct()){
+                            nfcPotentialWildCardTeams.add(nfcEastDivLeader);
+                            nfcEastDivLeader = team;
+                        } else if (team.getDivisionWinLossPct() == nfcEastDivLeader.getDivisionWinLossPct()){
+                            if (Math.random() > 0.5){
+                                nfcPotentialWildCardTeams.add(nfcEastDivLeader);
+                                nfcEastDivLeader = team;
+                            }
+                        }
+                    }
+                }
+
+            } else if (team.getDivision() == TeamEntry.DIVISION_NFC_WEST){
+                if (nfcWestDivLeader == null){
+                    nfcWestDivLeader = team;
+                } else {
+                    if (team.getWinLossPct() > nfcWestDivLeader.getWinLossPct()){
+                        nfcPotentialWildCardTeams.add(nfcWestDivLeader);
+                        nfcWestDivLeader = team;
+                    } else if (team.getWinLossPct() == nfcWestDivLeader.getWinLossPct()){
+                        if (team.getDivisionWinLossPct() > nfcWestDivLeader.getDivisionWinLossPct()){
+                            nfcPotentialWildCardTeams.add(nfcWestDivLeader);
+                            nfcWestDivLeader = team;
+                        } else if (team.getDivisionWinLossPct() == nfcWestDivLeader.getDivisionWinLossPct()){
+                            if (Math.random() > 0.5){
+                                nfcPotentialWildCardTeams.add(nfcWestDivLeader);
+                                nfcWestDivLeader = team;
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+
+        afcDivisonWinners.add(afcNorthDivLeader);
+        afcDivisonWinners.add(afcSouthDivLeader);
+        afcDivisonWinners.add(afcWestDivLeader);
+        afcDivisonWinners.add(afcEastDivLeader);
+        nfcDivisionWinners.add(nfcNorthDivLeader);
+        nfcDivisionWinners.add(nfcSouthDivLeader);
+        nfcDivisionWinners.add(nfcWestDivLeader);
+        nfcDivisionWinners.add(nfcEastDivLeader);
+
+        Standings.generateTestPlayoffTeams(afcDivisonWinners, nfcDivisionWinners, afcPotentialWildCardTeams, nfcPotentialWildCardTeams);
+
+        Log.d("AFCN", "" + afcNorthDivLeader.getName() + afcNorthDivLeader.getDivisionWinLossPct());
+        Log.d("AFCS", "" + afcSouthDivLeader.getName() + afcSouthDivLeader.getDivisionWinLossPct());
+        Log.d("AFCE", "" + afcEastDivLeader.getName() + afcEastDivLeader.getDivisionWinLossPct());
+        Log.d("AFCW", "" + afcWestDivLeader.getName() + afcWestDivLeader.getDivisionWinLossPct());
+
+    }
+
     private void displaySimulatorStandings(Cursor standingsCursor) {
 
         //Call display standings call for simulator regular season
@@ -1926,7 +2146,9 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
         //Callback is received when a match is completed
         //The model is then notified to update the match in the database
-        mModel.updateMatch(match, uri);
+        if (!mTestSimulation) {
+            mModel.updateMatch(match, uri);
+        }
     }
 
     @Override
@@ -1941,7 +2163,10 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
         //Callback is received when a match is completed
         //The model is then notified to update the team wins, losses and winLossPct.
-        mModel.updateTeam(team, uri);
+        //Don't update the database if it is a test simulation
+        if (!mTestSimulation) {
+            mModel.updateTeam(team, uri);
+        }
     }
 
     public static boolean seasonIsInitialized() {

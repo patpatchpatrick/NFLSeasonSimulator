@@ -126,6 +126,8 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         }
 
 
+        simulateSeasonXTimes(3);
+
         mSimulateSeason.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -173,6 +175,15 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         });
 
 
+    }
+
+    private void simulateSeasonXTimes(int numTimes) {
+        //Class to simulate the season as many times as necessary to collect playoff data
+        //Class is manually run by developer every week to update playoff percentages
+        mPresenter.mCurrentTestSimulations = 0;
+        mPresenter.mTotalTestSimulations = numTimes;
+        mPresenter.mTestSimulation = true;
+        mPresenter.simulateTestSeason();
     }
 
     private void initializeTheme() {
@@ -276,9 +287,14 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         //Set up views now that week was simulated
 
         if (queriedFrom == SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY) {
-            mScoresRecyclerViewAdapter.swapCursor(cursor);
-            mWeekNumberHeader.setText(scoresWeekNumberHeader);
-            setUpViews();
+
+                mScoresRecyclerViewAdapter.swapCursor(cursor);
+                mWeekNumberHeader.setText(scoresWeekNumberHeader);
+                setUpViews();
+
+
+
+
         }
 
     }
@@ -286,14 +302,15 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     @Override
     public void onDisplayStandings(int standingsType, Cursor cursor, int queriedFrom) {
 
-        if (queriedFrom == SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY){
+        if (queriedFrom == SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY) {
 
             //Callback received from presenter to display standings after they are loaded
             //Swap standings cursor into standings recyclerView to display standings
             mStandingsRecyclerViewAdapter.swapCursor(standingsType, cursor);
 
-            //Set up the views now that the week was simulated
-            setUpViews();
+            //Otherwise, set up the views now that the week was simulated
+                setUpViews();
+
 
         }
 
@@ -412,11 +429,11 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
 
-        MenuItem resetButton= menu.findItem(R.id.reset_menu_button);
+        MenuItem resetButton = menu.findItem(R.id.reset_menu_button);
         MenuItem eloButton = menu.findItem(R.id.primary_settings);
 
         //If the app reset is in progress, disable reset button and elo buttons so reset is not interfered with.
-        if (mResetInProgress){
+        if (mResetInProgress) {
             resetButton.setEnabled(false);
             eloButton.setEnabled(false);
             return true;
@@ -464,7 +481,23 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
                 //has been reset so restart the activity
 
                 mResetInProgress = false;
-                MainActivity.this.recreate();
+                if (!mPresenter.mTestSimulation) {
+                    MainActivity.this.recreate();
+                } else {
+
+                    //METHOD USED WHEN RUNNING TEST SIMULATIONS FOR PLAYOFF PREDICTIONS
+                    if (mPresenter.mTestSimulation == true) {
+                        mPresenter.mCurrentTestSimulations++;
+                        //If the current number of test simulations is equal to the total number, then stop simulation
+                        //If not, keep simulating the season
+                        if (mPresenter.mCurrentTestSimulations == mPresenter.mTotalTestSimulations) {
+                            Log.d("TEST", "TEST SIM COMPLETE!");
+                        } else {
+                            Log.d("TIMES SIM", "" + mPresenter.mCurrentTestSimulations);
+                            mPresenter.simulateSeason();
+                        }
+                    }
+                }
 
 
             }
