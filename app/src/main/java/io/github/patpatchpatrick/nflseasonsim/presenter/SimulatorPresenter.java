@@ -260,6 +260,12 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             if (!weekOneMatches.get(13).getComplete()) {
                 weekOneMatches.get(13).complete(23, 24);
             }
+            if (!weekOneMatches.get(14).getComplete()) {
+                weekOneMatches.get(14).complete(48, 17);
+            }
+            if (!weekOneMatches.get(15).getComplete()) {
+                weekOneMatches.get(15).complete(33, 13);
+            }
 
 
             mCurrentSeasonMatchesLoaded = true;
@@ -319,11 +325,16 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
                 weekOneMatches.get(11).complete(24, 6);
                 weekOneMatches.get(12).complete(24, 27);
                 weekOneMatches.get(13).complete(23, 24);
-                weekOneMatches.get(14).complete(2, 3);
-                weekOneMatches.get(15).complete(1, 2);
+                weekOneMatches.get(14).complete(48, 17);
+                weekOneMatches.get(15).complete(33, 13);
 
+                mCurrentSimulatorWeek = 1;
         mCurrentSimulatorWeek++;
-        this.view.setCurrentWeekPreference(mCurrentSimulatorWeek);
+        //Set current week preference when week is updated
+        SharedPreferences.Editor prefs = mSharedPreferences.edit();
+        prefs.putInt(mContext.getString(R.string.settings_simulator_week_num_key), mCurrentSimulatorWeek).apply();
+        prefs.commit();
+
 
     }
 
