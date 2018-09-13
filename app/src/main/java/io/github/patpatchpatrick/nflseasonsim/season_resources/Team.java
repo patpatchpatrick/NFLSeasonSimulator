@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.TeamEntry;
+import io.github.patpatchpatrick.nflseasonsim.presenter.SimulatorPresenter;
 
 public class Team {
 
@@ -47,6 +48,12 @@ public class Team {
     private int mPointsFor;
     private int mPointsAllowed;
 
+    //Test Data for Playoff Odds
+    private int mMadePlayoffs = 0;
+    private int mWonDivision = 0;
+    private int mWonConference = 0;
+    private int mWonSuperbowl = 0;
+
     //Current Season
     //If team is from current season, value will be 2, otherwise will be 1 if it is a simulator team
     private int mCurrentSeason;
@@ -80,7 +87,7 @@ public class Team {
         mCurrentSeason = TeamEntry.CURRENT_SEASON_NO;
 
         //Set conference value based on division value (all AFC divisions are ints less than 4)
-        if (mDivision <= 4){
+        if (mDivision <= 4) {
             mConference = TeamEntry.CONFERENCE_AFC;
         } else {
             mConference = TeamEntry.CONFERENCE_NFC;
@@ -117,7 +124,7 @@ public class Team {
         mCurrentSeason = currentSeason;
 
         //Set conference value based on division value (all AFC divisions are ints less than 4)
-        if (mDivision <= 4){
+        if (mDivision <= 4) {
             mConference = TeamEntry.CONFERENCE_AFC;
         } else {
             mConference = TeamEntry.CONFERENCE_NFC;
@@ -125,9 +132,9 @@ public class Team {
 
     }
 
-    public Team(String name, String shortName, double elo, double defaultElo,double userElo, double teamRanking, double offRating, double defRating, int division, Data data, int wins, int losses, int draws, int divWins, int divLosses, double winLossPct, double divWinLossPct, int playoffEligible,  Uri uri, int currentSeason) {
+    public Team(String name, String shortName, double elo, double defaultElo, double userElo, double teamRanking, double offRating, double defRating, int division, Data data, int wins, int losses, int draws, int divWins, int divLosses, double winLossPct, double divWinLossPct, int playoffEligible, Uri uri, int currentSeason) {
 
-        mTeamRanking =  teamRanking;
+        mTeamRanking = teamRanking;
         mData = data;
         mName = name;
         mShortName = shortName;
@@ -152,7 +159,7 @@ public class Team {
         mCurrentSeason = currentSeason;
 
         //Set conference value based on division value (all AFC divisions are ints less than 4)
-        if (mDivision <= 4){
+        if (mDivision <= 4) {
             mConference = TeamEntry.CONFERENCE_AFC;
         } else {
             mConference = TeamEntry.CONFERENCE_NFC;
@@ -182,7 +189,7 @@ public class Team {
     public void draw() {
         mCurrentDraws++;
         //If no games have  been  played and there is a draw, win loss pct is 0.5
-        if (mCurrentWins == 0 && mCurrentLosses == 0){
+        if (mCurrentWins == 0 && mCurrentLosses == 0) {
             mWinLossPct = 0.5;
         }
         mData.updateTeamCallback(this, mUri);
@@ -196,15 +203,15 @@ public class Team {
         return mCurrentLosses;
     }
 
-    public int getDraws(){
+    public int getDraws() {
         return mCurrentDraws;
     }
 
-    public double getOffRating(){
+    public double getOffRating() {
         return mOffRating;
     }
 
-    public double getDefRating(){
+    public double getDefRating() {
         return mDefRating;
     }
 
@@ -212,7 +219,7 @@ public class Team {
         return mWinLossPct;
     }
 
-    public int getDivision(){
+    public int getDivision() {
         return mDivision;
     }
 
@@ -223,25 +230,25 @@ public class Team {
         mData.updateTeamCallback(this, mUri);
     }
 
-    public void divisionalWin(){
+    public void divisionalWin() {
         mCurrentDivisionWins++;
         mCurrentDivisionWinLossPct = (double) mCurrentDivisionWins / (double) (mCurrentDivisionWins + mCurrentDivisionLosses);
     }
 
-    public void divisionalLoss(){
+    public void divisionalLoss() {
         mCurrentDivisionLosses++;
         mCurrentDivisionWinLossPct = (double) mCurrentDivisionWins / (double) (mCurrentDivisionWins + mCurrentDivisionLosses);
     }
 
-    public int getDivisionWins(){
+    public int getDivisionWins() {
         return mCurrentDivisionWins;
     }
 
-    public int getDivisionLosses(){
+    public int getDivisionLosses() {
         return mCurrentDivisionLosses;
     }
 
-    public double getDivisionWinLossPct(){
+    public double getDivisionWinLossPct() {
         return mCurrentDivisionWinLossPct;
     }
 
@@ -253,67 +260,112 @@ public class Team {
         mPointsAllowed += pointsAllowed;
     }
 
-    public void setUri(Uri uri){
+    public void setUri(Uri uri) {
         mUri = uri;
     }
 
-    public Uri getUri(){
+    public Uri getUri() {
         return mUri;
     }
 
-    public void setPlayoffEligible(int playoffEligible){
+    public void setPlayoffEligible(int playoffEligible) {
         mPlayoffEligible = playoffEligible;
         mData.updateTeamCallback(this, mUri);
     }
 
-    public int getPlayoffEligible(){
+    public int getPlayoffEligible() {
         return mPlayoffEligible;
     }
 
-    public int getConference(){
+    public int getConference() {
         return mConference;
     }
 
-    public double getDefaultElo(){
+    public double getDefaultElo() {
         return mDefaultElo;
     }
 
-    public void resetElo(){
+    public void resetElo() {
         //Set team elos based on last seasons elos
         mElo = mDefaultElo;
     }
 
-    public void setCurrentSeasonElos(){
+    public void setCurrentSeasonElos() {
         //Set team elos based on future ranking
         mElo = 1700 - (mTeamRanking * 12.5);
     }
 
-    public double getFutureElo(){
-        double futureElo =  mElo = 1700 - (mTeamRanking * 12.5);
+    public double getFutureElo() {
+        double futureElo = mElo = 1700 - (mTeamRanking * 12.5);
         return futureElo;
     }
 
-    public void setUserElo(){
+    public void setUserElo() {
         //Set the user defined elo value for the team and update the database
         mUserElo = mElo;
         mData.updateTeamCallback(this, mUri);
     }
 
-    public Double getTeamRanking(){
+    public Double getTeamRanking() {
         return mTeamRanking;
     }
 
     public Double getUserElo() {
-        if (mUserElo == 0){
+        if (mUserElo == 0) {
             return mElo;
         } else {
             return mUserElo;
         }
     }
 
-    public String getShortName(){
+    public String getShortName() {
         return mShortName;
     }
 
-    public int getCurrentSeason() {return mCurrentSeason;}
+    public int getCurrentSeason() {
+        return mCurrentSeason;
+    }
+
+    public void resetWinsLosses() {
+        mCurrentWins = 0;
+        mCurrentLosses = 0;
+        mCurrentDraws = 0;
+        mCurrentDivisionWins = 0;
+        mCurrentDivisionLosses = 0;
+        mCurrentDivisionWinLossPct = 0.0;
+        mWinLossPct = 0.0;
+
+    }
+
+    public void madePlayoffs(){
+        mMadePlayoffs++;
+    }
+
+    public double getMadePlayoffs(){
+        return (double) mMadePlayoffs / (double) SimulatorPresenter.mTotalTestSimulations;
+    }
+
+    public void wonDivision(){
+        mWonDivision++;
+    }
+
+    public double getWonDivision(){
+        return (double) mWonDivision / (double) SimulatorPresenter.mTotalTestSimulations;
+    }
+
+    public void wonConference(){
+        mWonConference++;
+    }
+
+    public double getWonConference(){
+        return (double) mWonConference / (double) SimulatorPresenter.mTotalTestSimulations;
+    }
+
+    public void wonSuperBowl(){
+        mWonSuperbowl++;
+    }
+
+    public double getWonSuperBowl(){
+        return (double) mWonSuperbowl / (double) SimulatorPresenter.mTotalTestSimulations;
+    }
 }

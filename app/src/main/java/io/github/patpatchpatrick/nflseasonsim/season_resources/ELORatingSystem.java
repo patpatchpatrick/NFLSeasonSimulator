@@ -60,6 +60,39 @@ public class ELORatingSystem {
         }
     }
 
+    public static boolean simulateTestMatch(Team teamOne, Team teamTwo, Boolean useHomeFieldAdvantage){
+
+        //Simulate a test match when calculating playoff probabilities
+
+        double eloTeamOne = teamOne.getElo();
+        double eloTeamTwo = teamTwo.getElo();
+
+        //Simulate a match between two teams with two elo ratings
+        //If the first team wins, return true, otherwise return false
+
+        //Calculate probability of the first team winning (double between 0-1)
+        double probTeamOneWin = probabilityOfTeamOneWinning(eloTeamOne, eloTeamTwo, useHomeFieldAdvantage);
+
+        //Calculate a random double value between 0-1
+        double matchOutcome = (double) Math.random();
+
+        //If the random double is less than the probability of the first team winning, they won and set boolean to true
+        //If not, they lost and set boolean to false
+        int teamOneWon;
+        if (matchOutcome <= probTeamOneWin) {
+            teamOneWon = SeasonSimContract.MatchEntry.MATCH_TEAM_ONE_WON_YES;
+        } else {
+            teamOneWon = SeasonSimContract.MatchEntry.MATCH_TEAM_ONE_WON_NO;
+        }
+
+        if (teamOneWon == SeasonSimContract.MatchEntry.MATCH_TEAM_ONE_WON_YES){
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+
     public static int completeCurrentSeasonMatch(Match match, int teamOneScore, int teamTwoScore){
 
         Team teamOne = match.getTeam1();

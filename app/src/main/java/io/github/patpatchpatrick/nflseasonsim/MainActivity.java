@@ -28,6 +28,7 @@ import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.ScoreView;
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.SimulatorMvpContract;
 import io.github.patpatchpatrick.nflseasonsim.presenter.SimulatorPresenter;
+import io.github.patpatchpatrick.nflseasonsim.season_resources.Team;
 
 public class MainActivity extends AppCompatActivity implements SimulatorMvpContract.SimulatorView, ScoreView {
 
@@ -126,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         }
 
 
-        simulateSeasonXTimes(3);
+        simulateSeasonXTimes(1000);
 
         mSimulateSeason.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -243,6 +244,29 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         SharedPreferences.Editor prefs = mSharedPreferences.edit();
         prefs.putInt(getString(R.string.settings_simulator_week_num_key), currentWeek).apply();
         prefs.commit();
+    }
+
+    @Override
+    public void simulateAnotherTestWeek() {
+
+        //If total number of current simulations is less than total number requested, continue running simulations
+        //If not, complete the test simulation
+
+        mPresenter.mCurrentTestSimulations++;
+        if (mPresenter.mCurrentTestSimulations < mPresenter.mTotalTestSimulations){
+            mPresenter.resetSimulatorTeamCurrentSeasonElos();
+            mPresenter.resetSimulatorTeamWinsLosses();
+            mPresenter.simulateTestSeason();
+        } else {
+            Log.d("TEST",  "SIMULATION COMPLETE!!!!");
+            for (Team team : mModel.getSimulatorTeamArrayList()){
+                Log.d("DATA", team.getShortName() + " ... Play " + team.getMadePlayoffs() + " Div " + team.getWonDivision() +  " Conf " + team.getWonConference() + " SB " + team.getWonSuperBowl());
+            }
+        }
+
+
+
+
     }
 
     private String getScoreStringPreference() {

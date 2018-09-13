@@ -20,6 +20,7 @@ public interface SimulatorMvpContract {
         void onPriorSimulatedDataLoaded();
         void onDataDeleted();
         void setCurrentWeekPreference(int currentWeek);
+        void simulateAnotherTestWeek();
     }
 
     interface SimulatorPresenter {
@@ -51,6 +52,7 @@ public interface SimulatorMvpContract {
         void resetSimulatorTeamCurrentSeasonElos();
         void resetCurrentSeasonTeamCurrentSeasonElos();
         void resetSimulatorTeamUserElos();
+        void resetSimulatorTeamWinsLosses();
         void setTeamUserElos();
         void dataDeleted();
         void destroyPresenter();
