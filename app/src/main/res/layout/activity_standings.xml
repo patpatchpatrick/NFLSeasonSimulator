@@ -22,10 +22,20 @@
         app:layout_constraintTop_toTopOf="parent"
         android:text="@string/standings_header" />
 
+    <TextView
+        android:id="@+id/standings_details_header"
+        style="?normalTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/season_standings_header"
+        android:text="@string/standings_details_header" />
+
     <ScrollView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/season_standings_header"
+        app:layout_constraintTop_toBottomOf="@+id/standings_details_header"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="16dp"

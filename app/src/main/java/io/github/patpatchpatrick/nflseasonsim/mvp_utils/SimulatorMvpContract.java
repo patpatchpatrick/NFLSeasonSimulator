@@ -40,6 +40,7 @@ public interface SimulatorMvpContract {
         void seasonTeamsInserted();
         void addBaseView(BaseView baseView);
         void loadCurrentSeasonMatches();
+        void loadCurrentSeasonPlayoffOdds();
         void simulatorMatchesInserted(int insertType);
         void seasonMatchesInserted(int insertType);
         void simulatorMatchesQueried(int queryType, Cursor matchesCursor, int queryFrom);

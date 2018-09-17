@@ -30,6 +30,12 @@ public class Week {
         }
     }
 
+    public void simulateTestMatches(boolean useHomeFieldAdvantage){
+        for (Match match: mMatches) {
+            match.simulateTestMatch(useHomeFieldAdvantage);
+        }
+    }
+
     public void matchUpdated(){
         mNumberMatchesUpdated++;
     }

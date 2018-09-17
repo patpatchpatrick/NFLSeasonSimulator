@@ -68,8 +68,8 @@
     <!-- Home Screen Strings -->
     <string name="main_menu_sim_season">SIMULATE SEASON</string>
     <string name="main_menu_predict_matchup">PREDICT MATCHUP</string>
-    <string name="main_menu_season_schedule">SEASON SCHEDULE/SCORES</string>
-    <string name="main_menu_season_standings">SEASON ELO STANDINGS</string>
+    <string name="main_menu_season_schedule">SEASON SCHEDULE / SCORES</string>
+    <string name="main_menu_season_standings">SEASON ELO STANDINGS / PLAYOFF ODDS</string>
     <string name="main_menu_settings">SETTINGS</string>
     <string name="main_menu_loading">LOADING</string>
 
@@ -90,6 +90,7 @@
 
     <!-- Standings Activity Strings -->
     <string name="standings_header">Season Standings</string>
+    <string name="standings_details_header">*Playoff odds are calculated by simulating \nthe season 10,000 times</string>
 
     <!-- Library Activity Strings -->
     <string name="pref_libraries">Libraries/Licenses</string>

@@ -170,6 +170,23 @@ public class Match {
 
     }
 
+    protected void simulateTestMatch(boolean useHomeFieldAdvantage){
+        //Simulate match to determine if team one won
+        Boolean teamOneWonBool;
+        teamOneWonBool = ELORatingSystem.simulateTestMatch( mTeam1, mTeam2, useHomeFieldAdvantage);
+
+        if (teamOneWonBool) {
+            mTeamOneWon = SeasonSimContract.MatchEntry.MATCH_TEAM_ONE_WON_YES;
+        } else {
+            mTeamOneWon = SeasonSimContract.MatchEntry.MATCH_TEAM_ONE_WON_NO;
+        }
+
+        //Update team records based on outcome and mark match as complete
+        setMatchWins();
+        matchComplete = true;
+
+    }
+
     private void setMatchWins() {
         if (mTeamOneWon == SeasonSimContract.MatchEntry.MATCH_TEAM_ONE_WON_YES) {
             if (divisionalMatchup) {

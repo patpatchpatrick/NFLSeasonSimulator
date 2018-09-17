@@ -20,6 +20,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.text.DecimalFormat;
+
 import javax.inject.Inject;
 
 import io.github.patpatchpatrick.nflseasonsim.dagger.ActivityComponent;
@@ -127,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         }
 
 
-        simulateSeasonXTimes(1000);
+        //simulateSeasonXTimes(10000);
 
         mSimulateSeason.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -259,8 +261,9 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
             mPresenter.simulateTestSeason();
         } else {
             Log.d("TEST",  "SIMULATION COMPLETE!!!!");
+            DecimalFormat df = new DecimalFormat("#.##");
             for (Team team : mModel.getSimulatorTeamArrayList()){
-                Log.d("DATA", team.getShortName() + " ... Play " + team.getMadePlayoffs() + " Div " + team.getWonDivision() +  " Conf " + team.getWonConference() + " SB " + team.getWonSuperBowl());
+                Log.d("DATA", team.getShortName() + " ... Play " + df.format(team.getMadePlayoffs() * 100) + "% Div " + df.format(team.getWonDivision()*100) +  "% Conf " + df.format(team.getWonConference()*100) + "% SB " + df.format(team.getWonSuperBowl()*100) + "%");
             }
         }
 

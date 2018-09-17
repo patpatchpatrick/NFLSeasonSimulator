@@ -45,6 +45,7 @@ public class StandingsActivity extends AppCompatActivity implements ScoreView {
 
         //Load and query the current season data
         mPresenter.loadCurrentSeasonMatches();
+        mPresenter.loadCurrentSeasonPlayoffOdds();
         mPresenter.queryCurrentSeasonStandings();
 
 

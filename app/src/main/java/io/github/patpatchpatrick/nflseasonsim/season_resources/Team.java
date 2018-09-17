@@ -53,6 +53,7 @@ public class Team {
     private int mWonDivision = 0;
     private int mWonConference = 0;
     private int mWonSuperbowl = 0;
+    private String mPlayoffOddsString;
 
     //Current Season
     //If team is from current season, value will be 2, otherwise will be 1 if it is a simulator team
@@ -367,5 +368,13 @@ public class Team {
 
     public double getWonSuperBowl(){
         return (double) mWonSuperbowl / (double) SimulatorPresenter.mTotalTestSimulations;
+    }
+
+    public void setPlayoffOddsString(String playoffOddsString){
+        mPlayoffOddsString = playoffOddsString;
+    }
+
+    public String getPlayoffOddsString(){
+        return mPlayoffOddsString;
     }
 }

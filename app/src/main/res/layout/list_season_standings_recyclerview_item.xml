@@ -32,4 +32,15 @@
         app:layout_constraintTop_toTopOf="@+id/season_standings_recycler_team_logo"
         tools:text="10 - 6" />
 
+    <TextView
+        android:id="@+id/season_playoff_odds_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Playoff Details"
+        style="?normalScoreTextView"
+        app:layout_constraintStart_toEndOf="@+id/season_standings_details_text_view"
+        app:layout_constraintTop_toTopOf="@+id/season_standings_details_text_view"
+        android:paddingTop="8dp"
+        android:paddingLeft="8dp"/>
+
 </android.support.constraint.ConstraintLayout>

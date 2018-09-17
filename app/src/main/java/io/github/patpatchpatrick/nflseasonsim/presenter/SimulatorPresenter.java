@@ -217,7 +217,6 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
     @Override
     public void loadCurrentSeasonMatches() {
-        if (!SimulatorPresenter.mCurrentSeasonMatchesLoaded) {
             //Load all the current  season matches
             //If they are complete, they have already been completed/loaded so no need to complete them again
             Week weekOne = mModel.getSeasonSchedule().getWeek(1);
@@ -272,8 +271,44 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             }
 
 
-            mCurrentSeasonMatchesLoaded = true;
-        }
+
+    }
+
+    @Override
+    public void loadCurrentSeasonPlayoffOdds() {
+        HashMap<String, Team> currentSeasonTeams = mModel.getSeasonTeamList();
+        currentSeasonTeams.get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING).setPlayoffOddsString("Playoffs 11.76% Div Winner 3.95% \nConf Winner 0.12% SB Winner 0.04%");
+        currentSeasonTeams.get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING).setPlayoffOddsString("Playoffs 36.19% Div Winner 11.09% \nConf Winner 1.14% SB Winner 0.35%");
+        currentSeasonTeams.get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING).setPlayoffOddsString("Playoffs 92.7% Div Winner 56.48% \nConf Winner 20.95% SB Winner 11.22%");
+        currentSeasonTeams.get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING).setPlayoffOddsString("Playoffs 1.24% Div Winner 0.2% \nConf Winner 0% SB Winner 0%");
+        currentSeasonTeams.get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING).setPlayoffOddsString("Playoffs 96.62% Div Winner 95.16% \nConf Winner 22.25% SB Winner 12.17%");
+        currentSeasonTeams.get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING).setPlayoffOddsString("Playoffs 95.81% Div Winner 88.72% \nConf Winner 31.65% SB Winner 17.79%");
+        currentSeasonTeams.get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING).setPlayoffOddsString("Playoffs 0.12% Div Winner 0.08% \nConf Winner 0% SB Winner 0%");
+        currentSeasonTeams.get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING).setPlayoffOddsString("Playoffs 3.17% Div Winner 0.66% \nConf Winner 0.03% SB Winner 0.01%");
+        currentSeasonTeams.get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING).setPlayoffOddsString("Playoffs 38.79% Div Winner 10.13% \nConf Winner 1.11% SB Winner 0.36%");
+        currentSeasonTeams.get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING).setPlayoffOddsString("Playoffs 41.94% Div Winner 22.67% \nConf Winner 1.86% SB Winner 0.72%");
+        currentSeasonTeams.get(NFLConstants.TEAM_BUFFALO_BILLS_STRING).setPlayoffOddsString("Playoffs 0.17% Div Winner 0.02% \nConf Winner 0% SB Winner 0%");
+        currentSeasonTeams.get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING).setPlayoffOddsString("Playoffs 86.82% Div Winner 68.68% \nConf Winner 17.11% SB Winner 7.61%");
+        currentSeasonTeams.get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING).setPlayoffOddsString("Playoffs 12.46% Div Winner 5% \nConf Winner 0.39% SB Winner 0.14%");
+        currentSeasonTeams.get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING).setPlayoffOddsString("Playoffs 94.85% Div Winner 88.42% \nConf Winner 27.36% SB Winner 13.11%");
+        currentSeasonTeams.get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING).setPlayoffOddsString("Playoffs 65.34% Div Winner 48.61% \nConf Winner 5.66% SB Winner 2.3%");
+        currentSeasonTeams.get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING).setPlayoffOddsString("Playoffs 2.75% Div Winner 0.49% \nConf Winner 0.02% SB Winner 0%");
+        currentSeasonTeams.get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING).setPlayoffOddsString("Playoffs 34.07% Div Winner 18.56% \nConf Winner 1.01% SB Winner 0.29%");
+        currentSeasonTeams.get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING).setPlayoffOddsString("Playoffs 87.1% Div Winner 42.28% \nConf Winner 12.72% SB Winner 6.25%");
+        currentSeasonTeams.get(NFLConstants.TEAM_NEWYORK_JETS_STRING).setPlayoffOddsString("Playoffs 25.17% Div Winner 5.09% \nConf Winner 0.48% SB Winner 0.1%");
+        currentSeasonTeams.get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING).setPlayoffOddsString("Playoffs 2.26% Div Winner 0.81% \nConf Winner 0.01% SB Winner 0%");
+        currentSeasonTeams.get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING).setPlayoffOddsString("Playoffs 50.96% Div Winner 32.47% \nConf Winner 5.52% SB Winner 2.23%");
+        currentSeasonTeams.get(NFLConstants.TEAM_DENVER_BRONCOS_STRING).setPlayoffOddsString("Playoffs 50.8% Div Winner 20.01% \nConf Winner 2.88% SB Winner 0.94%");
+        currentSeasonTeams.get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING).setPlayoffOddsString("Playoffs 39.82% Div Winner 11.11% \nConf Winner 1.67% SB Winner 0.59%");
+        currentSeasonTeams.get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING).setPlayoffOddsString("Playoffs 75.11% Div Winner 58.93% \nConf Winner 8.21% SB Winner 3.68%");
+        currentSeasonTeams.get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING).setPlayoffOddsString("Playoffs 96.84% Div Winner 92.23% \nConf Winner 37.03% SB Winner 19.83%");
+        currentSeasonTeams.get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING).setPlayoffOddsString("Playoffs 0.32% Div Winner 0.08% \nConf Winner 0% SB Winner 0%");
+        currentSeasonTeams.get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING).setPlayoffOddsString("Playoffs 14.68% Div Winner 2.66% \nConf Winner 0.12% SB Winner 0.05%");
+        currentSeasonTeams.get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING).setPlayoffOddsString("Playoffs 0.91% Div Winner 0.36% \nConf Winner 0% SB Winner 0%");
+        currentSeasonTeams.get(NFLConstants.TEAM_CHICAGO_BEARS_STRING).setPlayoffOddsString("Playoffs 12.2% Div Winner 1.22% \nConf Winner 0.12% SB Winner 0.06%");
+        currentSeasonTeams.get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING).setPlayoffOddsString("Playoffs 1.82% Div Winner 0.41% \nConf Winner 0.02% SB Winner 0.01%");
+        currentSeasonTeams.get(NFLConstants.TEAM_DETROIT_LIONS_STRING).setPlayoffOddsString("Playoffs 0.2% Div Winner 0.02% \nConf Winner 0% SB Winner 0%");
+        currentSeasonTeams.get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING).setPlayoffOddsString("Playoffs 27.01% Div Winner 13.4% \nConf Winner 0.56% SB Winner 0.15%");
     }
 
     public void addScoreView(ScoreView scoreView) {
@@ -875,18 +910,18 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         ArrayList<Match> weekTwoMatches = weekTwo.getMatches();
         weekTwoMatches.get(0).setOdds(-1.0);
         weekTwoMatches.get(1).setOdds(5.5);
-        weekTwoMatches.get(2).setOdds(-1.5);
-        weekTwoMatches.get(3).setOdds(-3.0);
-        weekTwoMatches.get(4).setOdds(8.5);
-        weekTwoMatches.get(5).setOdds(5.5);
+        weekTwoMatches.get(2).setOdds(2.5);
+        weekTwoMatches.get(3).setOdds(-3.5);
+        weekTwoMatches.get(4).setOdds(9.5);
+        weekTwoMatches.get(5).setOdds(6.0);
         weekTwoMatches.get(6).setOdds(-7.5);
         weekTwoMatches.get(7).setOdds(1.0);
-        weekTwoMatches.get(8).setOdds(5.5);
-        weekTwoMatches.get(9).setOdds(0.0);
-        weekTwoMatches.get(10).setOdds(11.0);
-        weekTwoMatches.get(11).setOdds(3.5);
-        weekTwoMatches.get(12).setOdds(5.0);
-        weekTwoMatches.get(13).setOdds(-2.0);
+        weekTwoMatches.get(8).setOdds(6.0);
+        weekTwoMatches.get(9).setOdds(-3.0);
+        weekTwoMatches.get(10).setOdds(13.0);
+        weekTwoMatches.get(11).setOdds(6.0);
+        weekTwoMatches.get(12).setOdds(6.5);
+        weekTwoMatches.get(13).setOdds(-1.0);
         weekTwoMatches.get(14).setOdds(3.0);
         weekTwoMatches.get(15).setOdds(3.5);
 
@@ -995,7 +1030,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     @Override
     public void resetSimulatorTeamWinsLosses() {
 
-        for(Team team : mModel.getSimulatorTeamArrayList()){
+        for (Team team : mModel.getSimulatorTeamArrayList()) {
             team.resetWinsLosses();
         }
 
@@ -1910,14 +1945,14 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     @Override
     public void simulateTestSeason() {
 
-        if (mCurrentTestSimulations > 0){
+        if (mCurrentTestSimulations > 0) {
             //If this is not the 1st simulation, update the completed game scores before completing the rest of the simulation
-            //updateSimulatorCompletedGameScores();
+            updateSimulatorCompletedGameScores();
         }
 
         //From week 1 to week 17 (full season), simulate the season
         while (mCurrentSimulatorWeek <= 17) {
-            mModel.getSimulatorSchedule().getWeek(mCurrentSimulatorWeek).simulate(true);
+            mModel.getSimulatorSchedule().getWeek(mCurrentSimulatorWeek).simulateTestMatches(true);
             mCurrentSimulatorWeek++;
         }
 
@@ -1962,8 +1997,14 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
                             if (Math.random() > 0.5) {
                                 afcPotentialWildCardTeams.add(afcNorthDivLeader);
                                 afcNorthDivLeader = team;
+                            } else {
+                                afcPotentialWildCardTeams.add(team);
                             }
+                        } else {
+                            afcPotentialWildCardTeams.add(team);
                         }
+                    } else {
+                        afcPotentialWildCardTeams.add(team);
                     }
                 }
             } else if (team.getDivision() == TeamEntry.DIVISION_AFC_SOUTH) {
@@ -1981,8 +2022,14 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
                             if (Math.random() > 0.5) {
                                 afcPotentialWildCardTeams.add(afcSouthDivLeader);
                                 afcSouthDivLeader = team;
+                            } else {
+                                afcPotentialWildCardTeams.add(team);
                             }
+                        } else {
+                            afcPotentialWildCardTeams.add(team);
                         }
+                    } else {
+                        afcPotentialWildCardTeams.add(team);
                     }
                 }
 
@@ -2001,8 +2048,14 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
                             if (Math.random() > 0.5) {
                                 afcPotentialWildCardTeams.add(afcWestDivLeader);
                                 afcWestDivLeader = team;
+                            } else {
+                                afcPotentialWildCardTeams.add(team);
                             }
+                        } else {
+                            afcPotentialWildCardTeams.add(team);
                         }
+                    } else {
+                        afcPotentialWildCardTeams.add(team);
                     }
                 }
 
@@ -2021,8 +2074,14 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
                             if (Math.random() > 0.5) {
                                 afcPotentialWildCardTeams.add(afcEastDivLeader);
                                 afcEastDivLeader = team;
+                            } else {
+                                afcPotentialWildCardTeams.add(team);
                             }
+                        } else {
+                            afcPotentialWildCardTeams.add(team);
                         }
+                    } else {
+                        afcPotentialWildCardTeams.add(team);
                     }
                 }
 
@@ -2041,8 +2100,14 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
                             if (Math.random() > 0.5) {
                                 nfcPotentialWildCardTeams.add(nfcNorthDivLeader);
                                 nfcNorthDivLeader = team;
+                            } else {
+                                nfcPotentialWildCardTeams.add(team);
                             }
+                        } else {
+                            nfcPotentialWildCardTeams.add(team);
                         }
+                    } else {
+                        nfcPotentialWildCardTeams.add(team);
                     }
                 }
 
@@ -2061,8 +2126,12 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
                             if (Math.random() > 0.5) {
                                 nfcPotentialWildCardTeams.add(nfcSouthDivLeader);
                                 nfcSouthDivLeader = team;
+                            } else {
+                                nfcPotentialWildCardTeams.add(team);
                             }
-                        }
+                        } else {nfcPotentialWildCardTeams.add(team);}
+                    } else {
+                        nfcPotentialWildCardTeams.add(team);
                     }
                 }
 
@@ -2081,8 +2150,12 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
                             if (Math.random() > 0.5) {
                                 nfcPotentialWildCardTeams.add(nfcEastDivLeader);
                                 nfcEastDivLeader = team;
+                            } else {
+                                nfcPotentialWildCardTeams.add(team);
                             }
-                        }
+                        } else {nfcPotentialWildCardTeams.add(team);}
+                    } else {
+                        nfcPotentialWildCardTeams.add(team);
                     }
                 }
 
@@ -2101,8 +2174,12 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
                             if (Math.random() > 0.5) {
                                 nfcPotentialWildCardTeams.add(nfcWestDivLeader);
                                 nfcWestDivLeader = team;
+                            } else {
+                                nfcPotentialWildCardTeams.add(team);
                             }
-                        }
+                        } else {nfcPotentialWildCardTeams.add(team);}
+                    } else {
+                        nfcPotentialWildCardTeams.add(team);
                     }
                 }
             }
@@ -2135,10 +2212,10 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         ArrayList<Team> afcPlayoffTeams = allPlayoffTeams.get(0);
         ArrayList<Team> nfcPlayoffTeams = allPlayoffTeams.get(1);
 
-        for (Team team : afcPlayoffTeams){
+        for (Team team : afcPlayoffTeams) {
             team.madePlayoffs();
         }
-        for (Team team : nfcPlayoffTeams){
+        for (Team team : nfcPlayoffTeams) {
             team.madePlayoffs();
         }
 
@@ -2154,27 +2231,27 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         Team nfcFourSeed = nfcPlayoffTeams.get(3);
         Team nfcThreeSeed = nfcPlayoffTeams.get(2);
 
-        Boolean afcWildCardSixSeedWon = ELORatingSystem.simulateTestMatch(afcSixSeed, afcThreeSeed,  true);
-        Boolean afcWildCardFiveSeedWon = ELORatingSystem.simulateTestMatch(afcFiveSeed, afcFourSeed,  true);
-        Boolean nfcWildCardSixSeedWon = ELORatingSystem.simulateTestMatch(nfcSixSeed, nfcThreeSeed,  true);
+        Boolean afcWildCardSixSeedWon = ELORatingSystem.simulateTestMatch(afcSixSeed, afcThreeSeed, true);
+        Boolean afcWildCardFiveSeedWon = ELORatingSystem.simulateTestMatch(afcFiveSeed, afcFourSeed, true);
+        Boolean nfcWildCardSixSeedWon = ELORatingSystem.simulateTestMatch(nfcSixSeed, nfcThreeSeed, true);
         Boolean nfcWildCardFiveSeedWon = ELORatingSystem.simulateTestMatch(nfcFiveSeed, nfcFourSeed, true);
 
-        if (afcWildCardSixSeedWon){
+        if (afcWildCardSixSeedWon) {
             afcPlayoffTeams.remove(afcThreeSeed);
         } else {
             afcPlayoffTeams.remove(afcSixSeed);
         }
-        if (afcWildCardFiveSeedWon){
+        if (afcWildCardFiveSeedWon) {
             afcPlayoffTeams.remove(afcFourSeed);
         } else {
             afcPlayoffTeams.remove(afcFiveSeed);
         }
-        if (nfcWildCardSixSeedWon){
+        if (nfcWildCardSixSeedWon) {
             nfcPlayoffTeams.remove(nfcThreeSeed);
         } else {
             nfcPlayoffTeams.remove(nfcSixSeed);
         }
-        if (nfcWildCardFiveSeedWon){
+        if (nfcWildCardFiveSeedWon) {
             nfcPlayoffTeams.remove(nfcFourSeed);
         } else {
             nfcPlayoffTeams.remove(nfcFiveSeed);
@@ -2188,42 +2265,42 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         Team nfcDivThreeSeed = nfcPlayoffTeams.get(2);
         Team nfcDivTwoSeed = nfcPlayoffTeams.get(1);
         Team nfcDivOneSeed = nfcPlayoffTeams.get(0);
-        
-        Boolean afcDivisionFourSeedWon =  ELORatingSystem.simulateTestMatch(afcDivFourSeed, afcDivOneSeed,  true);
-        Boolean afcDivisionThreeSeedWon = ELORatingSystem.simulateTestMatch(afcDivThreeSeed, afcDivTwoSeed,  true);
+
+        Boolean afcDivisionFourSeedWon = ELORatingSystem.simulateTestMatch(afcDivFourSeed, afcDivOneSeed, true);
+        Boolean afcDivisionThreeSeedWon = ELORatingSystem.simulateTestMatch(afcDivThreeSeed, afcDivTwoSeed, true);
         Boolean nfcDivisionFourSeedWon = ELORatingSystem.simulateTestMatch(nfcDivFourSeed, nfcDivOneSeed, true);
-        Boolean nfcDivisionThreeSeedWon =  ELORatingSystem.simulateTestMatch(nfcDivThreeSeed, nfcDivTwoSeed, true);
-        
-        if (afcDivisionFourSeedWon){
+        Boolean nfcDivisionThreeSeedWon = ELORatingSystem.simulateTestMatch(nfcDivThreeSeed, nfcDivTwoSeed, true);
+
+        if (afcDivisionFourSeedWon) {
             afcPlayoffTeams.remove(afcDivOneSeed);
         } else {
             afcPlayoffTeams.remove(afcDivFourSeed);
         }
-        if (afcDivisionThreeSeedWon){
+        if (afcDivisionThreeSeedWon) {
             afcPlayoffTeams.remove(afcDivTwoSeed);
         } else {
             afcPlayoffTeams.remove(afcDivThreeSeed);
         }
-        if (nfcDivisionFourSeedWon){
+        if (nfcDivisionFourSeedWon) {
             nfcPlayoffTeams.remove(nfcDivOneSeed);
         } else {
             nfcPlayoffTeams.remove(nfcDivFourSeed);
         }
-        if (nfcDivisionThreeSeedWon){
+        if (nfcDivisionThreeSeedWon) {
             nfcPlayoffTeams.remove(nfcDivTwoSeed);
         } else {
             nfcPlayoffTeams.remove(nfcDivThreeSeed);
         }
 
-        Boolean afcConfLowSeedWon = ELORatingSystem.simulateTestMatch(afcPlayoffTeams.get(1), afcPlayoffTeams.get(0),true);
-        Boolean nfcConfLowSeedWon = ELORatingSystem.simulateTestMatch(nfcPlayoffTeams.get(1), nfcPlayoffTeams.get(0),  true);
+        Boolean afcConfLowSeedWon = ELORatingSystem.simulateTestMatch(afcPlayoffTeams.get(1), afcPlayoffTeams.get(0), true);
+        Boolean nfcConfLowSeedWon = ELORatingSystem.simulateTestMatch(nfcPlayoffTeams.get(1), nfcPlayoffTeams.get(0), true);
 
-        if (afcConfLowSeedWon){
+        if (afcConfLowSeedWon) {
             afcPlayoffTeams.remove(0);
         } else {
             afcPlayoffTeams.remove(1);
         }
-        if (nfcConfLowSeedWon){
+        if (nfcConfLowSeedWon) {
             nfcPlayoffTeams.remove(0);
         } else {
             nfcPlayoffTeams.remove(1);
@@ -2231,15 +2308,15 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
         afcPlayoffTeams.get(0).wonConference();
         nfcPlayoffTeams.get(0).wonConference();
-        Boolean afcWonSuperbowl = ELORatingSystem.simulateTestMatch(afcPlayoffTeams.get(0), nfcPlayoffTeams.get(0),  false);
-        if (afcWonSuperbowl){
+        Boolean afcWonSuperbowl = ELORatingSystem.simulateTestMatch(afcPlayoffTeams.get(0), nfcPlayoffTeams.get(0), false);
+        if (afcWonSuperbowl) {
             afcPlayoffTeams.get(0).wonSuperBowl();
         } else {
             nfcPlayoffTeams.get(0).wonSuperBowl();
         }
 
         Log.d("AFCSB", "" + afcPlayoffTeams.get(0).getName());
-        Log.d("NFCSB",  "" + nfcPlayoffTeams.get(0).getName());
+        Log.d("NFCSB", "" + nfcPlayoffTeams.get(0).getName());
         Log.d("AFCWon", "" + afcWonSuperbowl);
 
         this.view.simulateAnotherTestWeek();

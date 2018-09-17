@@ -16,6 +16,7 @@ import javax.inject.Inject;
 
 import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.TeamEntry;
+import io.github.patpatchpatrick.nflseasonsim.season_resources.Team;
 
 public class SeasonStandingsRecyclerViewAdapter extends RecyclerView.Adapter<SeasonStandingsRecyclerViewAdapter.ViewHolder> {
 
@@ -69,6 +70,7 @@ public class SeasonStandingsRecyclerViewAdapter extends RecyclerView.Adapter<Sea
             String standingsDetails = "";
             String teamName = dataCursor.getString(dataCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_NAME));
             String teamShortName = dataCursor.getString(dataCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_SHORT_NAME));
+            Team currentTeam = mModel.getCurrentSeasonTeam(teamName);
             Integer teamWinsInt = dataCursor.getInt(dataCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_WINS));
             Integer teamLossesInt = dataCursor.getInt(dataCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_LOSSES));
             Integer teamDrawsInt = dataCursor.getInt(dataCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_CURRENT_DRAWS));
@@ -99,6 +101,7 @@ public class SeasonStandingsRecyclerViewAdapter extends RecyclerView.Adapter<Sea
 
             standingsDetails += "\nELO Rating: " + teamElo;
 
+            holder.playoffOddsTextView.setText(currentTeam.getPlayoffOddsString());
             holder.standingsDetails.setText(standingsDetails);
             //Set font by default (currently font won't auto-set in layout so need to programmatically set it)
             holder.standingsDetails.setTypeface(ResourcesCompat.getFont(mContext, R.font.montserrat));
@@ -198,6 +201,7 @@ public class SeasonStandingsRecyclerViewAdapter extends RecyclerView.Adapter<Sea
 
         public TextView standingsHeader;
         public TextView standingsDetails;
+        public TextView playoffOddsTextView;
         public ImageView standingsTeamLogo;
 
 
@@ -207,6 +211,7 @@ public class SeasonStandingsRecyclerViewAdapter extends RecyclerView.Adapter<Sea
             standingsHeader = view.findViewById(R.id.season_standings_recycler_header);
             standingsDetails = view.findViewById(R.id.season_standings_details_text_view);
             standingsTeamLogo = view.findViewById(R.id.season_standings_recycler_team_logo);
+            playoffOddsTextView = view.findViewById(R.id.season_playoff_odds_text_view);
 
         }
     }
