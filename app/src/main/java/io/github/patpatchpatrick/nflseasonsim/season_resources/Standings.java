@@ -151,12 +151,6 @@ public class Standings {
         while (standingsCursor.moveToNext()) {
 
             String teamName = standingsCursor.getString(standingsCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_NAME));
-            if (teamName == null){
-                Log.d("nullError",  "1" + teamName);
-            }
-            if (teams == null){
-                Log.d("nullErrr",  "null hashmap");
-            }
             Team team = teams.get(teamName);
 
 

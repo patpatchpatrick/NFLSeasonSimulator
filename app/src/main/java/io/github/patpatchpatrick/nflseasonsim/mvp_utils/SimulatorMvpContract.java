@@ -14,7 +14,7 @@ import io.github.patpatchpatrick.nflseasonsim.season_resources.Week;
 
 public interface SimulatorMvpContract {
 
-    //Contract for interaction between MainActivity view, Presenter and Model
+    //Contract for interaction between SimulatorActivity view, Presenter and Model
 
     interface SimulatorView extends BaseView{
         void onPriorSimulatedDataLoaded();

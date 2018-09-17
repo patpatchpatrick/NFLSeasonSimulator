@@ -9,7 +9,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import javax.inject.Inject;
 
 import io.github.patpatchpatrick.nflseasonsim.HomeScreen;
-import io.github.patpatchpatrick.nflseasonsim.MainActivity;
 import io.github.patpatchpatrick.nflseasonsim.R;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.TeamEntry;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.MatchEntry;

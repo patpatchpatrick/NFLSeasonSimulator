@@ -6,8 +6,6 @@ import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
-import android.text.Layout;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +14,6 @@ import android.widget.TextView;
 
 import javax.inject.Inject;
 
-import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.TeamEntry;
 import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
 
@@ -51,7 +48,7 @@ public class StandingsRecyclerViewAdapter extends RecyclerView.Adapter<Standings
 
         dataCursor.moveToPosition(position);
 
-        if (mStandingsType == MainActivity.STANDINGS_TYPE_REGULAR_SEASON) {
+        if (mStandingsType == SimulatorActivity.STANDINGS_TYPE_REGULAR_SEASON) {
             //Display regular season standings
 
             //For every 4th team, the header should show the division
@@ -107,7 +104,7 @@ public class StandingsRecyclerViewAdapter extends RecyclerView.Adapter<Standings
 
         }
 
-        if (mStandingsType == MainActivity.STANDINGS_TYPE_PLAYOFFS) {
+        if (mStandingsType == SimulatorActivity.STANDINGS_TYPE_PLAYOFFS) {
 
             //Display playoff standings
 

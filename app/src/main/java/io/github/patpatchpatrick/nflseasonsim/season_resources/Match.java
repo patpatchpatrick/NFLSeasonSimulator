@@ -2,12 +2,10 @@ package io.github.patpatchpatrick.nflseasonsim.season_resources;
 
 import android.content.ContentResolver;
 import android.net.Uri;
-import android.util.Log;
 
 import javax.inject.Inject;
 
 import io.github.patpatchpatrick.nflseasonsim.HomeScreen;
-import io.github.patpatchpatrick.nflseasonsim.MainActivity;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract;
 import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract.TeamEntry;
 

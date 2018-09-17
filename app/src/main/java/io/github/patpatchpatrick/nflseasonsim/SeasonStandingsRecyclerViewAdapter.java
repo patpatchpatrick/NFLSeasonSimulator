@@ -49,7 +49,7 @@ public class SeasonStandingsRecyclerViewAdapter extends RecyclerView.Adapter<Sea
 
         dataCursor.moveToPosition(position);
 
-        if (mStandingsType == MainActivity.STANDINGS_TYPE_REGULAR_SEASON) {
+        if (mStandingsType == SimulatorActivity.STANDINGS_TYPE_REGULAR_SEASON) {
             //Display regular season standings
 
             //For every 4th team, the header should show the division
@@ -110,7 +110,7 @@ public class SeasonStandingsRecyclerViewAdapter extends RecyclerView.Adapter<Sea
 
         }
 
-        if (mStandingsType == MainActivity.STANDINGS_TYPE_PLAYOFFS) {
+        if (mStandingsType == SimulatorActivity.STANDINGS_TYPE_PLAYOFFS) {
 
             //Display playoff standings
 

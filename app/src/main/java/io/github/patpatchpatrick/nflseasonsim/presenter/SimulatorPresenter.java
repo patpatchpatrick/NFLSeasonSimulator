@@ -12,7 +12,7 @@ import java.util.HashMap;
 
 import javax.inject.Inject;
 
-import io.github.patpatchpatrick.nflseasonsim.MainActivity;
+import io.github.patpatchpatrick.nflseasonsim.SimulatorActivity;
 import io.github.patpatchpatrick.nflseasonsim.R;
 import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
 import io.github.patpatchpatrick.nflseasonsim.mvp_utils.BaseView;
@@ -32,7 +32,7 @@ import io.github.patpatchpatrick.nflseasonsim.season_resources.Week;
 public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.SimulatorView>
         implements SimulatorMvpContract.SimulatorPresenter, Data {
 
-    //Simulator presenter class is used to communicate between the MainActivity (view) and the Model (MVP Architecture)
+    //Simulator presenter class is used to communicate between the SimulatorActivity (view) and the Model (MVP Architecture)
 
     @Inject
     SimulatorModel mModel;
@@ -61,6 +61,8 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     public static Boolean mTestSimulation = false;
     public static int mTotalTestSimulations;
     public static int mCurrentTestSimulations;
+    private static final int SEASON_TYPE_CURRENT = 1;
+    private static final int SEASON_TYPE_SIMULATOR = 2;
 
     public SimulatorPresenter(SimulatorMvpContract.SimulatorView view) {
         super(view);
@@ -87,8 +89,9 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         Log.d("Current Week Matches", "" + currentWeekMatches.size());
         Log.d("Num Matches Updated", "" + currentWeek.getNumberMatchesUpdated());
 
-        //After the week is complete, query the standings (and display them)
-        mModel.querySimulatorStandings(SimulatorModel.QUERY_STANDINGS_REGULAR);
+        //After the week is complete, generate the playoff teams and query the standings (and display them)
+        generateAndSetPlayoffSeeds(SimulatorPresenter.SEASON_TYPE_SIMULATOR);
+        mModel.querySimulatorStandings(SimulatorModel.QUERY_STANDINGS_PLAYOFF);
 
         Log.d("Post Stand Query Num", "" + currentWeek.getNumberMatchesUpdated());
         //Query the week scores and display them
@@ -115,12 +118,50 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         this.view.setCurrentWeekPreference(mCurrentSimulatorWeek);
     }
 
+    private void generateAndSetPlayoffSeeds(int seasonType) {
+
+        //Generate the playoff teams and set the playoff seeds
+
+        ArrayList<ArrayList<Team>> allPlayoffTeams;
+        if (seasonType == SimulatorPresenter.SEASON_TYPE_CURRENT) {
+            allPlayoffTeams = generateSimulatorPlayoffTeams(SimulatorPresenter.SEASON_TYPE_CURRENT);
+        } else {
+            allPlayoffTeams = generateSimulatorPlayoffTeams(SimulatorPresenter.SEASON_TYPE_SIMULATOR);
+        }
+        ArrayList<Team> afcPlayoffTeams = allPlayoffTeams.get(0);
+        ArrayList<Team> nfcPlayoffTeams = allPlayoffTeams.get(1);
+        ArrayList<Team> seasonTeams;
+
+        if (seasonType == SimulatorPresenter.SEASON_TYPE_CURRENT) {
+            seasonTeams = mModel.getSeasonTeamArrayList();
+        } else {
+            seasonTeams = mModel.getSimulatorTeamArrayList();
+        }
+
+        for (Team team : seasonTeams) {
+            team.setPlayoffEligible(0);
+        }
+        int i = 0;
+        while (i < 6) {
+            afcPlayoffTeams.get(i).setPlayoffEligible(i + 1);
+            i++;
+        }
+        i = 0;
+        while (i < 6) {
+            nfcPlayoffTeams.get(i).setPlayoffEligible(i + 1);
+            i++;
+        }
+
+    }
+
     @Override
     public void queryCurrentSeasonStandings() {
 
-        //Query the current season standings from the model
-        //Callback will be received after standings have been queried
-        mModel.queryCurrentSeasonStandings(SimulatorModel.QUERY_STANDINGS_REGULAR);
+        //Generate the playoff teams and set the playoff seeds
+        generateAndSetPlayoffSeeds(SimulatorPresenter.SEASON_TYPE_CURRENT);
+
+        //Query playoff teams
+        mModel.queryCurrentSeasonStandings(SimulatorModel.QUERY_STANDINGS_PLAYOFF);
 
     }
 
@@ -172,8 +213,9 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
     @Override
     public void loadAlreadySimulatedData() {
-        //Load the standings, as well as the matches that have already been simulated (last week's matches)
-        mModel.querySimulatorStandings(SimulatorModel.QUERY_STANDINGS_REGULAR);
+        //Generate the playoff seeds and load the standings, as well as the matches that have already been simulated (last week's matches)
+        generateAndSetPlayoffSeeds(SimulatorPresenter.SEASON_TYPE_SIMULATOR);
+        mModel.querySimulatorStandings(SimulatorModel.QUERY_STANDINGS_PLAYOFF);
         //Query all weeks that have already occurred;
         mModel.querySimulatorMatches(mCurrentSimulatorWeek - 1, false, SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY);
     }
@@ -217,59 +259,58 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
     @Override
     public void loadCurrentSeasonMatches() {
-            //Load all the current  season matches
-            //If they are complete, they have already been completed/loaded so no need to complete them again
-            Week weekOne = mModel.getSeasonSchedule().getWeek(1);
-            ArrayList<Match> weekOneMatches = weekOne.getMatches();
-            if (!weekOneMatches.get(0).getComplete()) {
-                weekOneMatches.get(0).complete(12, 18);
-            }
-            if (!weekOneMatches.get(1).getComplete()) {
-                weekOneMatches.get(1).complete(34, 23);
-            }
-            if (!weekOneMatches.get(2).getComplete()) {
-                weekOneMatches.get(2).complete(3, 47);
-            }
-            if (!weekOneMatches.get(3).getComplete()) {
-                weekOneMatches.get(3).complete(48, 40);
-            }
-            if (!weekOneMatches.get(4).getComplete()) {
-                weekOneMatches.get(4).complete(20, 27);
-            }
-            if (!weekOneMatches.get(5).getComplete()) {
-                weekOneMatches.get(5).complete(16, 24);
-            }
-            if (!weekOneMatches.get(6).getComplete()) {
-                weekOneMatches.get(6).complete(20, 27);
-            }
-            if (!weekOneMatches.get(7).getComplete()) {
-                weekOneMatches.get(7).complete(20, 15);
-            }
-            if (!weekOneMatches.get(8).getComplete()) {
-                weekOneMatches.get(8).complete(21, 21);
-            }
-            if (!weekOneMatches.get(9).getComplete()) {
-                weekOneMatches.get(9).complete(38, 28);
-            }
-            if (!weekOneMatches.get(10).getComplete()) {
-                weekOneMatches.get(10).complete(8, 16);
-            }
-            if (!weekOneMatches.get(11).getComplete()) {
-                weekOneMatches.get(11).complete(24, 6);
-            }
-            if (!weekOneMatches.get(12).getComplete()) {
-                weekOneMatches.get(12).complete(24, 27);
-            }
-            if (!weekOneMatches.get(13).getComplete()) {
-                weekOneMatches.get(13).complete(23, 24);
-            }
-            if (!weekOneMatches.get(14).getComplete()) {
-                weekOneMatches.get(14).complete(48, 17);
-            }
-            if (!weekOneMatches.get(15).getComplete()) {
-                weekOneMatches.get(15).complete(33, 13);
-            }
-
+        //Load all the current  season matches
+        //If they are complete, they have already been completed/loaded so no need to complete them again
+        Week weekOne = mModel.getSeasonSchedule().getWeek(1);
+        ArrayList<Match> weekOneMatches = weekOne.getMatches();
+        if (!weekOneMatches.get(0).getComplete()) {
+            weekOneMatches.get(0).complete(12, 18);
+        }
+        if (!weekOneMatches.get(1).getComplete()) {
+            weekOneMatches.get(1).complete(34, 23);
+        }
+        if (!weekOneMatches.get(2).getComplete()) {
+            weekOneMatches.get(2).complete(3, 47);
+        }
+        if (!weekOneMatches.get(3).getComplete()) {
+            weekOneMatches.get(3).complete(48, 40);
+        }
+        if (!weekOneMatches.get(4).getComplete()) {
+            weekOneMatches.get(4).complete(20, 27);
+        }
+        if (!weekOneMatches.get(5).getComplete()) {
+            weekOneMatches.get(5).complete(16, 24);
+        }
+        if (!weekOneMatches.get(6).getComplete()) {
+            weekOneMatches.get(6).complete(20, 27);
+        }
+        if (!weekOneMatches.get(7).getComplete()) {
+            weekOneMatches.get(7).complete(20, 15);
+        }
+        if (!weekOneMatches.get(8).getComplete()) {
+            weekOneMatches.get(8).complete(21, 21);
+        }
+        if (!weekOneMatches.get(9).getComplete()) {
+            weekOneMatches.get(9).complete(38, 28);
+        }
+        if (!weekOneMatches.get(10).getComplete()) {
+            weekOneMatches.get(10).complete(8, 16);
+        }
+        if (!weekOneMatches.get(11).getComplete()) {
+            weekOneMatches.get(11).complete(24, 6);
+        }
+        if (!weekOneMatches.get(12).getComplete()) {
+            weekOneMatches.get(12).complete(24, 27);
+        }
+        if (!weekOneMatches.get(13).getComplete()) {
+            weekOneMatches.get(13).complete(23, 24);
+        }
+        if (!weekOneMatches.get(14).getComplete()) {
+            weekOneMatches.get(14).complete(48, 17);
+        }
+        if (!weekOneMatches.get(15).getComplete()) {
+            weekOneMatches.get(15).complete(33, 13);
+        }
 
 
     }
@@ -802,19 +843,9 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     @Override
     public void simulatorStandingsQueried(int queryType, Cursor standingsCursor) {
 
-        Log.d("Standings", "QUERIED");
         //This callback will be received from the model whenever teams/standings are queried for the simulated season
         //Depending on the queryType, a specific action is performed
 
-        if (queryType == SimulatorModel.QUERY_STANDINGS_REGULAR) {
-            //A regular standings was queried
-            //This regular standings will be evaluated to determine team playoff eligibility
-            if (mModel.getSimulatorTeamList() != null) {
-                Standings.generatePlayoffTeams(standingsCursor, mModel.getSimulatorTeamList());
-            }
-            //Teams playoff eligibility has been updated so re-query the standings
-            mModel.querySimulatorStandings(SimulatorModel.QUERY_STANDINGS_PLAYOFF);
-        }
         if (queryType == SimulatorModel.QUERY_STANDINGS_PLAYOFF) {
             //A playoff standings was queried
             //Display playoff standings in UI
@@ -836,7 +867,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         }
         if (queryType == SimulatorModel.QUERY_STANDINGS_LOAD_POSTSEASON) {
             //The app was restarted and the postseason standings need to be re-loaded from the database
-            //Display the standings in the MainActivity UI and query the playoff matches
+            //Display the standings in the SimulatorActivity UI and query the playoff matches
             displaySimulatorPlayoffStandings(standingsCursor);
             mModel.querySimulatorMatches(mCurrentSimulatorWeek, true, SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY);
         }
@@ -848,15 +879,6 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         //This callback will be received from the model whenever teams/standings are queried for the current season
         //Depending on the queryType, a specific action is performed
 
-        if (queryType == SimulatorModel.QUERY_STANDINGS_REGULAR) {
-            //A regular standings was queried
-            //This regular standings will be evaluated to determine team playoff eligibility
-            if (mModel.getSeasonTeamList() != null) {
-                Standings.generatePlayoffTeams(standingsCursor, mModel.getSeasonTeamList());
-            }
-            //Teams playoff eligibility has been updated so re-query the standings
-            mModel.queryCurrentSeasonStandings(SimulatorModel.QUERY_STANDINGS_PLAYOFF);
-        }
         if (queryType == SimulatorModel.QUERY_STANDINGS_PLAYOFF) {
             //A playoff standings was queried
             //Display playoff standings in UI
@@ -879,7 +901,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         if (queryType == SimulatorModel.QUERY_STANDINGS_LOAD_POSTSEASON) {
             //TODO Fix this so that it works for loading postseason if necessary for current season instead of simulator
             //The app was restarted and the postseason standings need to be re-loaded from the database
-            //Display the standings in the MainActivity UI and query the playoff matches
+            //Display the standings in the SimulatorActivity UI and query the playoff matches
             displaySimulatorPlayoffStandings(standingsCursor);
             mModel.querySimulatorMatches(mCurrentSimulatorWeek, true, SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY);
         }
@@ -1937,7 +1959,8 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         }
 
         //After the season  is complete, query the standings (and display them)
-        mModel.querySimulatorStandings(SimulatorModel.QUERY_STANDINGS_REGULAR);
+        generateAndSetPlayoffSeeds(SimulatorPresenter.SEASON_TYPE_SIMULATOR);
+        mModel.querySimulatorStandings(SimulatorModel.QUERY_STANDINGS_PLAYOFF);
         //Query all weeks that have already occurred;
         mModel.querySimulatorMatches(mCurrentSimulatorWeek - 1, false, SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY);
     }
@@ -1959,12 +1982,17 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         mCurrentSimulatorWeek = 18;
         this.view.setCurrentWeekPreference(mCurrentSimulatorWeek);
 
-        createAndSimulateTestPlayoffMatchups();
+        ArrayList<ArrayList<Team>> allPlayoffTeams = generateSimulatorPlayoffTeams(SimulatorPresenter.SEASON_TYPE_SIMULATOR);
+        simulateTestPlayoffs(allPlayoffTeams);
 
 
     }
 
-    private void createAndSimulateTestPlayoffMatchups() {
+    private ArrayList<ArrayList<Team>> generateSimulatorPlayoffTeams(int seasonType) {
+
+        //Create two ArrayList<Team>'s... one with afcPlayoffTeams and one with nfcPlayoffTeams
+        //These ArrayLists will be created using current list of simulator teams
+        //Both of these arraylists will contain the playoff teams sorted by seed
 
         Team afcNorthDivLeader = null;
         Team afcSouthDivLeader = null;
@@ -1979,7 +2007,12 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         ArrayList<Team> afcDivisonWinners = new ArrayList<>();
         ArrayList<Team> nfcDivisionWinners = new ArrayList<>();
 
-        ArrayList<Team> allTeams = mModel.getSimulatorTeamArrayList();
+        ArrayList<Team> allTeams;
+        if (seasonType == SimulatorPresenter.SEASON_TYPE_SIMULATOR) {
+            allTeams = mModel.getSimulatorTeamArrayList();
+        } else {
+            allTeams = mModel.getSeasonTeamArrayList();
+        }
 
         for (Team team : allTeams) {
             if (team.getDivision() == TeamEntry.DIVISION_AFC_NORTH) {
@@ -2129,7 +2162,9 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
                             } else {
                                 nfcPotentialWildCardTeams.add(team);
                             }
-                        } else {nfcPotentialWildCardTeams.add(team);}
+                        } else {
+                            nfcPotentialWildCardTeams.add(team);
+                        }
                     } else {
                         nfcPotentialWildCardTeams.add(team);
                     }
@@ -2153,7 +2188,9 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
                             } else {
                                 nfcPotentialWildCardTeams.add(team);
                             }
-                        } else {nfcPotentialWildCardTeams.add(team);}
+                        } else {
+                            nfcPotentialWildCardTeams.add(team);
+                        }
                     } else {
                         nfcPotentialWildCardTeams.add(team);
                     }
@@ -2177,7 +2214,9 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
                             } else {
                                 nfcPotentialWildCardTeams.add(team);
                             }
-                        } else {nfcPotentialWildCardTeams.add(team);}
+                        } else {
+                            nfcPotentialWildCardTeams.add(team);
+                        }
                     } else {
                         nfcPotentialWildCardTeams.add(team);
                     }
@@ -2209,6 +2248,11 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         ArrayList<ArrayList<Team>> allPlayoffTeams =
                 Standings.generateTestPlayoffTeams(afcDivisonWinners, nfcDivisionWinners, afcPotentialWildCardTeams, nfcPotentialWildCardTeams);
 
+        return allPlayoffTeams;
+    }
+
+    private void simulateTestPlayoffs(ArrayList<ArrayList<Team>> allPlayoffTeams) {
+
         ArrayList<Team> afcPlayoffTeams = allPlayoffTeams.get(0);
         ArrayList<Team> nfcPlayoffTeams = allPlayoffTeams.get(1);
 
@@ -2218,9 +2262,6 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         for (Team team : nfcPlayoffTeams) {
             team.madePlayoffs();
         }
-
-        Log.d("AFCPlTeams", "" + afcPlayoffTeams);
-        Log.d("NFCPlTeams", "" + nfcPlayoffTeams);
 
         Team afcSixSeed = afcPlayoffTeams.get(5);
         Team afcFiveSeed = afcPlayoffTeams.get(4);
@@ -2321,14 +2362,13 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
         this.view.simulateAnotherTestWeek();
 
-
     }
 
     private void displaySimulatorStandings(Cursor standingsCursor) {
 
         //Call display standings call for simulator regular season
         for (ScoreView scoreView : mScoreViews) {
-            scoreView.onDisplayStandings(MainActivity.STANDINGS_TYPE_REGULAR_SEASON, standingsCursor, SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY);
+            scoreView.onDisplayStandings(SimulatorActivity.STANDINGS_TYPE_REGULAR_SEASON, standingsCursor, SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY);
         }
     }
 
@@ -2336,7 +2376,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
         //Call display standings call for current season regular season
         for (ScoreView scoreView : mScoreViews) {
-            scoreView.onDisplayStandings(MainActivity.STANDINGS_TYPE_REGULAR_SEASON, standingsCursor, SimulatorModel.QUERY_FROM_SEASON_STANDINGS_ACTIVITY);
+            scoreView.onDisplayStandings(SimulatorActivity.STANDINGS_TYPE_REGULAR_SEASON, standingsCursor, SimulatorModel.QUERY_FROM_SEASON_STANDINGS_ACTIVITY);
         }
 
     }
@@ -2345,7 +2385,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
 
         //Call display standings call for simulator playoffs
         for (ScoreView scoreView : mScoreViews) {
-            scoreView.onDisplayStandings(MainActivity.STANDINGS_TYPE_PLAYOFFS, standingsCursor, SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY);
+            scoreView.onDisplayStandings(SimulatorActivity.STANDINGS_TYPE_PLAYOFFS, standingsCursor, SimulatorModel.QUERY_FROM_SIMULATOR_ACTIVITY);
         }
 
     }
@@ -2377,6 +2417,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         if (!mTestSimulation) {
             mModel.updateTeam(team, uri);
         }
+
     }
 
     public static boolean seasonIsInitialized() {

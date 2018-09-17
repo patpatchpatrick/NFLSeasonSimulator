@@ -17,8 +17,8 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 public class SimulationTest {
 
     @Rule
-    public ActivityTestRule<MainActivity> mainActivityActivityTestRule =
-            new ActivityTestRule<>(MainActivity.class);
+    public ActivityTestRule<SimulatorActivity> mainActivityActivityTestRule =
+            new ActivityTestRule<>(SimulatorActivity.class);
 
     @Test
     public void clickSimulateButton_SetViewsNotReadySim(){

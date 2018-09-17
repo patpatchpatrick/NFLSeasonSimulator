@@ -32,7 +32,7 @@ import io.github.patpatchpatrick.nflseasonsim.mvp_utils.SimulatorMvpContract;
 import io.github.patpatchpatrick.nflseasonsim.presenter.SimulatorPresenter;
 import io.github.patpatchpatrick.nflseasonsim.season_resources.Team;
 
-public class MainActivity extends AppCompatActivity implements SimulatorMvpContract.SimulatorView, ScoreView {
+public class SimulatorActivity extends AppCompatActivity implements SimulatorMvpContract.SimulatorView, ScoreView {
 
     @Inject
     SimulatorPresenter mPresenter;
@@ -105,14 +105,14 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         // Set up the scores/matches recyclerview
         mScoresRecyclerView = (RecyclerView) findViewById(R.id.scores_recycler_view);
         mScoresRecyclerView.setHasFixedSize(true);
-        mScoresRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+        mScoresRecyclerView.setLayoutManager(new LinearLayoutManager(SimulatorActivity.this));
         mScoresRecyclerViewAdapter = new ScoresRecyclerViewAdapter();
         mScoresRecyclerView.setAdapter(mScoresRecyclerViewAdapter);
 
         // Set up the standings recyclerview
         mStandingsRecyclerView = (RecyclerView) findViewById(R.id.standings_recycler_view);
         mStandingsRecyclerView.setHasFixedSize(true);
-        mStandingsRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+        mStandingsRecyclerView.setLayoutManager(new LinearLayoutManager(SimulatorActivity.this));
         mStandingsRecyclerViewAdapter = new StandingsRecyclerViewAdapter();
         mStandingsRecyclerView.setAdapter(mStandingsRecyclerViewAdapter);
 
@@ -212,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         setScoreStringPreference("");
         mWeekNumberHeader.setText("");
         mScoresRecyclerViewAdapter.swapCursor(null);
-        mStandingsRecyclerViewAdapter.swapCursor(MainActivity.STANDINGS_TYPE_REGULAR_SEASON, null);
+        mStandingsRecyclerViewAdapter.swapCursor(SimulatorActivity.STANDINGS_TYPE_REGULAR_SEASON, null);
         mPresenter.resetSeason();
 
 
@@ -440,7 +440,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.primary_settings:
-                Intent startEloValuesActivity = new Intent(MainActivity.this, EloValuesActivity.class);
+                Intent startEloValuesActivity = new Intent(SimulatorActivity.this, EloValuesActivity.class);
                 //Add the theme to the intent so that the eloValues activity has correct theme
                 startEloValuesActivity.putExtra("theme", getTheme(mSharedPreferences.getString(getString(R.string.settings_theme_key), getString(R.string.settings_theme_value_default))));
                 startActivity(startEloValuesActivity);
@@ -509,7 +509,7 @@ public class MainActivity extends AppCompatActivity implements SimulatorMvpContr
 
                 mResetInProgress = false;
                 if (!mPresenter.mTestSimulation) {
-                    MainActivity.this.recreate();
+                    SimulatorActivity.this.recreate();
                 } else {
 
                     //METHOD USED WHEN RUNNING TEST SIMULATIONS FOR PLAYOFF PREDICTIONS

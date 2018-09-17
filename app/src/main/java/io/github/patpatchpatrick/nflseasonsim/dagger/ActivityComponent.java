@@ -6,7 +6,7 @@ import dagger.Component;
 import io.github.patpatchpatrick.nflseasonsim.EloRecyclerViewAdapter;
 import io.github.patpatchpatrick.nflseasonsim.EloValuesActivity;
 import io.github.patpatchpatrick.nflseasonsim.HomeScreen;
-import io.github.patpatchpatrick.nflseasonsim.MainActivity;
+import io.github.patpatchpatrick.nflseasonsim.SimulatorActivity;
 import io.github.patpatchpatrick.nflseasonsim.MatchPredictorActivity;
 import io.github.patpatchpatrick.nflseasonsim.NextWeekMatchesActivity;
 import io.github.patpatchpatrick.nflseasonsim.ScoresRecyclerViewAdapter;
@@ -23,12 +23,12 @@ import io.github.patpatchpatrick.nflseasonsim.season_resources.Match;
 @Singleton @Component(modules = { ActivityModule.class})
 public interface ActivityComponent {
 
-    //Dagger ActivityComponent (used for MainActivity objects)
+    //Dagger ActivityComponent (used for SimulatorActivity objects)
     //The inject methods below indicate which objects we will inject the module data into
 
     void inject(HomeScreen homeScreen);
     void inject(EloValuesActivity eloValuesActivity);
-    void inject(MainActivity mainActivity);
+    void inject(SimulatorActivity simulatorActivity);
     void inject(MatchPredictorActivity matchPredictorActivity);
     void inject(NextWeekMatchesActivity nextWeekMatchesActivity);
     void inject(StandingsActivity standingsActivity);

@@ -95,7 +95,7 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
         mSimulateActivityButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent startSimulateActivity = new Intent(HomeScreen.this, MainActivity.class);
+                Intent startSimulateActivity = new Intent(HomeScreen.this, SimulatorActivity.class);
                 startActivity(startSimulateActivity);
 
             }
