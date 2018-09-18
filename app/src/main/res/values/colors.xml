@@ -44,6 +44,17 @@
     <color name="colorGreen">#2fd117</color>
     <color name="colorRed">#d61f1b</color>
 
+    <color name="colorGreen90">#00ff4c</color>
+    <color name="colorGreen80">#16ff5c</color>
+    <color name="colorGreen70">#26ff67</color>
+    <color name="colorGreen60">#38ff73</color>
+    <color name="colorGreen50">#7affa1</color>
+    <color name="colorGreen40">#96ffb5</color>
+    <color name="colorGreen30">#b2ffc9</color>
+    <color name="colorGreen20">#ccffdb</color>
+    <color name="colorGreen10">#e2ffeb</color>
+    <color name="colorGreen00">#f2fcf5</color>
+
 
 
 </resources>

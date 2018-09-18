@@ -91,6 +91,10 @@
     <!-- Standings Activity Strings -->
     <string name="standings_header">Season Standings</string>
     <string name="standings_details_header">*Playoff odds are calculated by simulating \nthe season 10,000 times</string>
+    <string name="standings_playoff_odds_header">Playoffs</string>
+    <string name="standings_division_odds_header">Div</string>
+    <string name="standings_conference_odds_header">Conf</string>
+    <string name="standings_superbowl_odds_header">SB</string>
 
     <!-- Library Activity Strings -->
     <string name="pref_libraries">Libraries/Licenses</string>
