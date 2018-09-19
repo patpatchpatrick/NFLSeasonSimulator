@@ -114,5 +114,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n
 See the License for the specific language governing permissions and\n
 limitations under the License.</string>
 
+    <!-- Advertising Strings -->
+    <string name="banner_ad_unit_id_real">ca-app-pub-9852829648923660/6683750394</string>
+    <string name="banner_ad_unit_id">ca-app-pub-9852829648923660/6683750394</string>
 
 </resources>

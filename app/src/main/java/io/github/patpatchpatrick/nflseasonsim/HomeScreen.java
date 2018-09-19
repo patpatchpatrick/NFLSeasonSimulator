@@ -13,6 +13,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.kobakei.ratethisapp.RateThisApp;
 
 import javax.inject.Inject;
@@ -25,6 +27,8 @@ import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
 import io.github.patpatchpatrick.nflseasonsim.presenter.SimulatorPresenter;
 
 public class HomeScreen extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener, BaseView {
+
+    //App ID: ca-app-pub-9852829648923660~8188403750
 
     @Inject
     SimulatorPresenter mPresenter;
@@ -44,6 +48,7 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
     TextView mLoadingText;
     static ActivityComponent mActivityComponent;
     SharedPreferences mSharedPrefs;
+    private AdView mAdView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +69,12 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
         setUpAppRater();
 
         setSeasonLoadedPreference(false);
+
+        //Load the AdView to display banner advertisement
+        AdRequest adRequest= new AdRequest.Builder().build();
+        mAdView = (AdView) this.findViewById(R.id.adView);
+        mAdView.loadAd(adRequest);
+
 
         mSimulateActivityButton = (Button) findViewById(R.id.main_menu_sim_season_button);
         mMatchPredictButton = (Button) findViewById(R.id.main_menu_predict_matchup_button);
