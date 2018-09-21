@@ -7,7 +7,7 @@ import io.github.patpatchpatrick.nflseasonsim.data.SeasonSimContract;
 public class ELORatingSystem {
 
     // ELO constant used to determine magnitude that ratings change when a team wins
-    private static double constantK = 32;
+    private static double constantK = 24;
     private static final double HOME_FIELD_ADVANTAGE_PROB = 0.079;
 
     private static final String LOG_TAG = ELORatingSystem.class.getSimpleName();

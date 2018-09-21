@@ -115,7 +115,7 @@ See the License for the specific language governing permissions and\n
 limitations under the License.</string>
 
     <!-- Advertising Strings -->
-    <string name="banner_ad_unit_id_real">ca-app-pub-9852829648923660/6683750394</string>
-    <string name="banner_ad_unit_id">ca-app-pub-9852829648923660/6683750394</string>
+    <string name="home_activity_banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="simulator_activity_banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
 
 </resources>

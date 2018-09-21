@@ -11,36 +11,38 @@ public class Week {
     private int mNumberMatchesUpdated = 0;
     private boolean mComplete;
 
-    public Week(int weekNumber){
+    public Week(int weekNumber) {
         mMatches = new ArrayList<Match>();
         mWeekNumber = weekNumber;
     }
 
-    public void addMatch(Match match){
+    public void addMatch(Match match) {
         mMatches.add(match);
     }
 
-    public ArrayList<Match> getMatches(){
+    public ArrayList<Match> getMatches() {
         return mMatches;
     }
 
-    public void simulate(boolean useHomeFieldAdvantage){
-        for (Match match: mMatches) {
-            match.simulate(useHomeFieldAdvantage);
+    public void simulate(boolean useHomeFieldAdvantage) {
+        for (Match match : mMatches) {
+            if (!match.getComplete()) {
+                match.simulate(useHomeFieldAdvantage);
+            }
         }
     }
 
-    public void simulateTestMatches(boolean useHomeFieldAdvantage){
-        for (Match match: mMatches) {
+    public void simulateTestMatches(boolean useHomeFieldAdvantage) {
+        for (Match match : mMatches) {
             match.simulateTestMatch(useHomeFieldAdvantage);
         }
     }
 
-    public void matchUpdated(){
+    public void matchUpdated() {
         mNumberMatchesUpdated++;
     }
 
-    public int getNumberMatchesUpdated(){
+    public int getNumberMatchesUpdated() {
         return mNumberMatchesUpdated;
     }
 }

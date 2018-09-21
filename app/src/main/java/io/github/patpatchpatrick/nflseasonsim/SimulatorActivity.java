@@ -20,6 +20,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+
 import java.text.DecimalFormat;
 
 import javax.inject.Inject;
@@ -53,6 +56,7 @@ public class SimulatorActivity extends AppCompatActivity implements SimulatorMvp
     TextView mWeekNumberHeader;
     RecyclerView mScoresRecyclerView;
     RecyclerView mStandingsRecyclerView;
+    private AdView mAdView;
     StandingsRecyclerViewAdapter mStandingsRecyclerViewAdapter;
     ScoresRecyclerViewAdapter mScoresRecyclerViewAdapter;
     private static ActivityComponent mActivityComponent;
@@ -81,6 +85,11 @@ public class SimulatorActivity extends AppCompatActivity implements SimulatorMvp
         // Inject the mainActivity, presenter and model
         mActivityComponent = HomeScreen.getActivityComponent();
         mActivityComponent.inject(this);
+
+        //Load the AdView to display banner advertisement
+        AdRequest adRequest= new AdRequest.Builder().build();
+        mAdView = (AdView) this.findViewById(R.id.simActivityAdView);
+        mAdView.loadAd(adRequest);
 
         //Set the view on the presenter
         mPresenter.setView(this);

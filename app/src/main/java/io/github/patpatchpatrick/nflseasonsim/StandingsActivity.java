@@ -8,6 +8,9 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+
 import javax.inject.Inject;
 
 import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
@@ -19,6 +22,7 @@ public class StandingsActivity extends AppCompatActivity implements ScoreView {
     @Inject
     SimulatorPresenter mPresenter;
 
+    private AdView mAdView;
     private RecyclerView mStandingsRecyclerView;
     private SeasonStandingsRecyclerViewAdapter mSeasonStandingsRecyclerViewAdapter;
 
@@ -42,6 +46,11 @@ public class StandingsActivity extends AppCompatActivity implements ScoreView {
         mStandingsRecyclerView.setLayoutManager(new LinearLayoutManager(StandingsActivity.this));
         mSeasonStandingsRecyclerViewAdapter = new SeasonStandingsRecyclerViewAdapter();
         mStandingsRecyclerView.setAdapter(mSeasonStandingsRecyclerViewAdapter);
+
+        //Load the AdView to display banner advertisement
+        AdRequest adRequest= new AdRequest.Builder().build();
+        mAdView = (AdView) this.findViewById(R.id.standingsActivityAdView);
+        mAdView.loadAd(adRequest);
 
         //Load and query the current season data
         mPresenter.loadCurrentSeasonMatches();
