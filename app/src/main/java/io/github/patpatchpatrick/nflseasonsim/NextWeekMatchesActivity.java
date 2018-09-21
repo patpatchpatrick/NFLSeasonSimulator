@@ -11,6 +11,9 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+
 import javax.inject.Inject;
 
 import io.github.patpatchpatrick.nflseasonsim.data.SimulatorModel;
@@ -23,6 +26,7 @@ public class NextWeekMatchesActivity extends AppCompatActivity implements BaseVi
     @Inject
     SimulatorPresenter mPresenter;
 
+    private AdView mAdView;
     RecyclerView mNextWeekMatchesRecyclerView;
     WeeklyMatchesRecyclerViewAdapter mNextWeekMatchesRecyclerViewAdapter;
     int weekNumber;
@@ -42,6 +46,11 @@ public class NextWeekMatchesActivity extends AppCompatActivity implements BaseVi
 
         //Inject with dagger
         HomeScreen.getActivityComponent().inject(this);
+
+        //Load the AdView to display banner advertisement
+        AdRequest adRequest= new AdRequest.Builder().build();
+        mAdView = (AdView) this.findViewById(R.id.nextWeekMatchesActivityAdView);
+        mAdView.loadAd(adRequest);
 
         //Add this activity as a baseview for the presenter to notify
         mPresenter.addBaseView(this);

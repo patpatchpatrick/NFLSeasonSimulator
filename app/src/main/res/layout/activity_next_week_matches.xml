@@ -2,6 +2,7 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".NextWeekMatchesActivity"
@@ -41,16 +42,32 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/weekly_matches_arrow_left"
         android:layout_marginTop="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/nextWeekMatchesActivityAdView"
+        app:layout_constraintTop_toBottomOf="@id/weekly_matches_arrow_left"
         app:layout_constraintVertical_bias="0.060000002">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/next_week_matches_recyclerview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="128dp"></android.support.v7.widget.RecyclerView>
+            android:layout_marginBottom="200dp"></android.support.v7.widget.RecyclerView>
     </ScrollView>
+
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/nextWeekMatchesActivityAdView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        ads:adSize="BANNER"
+        ads:adUnitId="@string/scores_activity_banner_ad_unit_id"
+        ></com.google.android.gms.ads.AdView>
 
 </android.support.constraint.ConstraintLayout>

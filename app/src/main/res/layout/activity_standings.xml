@@ -63,7 +63,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         ads:adSize="BANNER"
-        ads:adUnitId="@string/simulator_activity_banner_ad_unit_id"
+        ads:adUnitId="@string/standings_activity_banner_ad_unit_id"
         ></com.google.android.gms.ads.AdView>
 
 </android.support.constraint.ConstraintLayout>

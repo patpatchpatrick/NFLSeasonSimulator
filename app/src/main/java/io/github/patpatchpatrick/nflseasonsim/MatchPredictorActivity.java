@@ -12,6 +12,9 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
@@ -28,6 +31,7 @@ public class MatchPredictorActivity extends AppCompatActivity {
     @Inject
     SharedPreferences mSharedPrefs;
 
+    private AdView mAdView;
     private Button mSimulateMatchButton;
     private ImageView mSwapTeamsButton;
     private Spinner mTeamOneSpinner;
@@ -51,6 +55,12 @@ public class MatchPredictorActivity extends AppCompatActivity {
 
         //Inject with dagger
         HomeScreen.getActivityComponent().inject(this);
+
+        //Load the AdView to display banner advertisement
+        AdRequest adRequest= new AdRequest.Builder().build();
+        mAdView = (AdView) this.findViewById(R.id.matchPredictorActivityAdView);
+        mAdView.loadAd(adRequest);
+
 
         mSimulateMatchButton = (Button) findViewById(R.id.match_predict_simulate_button);
         mSwapTeamsButton = (ImageView) findViewById(R.id.match_predict_swap_icon);
