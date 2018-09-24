@@ -90,15 +90,16 @@
 
     <!-- Standings Activity Strings -->
     <string name="standings_header">Season Standings</string>
-    <string name="standings_details_header">*Playoff odds are calculated by simulating \nthe season 10,000 times</string>
-    <string name="standings_playoff_odds_header">Playoffs</string>
-    <string name="standings_division_odds_header">Div</string>
-    <string name="standings_conference_odds_header">Conf</string>
-    <string name="standings_superbowl_odds_header">SB</string>
+    <string name="standings_details_header">*Playoff odds are \ncalculated by simulating \nthe season 10,000 times</string>
+    <string name="standings_playoff_odds_header">Playoff %</string>
+    <string name="standings_division_odds_header">Division %</string>
+    <string name="standings_conference_odds_header">Conf %</string>
+    <string name="standings_superbowl_odds_header">SuperBowl %</string>
 
     <!-- Library Activity Strings -->
     <string name="pref_libraries">Libraries/Licenses</string>
     <string name="libraries_used">Libraries Used</string>
+    <string name="rate_this_app_message">If you enjoy using this app, would you mind rating it? A lot of hard work goes into keeping this app free, and good ratings really help improve the app store presence. Thank you!</string>
     <string name="rate_this_app_header">RateThisApp</string>
     <string name="app_rater_license">Copyright 2013-2017 Keisuke Kobayashi\n\n
 

@@ -76,9 +76,9 @@ public class ScoresRecyclerViewAdapter extends RecyclerView.Adapter<ScoresRecycl
         //Set up textviews and imageviews for score listview
         Typeface tf = ResourcesCompat.getFont(mContext, R.font.montserrat);
         Typeface tfBold = ResourcesCompat.getFont(mContext, R.font.montserrat_bold);
-        holder.teamOneName.setText(teamOne);
+        holder.teamOneName.setText(mModel.getSimulatorTeam(teamOne).getShortName());
         holder.teamOneScore.setText(scoreOneString);
-        holder.teamTwoName.setText(teamTwo);
+        holder.teamTwoName.setText(mModel.getSimulatorTeam(teamTwo).getShortName());
         holder.teamTwoScore.setText(scoreTwoString);
         holder.teamOneLogo.setImageResource(mModel.getLogo(teamOne));
         holder.teamTwoLogo.setImageResource(mModel.getLogo(teamTwo));

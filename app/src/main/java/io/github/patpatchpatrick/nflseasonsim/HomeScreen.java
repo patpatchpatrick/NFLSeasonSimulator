@@ -295,6 +295,7 @@ public class HomeScreen extends AppCompatActivity implements SharedPreferences.O
         // If the condition is satisfied, "Rate this app" dialog will be shown
         RateThisApp.showRateDialogIfNeeded(this);
         RateThisApp.Config config = new RateThisApp.Config();
+        config.setMessage(R.string.rate_this_app_message);
         config.setUrl("https://play.google.com/store/apps/details?id=io.github.patpatchpatrick.nflseasonsim");
         RateThisApp.init(config);
         RateThisApp.setCallback(new RateThisApp.Callback() {

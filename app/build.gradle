@@ -8,8 +8,8 @@ android {
         applicationId "io.github.patpatchpatrick.nflseasonsim"
         minSdkVersion 16
         targetSdkVersion 27
-        versionCode 18
-        versionName "3.1"
+        versionCode 20
+        versionName "3.12"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

@@ -57,10 +57,10 @@ public class SeasonStandingsRecyclerViewAdapter extends RecyclerView.Adapter<Sea
             if (position % 4 == 0) {
                 int teamDivision = dataCursor.getInt(dataCursor.getColumnIndexOrThrow(TeamEntry.COLUMN_TEAM_DIVISION));
                 holder.standingsHeader.setVisibility(View.VISIBLE);
-                holder.playoffOddsHeaderTextView.setVisibility(View.VISIBLE);
-                holder.divisionOddsHeaderTextView.setVisibility(View.VISIBLE);
-                holder.conferenceOddsHeaderTextView.setVisibility(View.VISIBLE);
-                holder.superBowlOddsHeaderTextView.setVisibility(View.VISIBLE);
+                holder.playoffOddsHeaderTextView.setVisibility(View.GONE);
+                holder.divisionOddsHeaderTextView.setVisibility(View.GONE);
+                holder.conferenceOddsHeaderTextView.setVisibility(View.GONE);
+                holder.superBowlOddsHeaderTextView.setVisibility(View.GONE);
                 if (position == 0) {
                     //For the first division, don't include a line break in header
                     holder.standingsHeader.setText("" + TeamEntry.getDivisionString(teamDivision));
