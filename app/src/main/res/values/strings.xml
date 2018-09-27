@@ -122,4 +122,7 @@ limitations under the License.</string>
     <string name="scores_activity_banner_ad_unit_id">ca-app-pub-9852829648923660/3959871363</string>
     <string name="predictor_activity_banner_ad_unit_id">ca-app-pub-9852829648923660/7707544689</string>
 
+    <!-- Other Strings -->
+    <string name="nba_app_link">Check out our NBA Simulator App</string>
+
 </resources>

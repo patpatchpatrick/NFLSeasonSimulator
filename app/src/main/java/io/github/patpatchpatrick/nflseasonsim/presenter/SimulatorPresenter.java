@@ -409,6 +409,10 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         if (!weekThreeMatches.get(14).getComplete()) {
             weekThreeMatches.get(14).complete(10, 26);
         }
+        if (!weekThreeMatches.get(15).getComplete()) {
+            weekThreeMatches.get(15).complete(30, 27);
+        }
+
 
 
     }
@@ -416,38 +420,38 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     @Override
     public void loadCurrentSeasonPlayoffOdds() {
         HashMap<String, Team> currentSeasonTeams = mModel.getSeasonTeamList();
-        currentSeasonTeams.get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING).setPlayoffOddsString("7.73-2.12-0.05-0.02");
-        currentSeasonTeams.get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING).setPlayoffOddsString("11.01-2.97-0.19-0.07");
-        currentSeasonTeams.get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING).setPlayoffOddsString("83.64-52.32-14.74-7.79");
-        currentSeasonTeams.get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING).setPlayoffOddsString("0.36-0.03-0-0");
-        currentSeasonTeams.get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING).setPlayoffOddsString("98.39-97.37-30.9-16.9");
-        currentSeasonTeams.get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING).setPlayoffOddsString("94.32-88.38-29.01-16.68");
-        currentSeasonTeams.get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING).setPlayoffOddsString("0.02-0-0-0");
-        currentSeasonTeams.get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING).setPlayoffOddsString("3.29-0.77-0.03-0");
-        currentSeasonTeams.get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING).setPlayoffOddsString("28.55-10.13-0.94-0.29");
-        currentSeasonTeams.get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING).setPlayoffOddsString("35.69-17.37-2.1-0.94");
-        currentSeasonTeams.get(NFLConstants.TEAM_BUFFALO_BILLS_STRING).setPlayoffOddsString("0.64-0.22-0-0");
-        currentSeasonTeams.get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING).setPlayoffOddsString("97.32-87.03-31.26-15.46");
-        currentSeasonTeams.get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING).setPlayoffOddsString("28.27-13.63-1.87-0.83");
-        currentSeasonTeams.get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING).setPlayoffOddsString("95.58-92.48-27.35-13.53");
-        currentSeasonTeams.get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING).setPlayoffOddsString("65.55-47.03-6.71-2.56");
-        currentSeasonTeams.get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING).setPlayoffOddsString("2.14-0.73-0.02-0.01");
-        currentSeasonTeams.get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING).setPlayoffOddsString("37.25-21.3-1.61-0.45");
-        currentSeasonTeams.get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING).setPlayoffOddsString("76.01-39.44-9.66-4.62");
-        currentSeasonTeams.get(NFLConstants.TEAM_NEWYORK_JETS_STRING).setPlayoffOddsString("7.3-2.02-0.05-0.03");
-        currentSeasonTeams.get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING).setPlayoffOddsString("2.27-0.52-0.01-0");
-        currentSeasonTeams.get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING).setPlayoffOddsString("47.98-30.82-4.63-1.89");
-        currentSeasonTeams.get(NFLConstants.TEAM_DENVER_BRONCOS_STRING).setPlayoffOddsString("44.58-8.69-2.2-0.66");
-        currentSeasonTeams.get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING).setPlayoffOddsString("39.07-4.26-1.51-0.45");
-        currentSeasonTeams.get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING).setPlayoffOddsString("70.34-48.59-8.5-3.91");
-        currentSeasonTeams.get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING).setPlayoffOddsString("89.48-78.49-23.12-11.88");
-        currentSeasonTeams.get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING).setPlayoffOddsString("1.22-0.44-0-0");
-        currentSeasonTeams.get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING).setPlayoffOddsString("48.4-19.28-1.21-0.35");
-        currentSeasonTeams.get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING).setPlayoffOddsString("2.02-0.86-0-0");
-        currentSeasonTeams.get(NFLConstants.TEAM_CHICAGO_BEARS_STRING).setPlayoffOddsString("27.61-8.17-0.66-0.15");
-        currentSeasonTeams.get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING).setPlayoffOddsString("12.24-4.12-0.16-0.03");
-        currentSeasonTeams.get(NFLConstants.TEAM_DETROIT_LIONS_STRING).setPlayoffOddsString("0.37-0.08-0-0");
-        currentSeasonTeams.get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING).setPlayoffOddsString("41.36-20.42-1.51-0.5");
+        currentSeasonTeams.get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING).setPlayoffOddsString("12.3-3.26-0.17-0.04");
+        currentSeasonTeams.get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING).setPlayoffOddsString("8.98-3.38-0.22-0.02");
+        currentSeasonTeams.get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING).setPlayoffOddsString("78.2-47.17-14.15-7.52");
+        currentSeasonTeams.get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING).setPlayoffOddsString("0.2-0.01-0-0");
+        currentSeasonTeams.get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING).setPlayoffOddsString("97.81-96.2-31.98-17.76");
+        currentSeasonTeams.get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING).setPlayoffOddsString("91.74-85.08-26.5-15.21");
+        currentSeasonTeams.get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING).setPlayoffOddsString("0.05-0.03-0-0");
+        currentSeasonTeams.get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING).setPlayoffOddsString("3.72-1.05-0.04-0.02");
+        currentSeasonTeams.get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING).setPlayoffOddsString("32.81-12.82-1.16-0.35");
+        currentSeasonTeams.get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING).setPlayoffOddsString("38.47-18.56-2.44-0.99");
+        currentSeasonTeams.get(NFLConstants.TEAM_BUFFALO_BILLS_STRING).setPlayoffOddsString("0.91-0.29-0-0");
+        currentSeasonTeams.get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING).setPlayoffOddsString("96.29-84.01-32.19-16.05");
+        currentSeasonTeams.get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING).setPlayoffOddsString("32.96-16.66-1.97-0.73");
+        currentSeasonTeams.get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING).setPlayoffOddsString("93.7-89.73-25.5-12.59");
+        currentSeasonTeams.get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING).setPlayoffOddsString("62.26-42.65-6.19-2.4");
+        currentSeasonTeams.get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING).setPlayoffOddsString("2.86-1.06-0.01-0");
+        currentSeasonTeams.get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING).setPlayoffOddsString("39.75-23.08-2.09-0.58");
+        currentSeasonTeams.get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING).setPlayoffOddsString("78.46-44.05-10.77-5.56");
+        currentSeasonTeams.get(NFLConstants.TEAM_NEWYORK_JETS_STRING).setPlayoffOddsString("6.07-2.2-0.04-0.02");
+        currentSeasonTeams.get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING).setPlayoffOddsString("2.29-0.52-0-0");
+        currentSeasonTeams.get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING).setPlayoffOddsString("51.56-33.71-5.91-2.51");
+        currentSeasonTeams.get(NFLConstants.TEAM_DENVER_BRONCOS_STRING).setPlayoffOddsString("47.62-9.73-2.48-0.79");
+        currentSeasonTeams.get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING).setPlayoffOddsString("44.12-6.26-2.18-0.7");
+        currentSeasonTeams.get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING).setPlayoffOddsString("70.29-49.3-9.2-4.35");
+        currentSeasonTeams.get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING).setPlayoffOddsString("86.13-76.95-21.91-10.99");
+        currentSeasonTeams.get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING).setPlayoffOddsString("2.23-0.83-0.01-0");
+        currentSeasonTeams.get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING).setPlayoffOddsString("42.69-20.57-1.11-0.27");
+        currentSeasonTeams.get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING).setPlayoffOddsString("1.34-0.57-0-0");
+        currentSeasonTeams.get(NFLConstants.TEAM_CHICAGO_BEARS_STRING).setPlayoffOddsString("27.43-8.65-0.67-0.18");
+        currentSeasonTeams.get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING).setPlayoffOddsString("16.15-6.07-0.17-0.04");
+        currentSeasonTeams.get(NFLConstants.TEAM_DETROIT_LIONS_STRING).setPlayoffOddsString("0.47-0.14-0-0");
+        currentSeasonTeams.get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING).setPlayoffOddsString("30.14-15.49-0.94-0.33");
     }
 
     public void addScoreView(ScoreView scoreView) {
@@ -540,9 +544,10 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         weekThreeMatches.get(12).complete(16, 14);
         weekThreeMatches.get(13).complete(13, 24);
         weekThreeMatches.get(14).complete(10, 26);
+        weekThreeMatches.get(15).complete(30, 27);
 
 
-        mCurrentSimulatorWeek = 2;
+        mCurrentSimulatorWeek = 3;
         mCurrentSimulatorWeek++;
         //Set current week preference when week is updated
         SharedPreferences.Editor prefs = mSharedPreferences.edit();
@@ -1103,7 +1108,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         weekFourMatches.get(0).setOdds(6.5);
         weekFourMatches.get(1).setOdds(2.0);
         weekFourMatches.get(2).setOdds(10.5);
-        weekFourMatches.get(3).setOdds(2.5);
+        weekFourMatches.get(3).setOdds(1.0);
         weekFourMatches.get(4).setOdds(1.0);
         weekFourMatches.get(5).setOdds(1.0);
         weekFourMatches.get(6).setOdds(6.0);
@@ -1113,7 +1118,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         weekFourMatches.get(10).setOdds(-3.0);
         weekFourMatches.get(11).setOdds(-3.0);
         weekFourMatches.get(12).setOdds(9.5);
-        weekFourMatches.get(13).setOdds(3.0);
+        weekFourMatches.get(13).setOdds(1.0);
         weekFourMatches.get(14).setOdds(-4.0);
     }
 
