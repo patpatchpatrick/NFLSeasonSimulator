@@ -267,6 +267,8 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         ArrayList<Match> weekTwoMatches = weekTwo.getMatches();
         Week weekThree = mModel.getSeasonSchedule().getWeek(3);
         ArrayList<Match> weekThreeMatches = weekThree.getMatches();
+        Week weekFour = mModel.getSeasonSchedule().getWeek(4);
+        ArrayList<Match> weekFourMatches = weekFour.getMatches();
         if (!weekOneMatches.get(0).getComplete()) {
             weekOneMatches.get(0).complete(12, 18);
         }
@@ -412,7 +414,48 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         if (!weekThreeMatches.get(15).getComplete()) {
             weekThreeMatches.get(15).complete(30, 27);
         }
-
+        if (!weekFourMatches.get(0).getComplete()) {
+            weekFourMatches.get(0).complete(31, 38);
+        }
+        if (!weekFourMatches.get(1).getComplete()) {
+            weekFourMatches.get(1).complete(37, 34);
+        }
+        if (!weekFourMatches.get(2).getComplete()) {
+            weekFourMatches.get(2).complete(0, 22);
+        }
+        if (!weekFourMatches.get(3).getComplete()) {
+            weekFourMatches.get(3).complete(10, 48);
+        }
+        if (!weekFourMatches.get(4).getComplete()) {
+            weekFourMatches.get(4).complete(7, 38);
+        }
+        if (!weekFourMatches.get(5).getComplete()) {
+            weekFourMatches.get(5).complete(24, 26);
+        }
+        if (!weekFourMatches.get(6).getComplete()) {
+            weekFourMatches.get(6).complete(37, 36);
+        }
+        if (!weekFourMatches.get(7).getComplete()) {
+            weekFourMatches.get(7).complete(12, 31);
+        }
+        if (!weekFourMatches.get(8).getComplete()) {
+            weekFourMatches.get(8).complete(23, 26);
+        }
+        if (!weekFourMatches.get(9).getComplete()) {
+            weekFourMatches.get(9).complete(42, 45);
+        }
+        if (!weekFourMatches.get(10).getComplete()) {
+            weekFourMatches.get(10).complete(20, 17);
+        }
+        if (!weekFourMatches.get(11).getComplete()) {
+            weekFourMatches.get(11).complete(33, 18);
+        }
+        if (!weekFourMatches.get(12).getComplete()) {
+            weekFourMatches.get(12).complete(27, 29);
+        }
+        if (!weekFourMatches.get(13).getComplete()) {
+            weekFourMatches.get(13).complete(26, 14);
+        }
 
 
     }
@@ -497,6 +540,8 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         ArrayList<Match> weekTwoMatches = weekTwo.getMatches();
         Week weekThree = mModel.getSimulatorSchedule().getWeek(3);
         ArrayList<Match> weekThreeMatches = weekThree.getMatches();
+        Week weekFour = mModel.getSimulatorSchedule().getWeek(4);
+        ArrayList<Match> weekFourMatches = weekFour.getMatches();
         weekOneMatches.get(0).complete(12, 18);
         weekOneMatches.get(1).complete(34, 23);
         weekOneMatches.get(2).complete(3, 47);
@@ -545,6 +590,20 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         weekThreeMatches.get(13).complete(13, 24);
         weekThreeMatches.get(14).complete(10, 26);
         weekThreeMatches.get(15).complete(30, 27);
+        weekFourMatches.get(0).complete(31, 38);
+        weekFourMatches.get(1).complete(37, 34);
+        weekFourMatches.get(2).complete(0, 22);
+        weekFourMatches.get(3).complete(10, 48);
+        weekFourMatches.get(4).complete(7, 38);
+        weekFourMatches.get(5).complete(24, 26);
+        weekFourMatches.get(6).complete(37, 36);
+        weekFourMatches.get(7).complete(12, 31);
+        weekFourMatches.get(8).complete(23, 26);
+        weekFourMatches.get(9).complete(42, 45);
+        weekFourMatches.get(10).complete(20, 17);
+        weekFourMatches.get(11).complete(33, 18);
+        weekFourMatches.get(12).complete(27, 29);
+        weekFourMatches.get(13).complete(26, 14);
 
 
         mCurrentSimulatorWeek = 3;
