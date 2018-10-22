@@ -1421,6 +1421,22 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         weekSevenMatches.get(11).setOdds(1.5);
         weekSevenMatches.get(12).setOdds(1.0);
         weekSevenMatches.get(13).setOdds(6.5);
+        Week weekEight = currentSchedule.getWeek(8);
+        ArrayList<Match> weekEightMatches = weekEight.getMatches();
+        weekEightMatches.get(0).setOdds(0.0);
+        weekEightMatches.get(1).setOdds(-3.0);
+        weekEightMatches.get(2).setOdds(-1.5);
+        weekEightMatches.get(3).setOdds(10.0);
+        weekEightMatches.get(4).setOdds(7.5);
+        weekEightMatches.get(5).setOdds(2.5);
+        weekEightMatches.get(6).setOdds(6.0);
+        weekEightMatches.get(7).setOdds(6.5);
+        weekEightMatches.get(8).setOdds(0.0);
+        weekEightMatches.get(9).setOdds(-1.5);
+        weekEightMatches.get(10).setOdds(1.0);
+        weekEightMatches.get(11).setOdds(8.5);
+        weekEightMatches.get(12).setOdds(1.0);
+        weekEightMatches.get(13).setOdds(-13.5);
 
 
     }
