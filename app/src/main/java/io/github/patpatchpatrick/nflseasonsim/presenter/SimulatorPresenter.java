@@ -595,7 +595,7 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             weekSevenMatches.get(12).complete(39, 10);
         }
         if (!weekSevenMatches.get(13).getComplete()) {
-            weekSevenMatches.get(13).complete(10, 45);
+            weekSevenMatches.get(13).complete(20, 23);
         }
 
 
@@ -795,10 +795,10 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         weekSevenMatches.get(10).complete(24, 23);
         weekSevenMatches.get(11).complete(17, 20);
         weekSevenMatches.get(12).complete(39, 10);
-        weekSevenMatches.get(13).complete(10, 45);
+        weekSevenMatches.get(13).complete(20, 23);
 
 
-        mCurrentSimulatorWeek = 6;
+        mCurrentSimulatorWeek = 7;
         mCurrentSimulatorWeek++;
         //Set current week preference when week is updated
         SharedPreferences.Editor prefs = mSharedPreferences.edit();
