@@ -277,6 +277,8 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         ArrayList<Match> weekSevenMatches = weekSeven.getMatches();
         Week weekEight = mModel.getSeasonSchedule().getWeek(8);
         ArrayList<Match> weekEightMatches = weekEight.getMatches();
+        Week weekNine = mModel.getSeasonSchedule().getWeek(9);
+        ArrayList<Match> weekNineMatches = weekNine.getMatches();
         if (!weekOneMatches.get(0).getComplete()) {
             weekOneMatches.get(0).complete(12, 18);
         }
@@ -641,6 +643,42 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         if (!weekEightMatches.get(13).getComplete()) {
             weekEightMatches.get(13).complete(25, 6);
         }
+        if (!weekNineMatches.get(0).getComplete()) {
+            weekNineMatches.get(0).complete(3 , 34);
+        }
+        if (!weekNineMatches.get(1).getComplete()) {
+            weekNineMatches.get(1).complete(38 , 14);
+        }
+        if (!weekNineMatches.get(2).getComplete()) {
+            weekNineMatches.get(2).complete(9 , 24);
+        }
+        if (!weekNineMatches.get(3).getComplete()) {
+            weekNineMatches.get(3).complete(23 , 16);
+        }
+        if (!weekNineMatches.get(4).getComplete()) {
+            weekNineMatches.get(4).complete(37 , 21);
+        }
+        if (!weekNineMatches.get(5).getComplete()) {
+            weekNineMatches.get(5).complete(6 , 13);
+        }
+        if (!weekNineMatches.get(6).getComplete()) {
+            weekNineMatches.get(6).complete(41 , 9);
+        }
+        if (!weekNineMatches.get(7).getComplete()) {
+            weekNineMatches.get(7).complete(28 , 42);
+        }
+        if (!weekNineMatches.get(8).getComplete()) {
+            weekNineMatches.get(8).complete(25 , 17);
+        }
+        if (!weekNineMatches.get(9).getComplete()) {
+            weekNineMatches.get(9).complete(19 , 17);
+        }
+        if (!weekNineMatches.get(10).getComplete()) {
+            weekNineMatches.get(10).complete(35 , 45);
+        }
+        if (!weekNineMatches.get(11).getComplete()) {
+            weekNineMatches.get(11).complete(17 , 31);
+        }
 
 
     }
@@ -735,6 +773,8 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         ArrayList<Match> weekSevenMatches = weekSeven.getMatches();
         Week weekEight = mModel.getSimulatorSchedule().getWeek(8);
         ArrayList<Match> weekEightMatches = weekEight.getMatches();
+        Week weekNine = mModel.getSimulatorSchedule().getWeek(9);
+        ArrayList<Match> weekNineMatches = weekNine.getMatches();
         weekOneMatches.get(0).complete(12, 18);
         weekOneMatches.get(1).complete(34, 23);
         weekOneMatches.get(2).complete(3, 47);
@@ -856,6 +896,18 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             weekEightMatches.get(11).complete(27, 29);
             weekEightMatches.get(12).complete(30, 20);
         weekEightMatches.get(13).complete(25, 6);
+            weekNineMatches.get(0).complete(3 , 34);
+            weekNineMatches.get(1).complete(38 , 14);
+            weekNineMatches.get(2).complete(9 , 24);
+            weekNineMatches.get(3).complete(23 , 16);
+            weekNineMatches.get(4).complete(37 , 21);
+            weekNineMatches.get(5).complete(6 , 13);
+            weekNineMatches.get(6).complete(41 , 9);
+            weekNineMatches.get(7).complete(28 , 42);
+            weekNineMatches.get(8).complete(25 , 17);
+            weekNineMatches.get(9).complete(19 , 17);
+            weekNineMatches.get(10).complete(35 , 45);
+            weekNineMatches.get(11).complete(17 , 31);
 
 
         mCurrentSimulatorWeek = 8;
@@ -1512,6 +1564,23 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         weekNineMatches.get(10).setOdds(1.5);
         weekNineMatches.get(11).setOdds(1.0);
         weekNineMatches.get(12).setOdds(6.5);
+        Week weekTen = currentSchedule.getWeek(10);
+        ArrayList<Match> weekTenMatches = weekTen.getMatches();
+        weekTenMatches.get(0).setOdds(5.5);
+        weekTenMatches.get(1).setOdds(1.5);
+        weekTenMatches.get(2).setOdds(17.0);
+        weekTenMatches.get(3).setOdds(8.0);
+        weekTenMatches.get(4).setOdds(3.5);
+        weekTenMatches.get(5).setOdds(6.5);
+        weekTenMatches.get(6).setOdds(0.0);
+        weekTenMatches.get(7).setOdds(-4.5);
+        weekTenMatches.get(8).setOdds(0.0);
+        weekTenMatches.get(9).setOdds(-4.0);
+        weekTenMatches.get(10).setOdds(-9.5);
+        weekTenMatches.get(11).setOdds(10.0);
+        weekTenMatches.get(12).setOdds(6.0);
+        weekTenMatches.get(13).setOdds(2.5);
+
 
 
     }
