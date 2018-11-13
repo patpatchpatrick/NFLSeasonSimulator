@@ -279,6 +279,8 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         ArrayList<Match> weekEightMatches = weekEight.getMatches();
         Week weekNine = mModel.getSeasonSchedule().getWeek(9);
         ArrayList<Match> weekNineMatches = weekNine.getMatches();
+        Week weekTen = mModel.getSeasonSchedule().getWeek(10);
+        ArrayList<Match> weekTenMatches = weekTen.getMatches();
         if (!weekOneMatches.get(0).getComplete()) {
             weekOneMatches.get(0).complete(12, 18);
         }
@@ -644,40 +646,85 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
             weekEightMatches.get(13).complete(25, 6);
         }
         if (!weekNineMatches.get(0).getComplete()) {
-            weekNineMatches.get(0).complete(3 , 34);
+            weekNineMatches.get(0).complete(3, 34);
         }
         if (!weekNineMatches.get(1).getComplete()) {
-            weekNineMatches.get(1).complete(38 , 14);
+            weekNineMatches.get(1).complete(38, 14);
         }
         if (!weekNineMatches.get(2).getComplete()) {
-            weekNineMatches.get(2).complete(9 , 24);
+            weekNineMatches.get(2).complete(9, 24);
         }
         if (!weekNineMatches.get(3).getComplete()) {
-            weekNineMatches.get(3).complete(23 , 16);
+            weekNineMatches.get(3).complete(23, 16);
         }
         if (!weekNineMatches.get(4).getComplete()) {
-            weekNineMatches.get(4).complete(37 , 21);
+            weekNineMatches.get(4).complete(37, 21);
         }
         if (!weekNineMatches.get(5).getComplete()) {
-            weekNineMatches.get(5).complete(6 , 13);
+            weekNineMatches.get(5).complete(6, 13);
         }
         if (!weekNineMatches.get(6).getComplete()) {
-            weekNineMatches.get(6).complete(41 , 9);
+            weekNineMatches.get(6).complete(41, 9);
         }
         if (!weekNineMatches.get(7).getComplete()) {
-            weekNineMatches.get(7).complete(28 , 42);
+            weekNineMatches.get(7).complete(28, 42);
         }
         if (!weekNineMatches.get(8).getComplete()) {
-            weekNineMatches.get(8).complete(25 , 17);
+            weekNineMatches.get(8).complete(25, 17);
         }
         if (!weekNineMatches.get(9).getComplete()) {
-            weekNineMatches.get(9).complete(19 , 17);
+            weekNineMatches.get(9).complete(19, 17);
         }
         if (!weekNineMatches.get(10).getComplete()) {
-            weekNineMatches.get(10).complete(35 , 45);
+            weekNineMatches.get(10).complete(35, 45);
         }
         if (!weekNineMatches.get(11).getComplete()) {
-            weekNineMatches.get(11).complete(17 , 31);
+            weekNineMatches.get(11).complete(17, 31);
+        }
+        if (!weekNineMatches.get(12).getComplete()) {
+            weekNineMatches.get(12).complete(28, 14);
+        }
+        if (!weekTenMatches.get(0).getComplete()) {
+            weekTenMatches.get(0).complete(21, 52);
+        }
+        if (!weekTenMatches.get(1).getComplete()) {
+            weekTenMatches.get(1).complete(16, 3);
+        }
+        if (!weekTenMatches.get(2).getComplete()) {
+            weekTenMatches.get(2).complete(14, 26);
+        }
+        if (!weekTenMatches.get(3).getComplete()) {
+            weekTenMatches.get(3).complete(41, 10);
+        }
+        if (!weekTenMatches.get(4).getComplete()) {
+            weekTenMatches.get(4).complete(26, 29);
+        }
+        if (!weekTenMatches.get(5).getComplete()) {
+            weekTenMatches.get(5).complete(22, 34);
+        }
+        if (!weekTenMatches.get(6).getComplete()) {
+            weekTenMatches.get(6).complete(12, 31);
+        }
+        if (!weekTenMatches.get(7).getComplete()) {
+            weekTenMatches.get(7).complete(51, 14);
+        }
+        if (!weekTenMatches.get(8).getComplete()) {
+            weekTenMatches.get(8).complete(10, 34);
+        }
+        if (!weekTenMatches.get(9).getComplete()) {
+            weekTenMatches.get(9).complete(16, 28);
+        }
+        if (!weekTenMatches.get(10).getComplete()) {
+            weekTenMatches.get(10).complete(20, 6);
+        }
+        if (!weekTenMatches.get(11).getComplete()) {
+            weekTenMatches.get(11).complete(31, 36);
+        }
+        if (!weekTenMatches.get(12).getComplete()) {
+            weekTenMatches.get(12).complete(27, 20);
+        }
+        if (!weekTenMatches.get(13).getComplete()) {
+            weekTenMatches.get(13).complete(27, 23);
         }
 
 
@@ -686,38 +733,38 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
     @Override
     public void loadCurrentSeasonPlayoffOdds() {
         HashMap<String, Team> currentSeasonTeams = mModel.getSeasonTeamList();
-        currentSeasonTeams.get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING).setPlayoffOddsString("0.02-0-0-0");
-        currentSeasonTeams.get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING).setPlayoffOddsString("74.74-67.58-2.72-0.94");
-        currentSeasonTeams.get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING).setPlayoffOddsString("80.22-63.76-11.38-5.78");
+        currentSeasonTeams.get(NFLConstants.TEAM_SANFRANCISCO_49ERS_STRING).setPlayoffOddsString("0-0-0-0");
+        currentSeasonTeams.get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING).setPlayoffOddsString("86.3-78.68-4.02-1.32");
+        currentSeasonTeams.get(NFLConstants.TEAM_MINNESOTA_VIKINGS_STRING).setPlayoffOddsString("85.74-56.6-12.08-6.26");
         currentSeasonTeams.get(NFLConstants.TEAM_OAKLAND_RAIDERS_STRING).setPlayoffOddsString("0-0-0-0");
-        currentSeasonTeams.get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING).setPlayoffOddsString("99.98-99.86-48.22-28.26");
-        currentSeasonTeams.get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING).setPlayoffOddsString("63.9-50.2-8.54-3.84");
+        currentSeasonTeams.get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING).setPlayoffOddsString("100-100-47.22-26.92");
+        currentSeasonTeams.get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING).setPlayoffOddsString("40.9-35.04-3.56-1.86");
         currentSeasonTeams.get(NFLConstants.TEAM_ARIZONA_CARDINALS_STRING).setPlayoffOddsString("0-0-0-0");
-        currentSeasonTeams.get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING).setPlayoffOddsString("0.04-0-0-0");
-        currentSeasonTeams.get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING).setPlayoffOddsString("65.78-48.02-3.3-1.28");
-        currentSeasonTeams.get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING).setPlayoffOddsString("17.44-3.44-0.58-0.24");
-        currentSeasonTeams.get(NFLConstants.TEAM_BUFFALO_BILLS_STRING).setPlayoffOddsString("0.04-0-0-0");
-        currentSeasonTeams.get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING).setPlayoffOddsString("99.94-94.86-41.46-20.64");
-        currentSeasonTeams.get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING).setPlayoffOddsString("88.36-50.74-11.24-4.86");
-        currentSeasonTeams.get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING).setPlayoffOddsString("37.92-23.34-2.48-0.9");
-        currentSeasonTeams.get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING).setPlayoffOddsString("40.92-19.18-1.84-0.74");
-        currentSeasonTeams.get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING).setPlayoffOddsString("3.4-1.78-0-0");
-        currentSeasonTeams.get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING).setPlayoffOddsString("63.42-37.02-2.86-0.84");
-        currentSeasonTeams.get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING).setPlayoffOddsString("52.46-23.76-3.88-1.88");
-        currentSeasonTeams.get(NFLConstants.TEAM_NEWYORK_JETS_STRING).setPlayoffOddsString("2.7-0.38-0-0");
-        currentSeasonTeams.get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING).setPlayoffOddsString("8.24-0.14-0.02-0");
-        currentSeasonTeams.get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING).setPlayoffOddsString("66.58-43.8-7.08-3.02");
-        currentSeasonTeams.get(NFLConstants.TEAM_DENVER_BRONCOS_STRING).setPlayoffOddsString("11.3-0-0.08-0.02");
-        currentSeasonTeams.get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING).setPlayoffOddsString("80.16-5.14-3.7-1.34");
-        currentSeasonTeams.get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING).setPlayoffOddsString("87.92-44.58-12.22-5.72");
-        currentSeasonTeams.get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING).setPlayoffOddsString("99.26-98.6-37.6-19.56");
-        currentSeasonTeams.get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING).setPlayoffOddsString("2.34-1.46-0.02-0");
-        currentSeasonTeams.get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING).setPlayoffOddsString("10.4-1.02-0.14-0.02");
-        currentSeasonTeams.get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING).setPlayoffOddsString("0.08-0-0-0");
-        currentSeasonTeams.get(NFLConstants.TEAM_CHICAGO_BEARS_STRING).setPlayoffOddsString("25.16-12.16-0.58-0.08");
-        currentSeasonTeams.get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING).setPlayoffOddsString("10.2-7.62-0.02-0.02");
-        currentSeasonTeams.get(NFLConstants.TEAM_DETROIT_LIONS_STRING).setPlayoffOddsString("0.62-0.32-0-0");
-        currentSeasonTeams.get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING).setPlayoffOddsString("6.46-1.24-0.04-0.02");
+        currentSeasonTeams.get(NFLConstants.TEAM_NEWYORK_GIANTS_STRING).setPlayoffOddsString("0.02-0.02-0-0");
+        currentSeasonTeams.get(NFLConstants.TEAM_WASHINGTON_REDSKINS_STRING).setPlayoffOddsString("69.02-62.2-2.96-1.04");
+        currentSeasonTeams.get(NFLConstants.TEAM_ATLANTA_FALCONS_STRING).setPlayoffOddsString("13.88-1.32-0.46-0.22");
+        currentSeasonTeams.get(NFLConstants.TEAM_BUFFALO_BILLS_STRING).setPlayoffOddsString("0.08-0-0-0");
+        currentSeasonTeams.get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING).setPlayoffOddsString("100-91.94-43.3-22.72");
+        currentSeasonTeams.get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING).setPlayoffOddsString("97.62-74.58-20.64-9.9");
+        currentSeasonTeams.get(NFLConstants.TEAM_JACKSONVILLE_JAGUARS_STRING).setPlayoffOddsString("15.96-5.9-0.88-0.32");
+        currentSeasonTeams.get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING).setPlayoffOddsString("21.34-2.16-0.7-0.18");
+        currentSeasonTeams.get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING).setPlayoffOddsString("3.44-2.74-0.04-0");
+        currentSeasonTeams.get(NFLConstants.TEAM_CINCINNATI_BENGALS_STRING).setPlayoffOddsString("45.26-15.24-1.12-0.22");
+        currentSeasonTeams.get(NFLConstants.TEAM_GREENBAY_PACKERS_STRING).setPlayoffOddsString("59.72-25.8-3.94-1.78");
+        currentSeasonTeams.get(NFLConstants.TEAM_NEWYORK_JETS_STRING).setPlayoffOddsString("0.08-0-0-0");
+        currentSeasonTeams.get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING).setPlayoffOddsString("1.18-0-0-0");
+        currentSeasonTeams.get(NFLConstants.TEAM_PITTSBURGH_STEELERS_STRING).setPlayoffOddsString("92.06-82.54-13.74-6.44");
+        currentSeasonTeams.get(NFLConstants.TEAM_DENVER_BRONCOS_STRING).setPlayoffOddsString("2.84-0-0.04-0");
+        currentSeasonTeams.get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING).setPlayoffOddsString("95.32-8.06-6.14-2.38");
+        currentSeasonTeams.get(NFLConstants.TEAM_CAROLINA_PANTHERS_STRING).setPlayoffOddsString("81.12-24.02-8.34-3.54");
+        currentSeasonTeams.get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING).setPlayoffOddsString("99.56-98.98-29.78-14.72");
+        currentSeasonTeams.get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING).setPlayoffOddsString("4.78-2.02-0.02-0");
+        currentSeasonTeams.get(NFLConstants.TEAM_MIAMI_DOLPHINS_STRING).setPlayoffOddsString("8.54-1.02-0.06-0");
+        currentSeasonTeams.get(NFLConstants.TEAM_CLEVELAND_BROWNS_STRING).setPlayoffOddsString("0.18-0.06-0-0");
+        currentSeasonTeams.get(NFLConstants.TEAM_CHICAGO_BEARS_STRING).setPlayoffOddsString("46.24-17.6-0.76-0.12");
+        currentSeasonTeams.get(NFLConstants.TEAM_TENNESSEE_TITANS_STRING).setPlayoffOddsString("27.7-13.4-0.2-0.06");
+        currentSeasonTeams.get(NFLConstants.TEAM_DETROIT_LIONS_STRING).setPlayoffOddsString("0.02-0-0-0");
+        currentSeasonTeams.get(NFLConstants.TEAM_TAMPABAY_BUCCANEERS_STRING).setPlayoffOddsString("1.1-0.08-0-0");
     }
 
     public void addScoreView(ScoreView scoreView) {
@@ -775,6 +822,8 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         ArrayList<Match> weekEightMatches = weekEight.getMatches();
         Week weekNine = mModel.getSimulatorSchedule().getWeek(9);
         ArrayList<Match> weekNineMatches = weekNine.getMatches();
+        Week weekTen = mModel.getSimulatorSchedule().getWeek(10);
+        ArrayList<Match> weekTenMatches = weekTen.getMatches();
         weekOneMatches.get(0).complete(12, 18);
         weekOneMatches.get(1).complete(34, 23);
         weekOneMatches.get(2).complete(3, 47);
@@ -882,35 +931,50 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         weekSevenMatches.get(11).complete(17, 20);
         weekSevenMatches.get(12).complete(39, 10);
         weekSevenMatches.get(13).complete(20, 23);
-            weekEightMatches.get(0).complete(23, 42);
-            weekEightMatches.get(1).complete(24, 18);
-            weekEightMatches.get(2).complete(21, 36);
-            weekEightMatches.get(3).complete(23, 30);
-            weekEightMatches.get(4).complete(18, 33);
-            weekEightMatches.get(5).complete(28, 14);
-            weekEightMatches.get(6).complete(34, 37);
-            weekEightMatches.get(7).complete(10, 24);
-            weekEightMatches.get(8).complete(20, 13);
-            weekEightMatches.get(9).complete(42, 28);
-            weekEightMatches.get(10).complete(15, 18);
-            weekEightMatches.get(11).complete(27, 29);
-            weekEightMatches.get(12).complete(30, 20);
+        weekEightMatches.get(0).complete(23, 42);
+        weekEightMatches.get(1).complete(24, 18);
+        weekEightMatches.get(2).complete(21, 36);
+        weekEightMatches.get(3).complete(23, 30);
+        weekEightMatches.get(4).complete(18, 33);
+        weekEightMatches.get(5).complete(28, 14);
+        weekEightMatches.get(6).complete(34, 37);
+        weekEightMatches.get(7).complete(10, 24);
+        weekEightMatches.get(8).complete(20, 13);
+        weekEightMatches.get(9).complete(42, 28);
+        weekEightMatches.get(10).complete(15, 18);
+        weekEightMatches.get(11).complete(27, 29);
+        weekEightMatches.get(12).complete(30, 20);
         weekEightMatches.get(13).complete(25, 6);
-            weekNineMatches.get(0).complete(3 , 34);
-            weekNineMatches.get(1).complete(38 , 14);
-            weekNineMatches.get(2).complete(9 , 24);
-            weekNineMatches.get(3).complete(23 , 16);
-            weekNineMatches.get(4).complete(37 , 21);
-            weekNineMatches.get(5).complete(6 , 13);
-            weekNineMatches.get(6).complete(41 , 9);
-            weekNineMatches.get(7).complete(28 , 42);
-            weekNineMatches.get(8).complete(25 , 17);
-            weekNineMatches.get(9).complete(19 , 17);
-            weekNineMatches.get(10).complete(35 , 45);
-            weekNineMatches.get(11).complete(17 , 31);
+        weekNineMatches.get(0).complete(3, 34);
+        weekNineMatches.get(1).complete(38, 14);
+        weekNineMatches.get(2).complete(9, 24);
+        weekNineMatches.get(3).complete(23, 16);
+        weekNineMatches.get(4).complete(37, 21);
+        weekNineMatches.get(5).complete(6, 13);
+        weekNineMatches.get(6).complete(41, 9);
+        weekNineMatches.get(7).complete(28, 42);
+        weekNineMatches.get(8).complete(25, 17);
+        weekNineMatches.get(9).complete(19, 17);
+        weekNineMatches.get(10).complete(35, 45);
+        weekNineMatches.get(11).complete(17, 31);
+        weekNineMatches.get(12).complete(28, 14);
+        weekTenMatches.get(0).complete(21, 52);
+        weekTenMatches.get(1).complete(16, 3);
+        weekTenMatches.get(2).complete(14, 26);
+        weekTenMatches.get(3).complete(41, 10);
+        weekTenMatches.get(4).complete(26, 29);
+        weekTenMatches.get(5).complete(22, 34);
+        weekTenMatches.get(6).complete(12, 31);
+        weekTenMatches.get(7).complete(51, 14);
+        weekTenMatches.get(8).complete(10, 34);
+        weekTenMatches.get(9).complete(16, 28);
+        weekTenMatches.get(10).complete(20, 6);
+        weekTenMatches.get(11).complete(31, 36);
+        weekTenMatches.get(12).complete(27, 20);
+        weekTenMatches.get(13).complete(27, 23);
 
 
-        mCurrentSimulatorWeek = 8;
+        mCurrentSimulatorWeek = 10;
         mCurrentSimulatorWeek++;
         //Set current week preference when week is updated
         SharedPreferences.Editor prefs = mSharedPreferences.edit();
@@ -1572,14 +1636,29 @@ public class SimulatorPresenter extends BasePresenter<SimulatorMvpContract.Simul
         weekTenMatches.get(3).setOdds(8.0);
         weekTenMatches.get(4).setOdds(3.5);
         weekTenMatches.get(5).setOdds(6.5);
-        weekTenMatches.get(6).setOdds(0.0);
+        weekTenMatches.get(6).setOdds(9.0);
         weekTenMatches.get(7).setOdds(-4.5);
-        weekTenMatches.get(8).setOdds(0.0);
+        weekTenMatches.get(8).setOdds(-5.0);
         weekTenMatches.get(9).setOdds(-4.0);
         weekTenMatches.get(10).setOdds(-9.5);
         weekTenMatches.get(11).setOdds(10.0);
         weekTenMatches.get(12).setOdds(6.0);
         weekTenMatches.get(13).setOdds(2.5);
+        Week weekEleven = currentSchedule.getWeek(11);
+        ArrayList<Match> weekElevenMatches = weekEleven.getMatches();
+        weekElevenMatches.get(0).setOdds(2.5);
+        weekElevenMatches.get(1).setOdds(7.0);
+        weekElevenMatches.get(2).setOdds(4.5);
+        weekElevenMatches.get(3).setOdds(-3.5);
+        weekElevenMatches.get(4).setOdds(3.0);
+        weekElevenMatches.get(5).setOdds(0.0);
+        weekElevenMatches.get(6).setOdds(-3.0);
+        weekElevenMatches.get(7).setOdds(-4.5);
+        weekElevenMatches.get(8).setOdds(0.0);
+        weekElevenMatches.get(9).setOdds(3.5);
+        weekElevenMatches.get(10).setOdds(7.0);
+        weekElevenMatches.get(11).setOdds(3.0);
+        weekElevenMatches.get(12).setOdds(1.5);
 
 
 
