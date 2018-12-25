@@ -50,7 +50,7 @@ public class Standings {
         if (potentialWildCardTeams.get(0).getWinLossPct() > potentialWildCardTeams.get(1).getWinLossPct()) {
             potentialWildCardTeams.get(0).setPlayoffEligible(5);
             divisionWinners.add(potentialWildCardTeams.get(0));
-            if (potentialWildCardTeams.get(1).getWinLossPct() > potentialWildCardTeams.get(2).getWinLossPct()) {
+            if (potentialWildCardTeams.size() >= 3 && potentialWildCardTeams.get(1).getWinLossPct() > potentialWildCardTeams.get(2).getWinLossPct()) {
                 potentialWildCardTeams.get(1).setPlayoffEligible(6);
                 divisionWinners.add(potentialWildCardTeams.get(1));
             } else {
