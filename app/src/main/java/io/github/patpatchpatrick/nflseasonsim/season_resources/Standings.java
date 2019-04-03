@@ -16,7 +16,7 @@ public class Standings {
     public static void generateStandings() {
     }
 
-    public static ArrayList<ArrayList<Team>> generateTestPlayoffTeams(ArrayList<Team> divisionWinnersAFC, ArrayList<Team> divisionWinnersNFC, ArrayList<Team> potentialAFCWildCardTeams, ArrayList<Team> potentialNFCWildCardTeams){
+    public static ArrayList<ArrayList<Team>> generateTestPlayoffTeams(ArrayList<Team> divisionWinnersAFC, ArrayList<Team> divisionWinnersNFC, ArrayList<Team> potentialAFCWildCardTeams, ArrayList<Team> potentialNFCWildCardTeams, HashMap<String, Team> allTeamsHashMap){
 
         ArrayList<Team> afcPlayoffDivisionWinners = generateDivisionWinnerSeedsArrayList(divisionWinnersAFC);
         ArrayList<Team> nfcPlayoffDivisionWinners  = generateDivisionWinnerSeedsArrayList(divisionWinnersNFC);
@@ -27,8 +27,25 @@ public class Standings {
 
         ArrayList<ArrayList<Team>> allPlayoffTeams = new ArrayList<>();
 
-        allPlayoffTeams.add(afcPlayoffTeams);
-        allPlayoffTeams.add(nfcPlayoffTeams);
+        //USE THIS IF YOU MANUALL ADD PLAYOFF TEAMS
+        ArrayList<Team> afcManualPlayoffTeams = new ArrayList<Team>();
+        afcManualPlayoffTeams.add(allTeamsHashMap.get(NFLConstants.TEAM_KANSASCITY_CHIEFS_STRING));
+        afcManualPlayoffTeams.add(allTeamsHashMap.get(NFLConstants.TEAM_NEWENGLAND_PATRIOTS_STRING));
+        afcManualPlayoffTeams.add(allTeamsHashMap.get(NFLConstants.TEAM_HOUSTON_TEXANS_STRING));
+        afcManualPlayoffTeams.add(allTeamsHashMap.get(NFLConstants.TEAM_BALTIMORE_RAVENS_STRING));
+        afcManualPlayoffTeams.add(allTeamsHashMap.get(NFLConstants.TEAM_LOSANGELES_CHARGERS_STRING));
+        afcManualPlayoffTeams.add(allTeamsHashMap.get(NFLConstants.TEAM_INDIANAPOLIS_COLTS_STRING));
+
+        ArrayList<Team> nfcManualPlayoffTeams = new ArrayList<Team>();
+        nfcManualPlayoffTeams.add(allTeamsHashMap.get(NFLConstants.TEAM_NEWORLEANS_SAINTS_STRING));
+        nfcManualPlayoffTeams.add(allTeamsHashMap.get(NFLConstants.TEAM_LOSANGELES_RAMS_STRING));
+        nfcManualPlayoffTeams.add(allTeamsHashMap.get(NFLConstants.TEAM_CHICAGO_BEARS_STRING));
+        nfcManualPlayoffTeams.add(allTeamsHashMap.get(NFLConstants.TEAM_DALLAS_COWBOYS_STRING));
+        nfcManualPlayoffTeams.add(allTeamsHashMap.get(NFLConstants.TEAM_SEATTLE_SEAHAWKS_STRING));
+        nfcManualPlayoffTeams.add(allTeamsHashMap.get(NFLConstants.TEAM_PHILADELPHIA_EAGLES_STRING));
+
+        allPlayoffTeams.add(afcManualPlayoffTeams);
+        allPlayoffTeams.add(nfcManualPlayoffTeams);
 
         return allPlayoffTeams;
     }
