@@ -2,6 +2,23 @@
 # NFL Season Sim
 NFL Season Simulation App 
 
+### 1.  Simulate Season (Stays Up to Date with Current NFL Standings)
+
+![Screenshots](https://raw.githubusercontent.com/patpatchpatrick/NFLSeasonSimulator/master/app/docs/images/gif2.gif)
+
+### 2.  View Weekly Matches and the ELO Odds of a Team Winning (Green = Correct Pick)
+
+![Screenshots](https://raw.githubusercontent.com/patpatchpatrick/NFLSeasonSimulator/master/app/docs/images/gif1.gif)
+
+### 3.  View Current Standings and Teams' Likelihood of Making Playoffs, Winning Div, Winning Conf and Winning Superbowl
+
+![Screenshots](https://raw.githubusercontent.com/patpatchpatrick/NFLSeasonSimulator/master/app/docs/images/gif3.gif)
+
+### 4.   ThemePicker Allows You to Choose Color Scheme
+
+![Screenshots](https://raw.githubusercontent.com/patpatchpatrick/NFLSeasonSimulator/master/app/docs/images/gif4.gif)
+
+
 <b>NFL Season Simulator allows you to accurately simulate and predict the upcoming National Football League season using data science. Compare team's ELO odds of winning a match versus the Vegas odds to find likely upsets. 
 
 The simulator uses team's elo ratings to predict the outcome of each match of the 2018 season and determine which team will ultimately win the SuperBowl! </b>
