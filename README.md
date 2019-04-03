@@ -2,8 +2,6 @@
 # NFL Season Sim
 NFL Season Simulation App 
 
-[View on Google Play Store](https://play.google.com/store/apps/details?id=io.github.patpatchpatrick.nflseasonsim)
-
 <b>NFL Season Simulator allows you to accurately simulate and predict the upcoming National Football League season using data science. Compare team's ELO odds of winning a match versus the Vegas odds to find likely upsets. 
 
 The simulator uses team's elo ratings to predict the outcome of each match of the 2018 season and determine which team will ultimately win the SuperBowl! </b>
